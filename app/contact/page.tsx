@@ -112,8 +112,8 @@ export default function ContactPage() {
                         <div>
                           <CardTitle className="text-lg">Email</CardTitle>
                           <CardDescription>
-                            <a href="mailto:contact@example.com" className="hover:underline">
-                              contact@example.com
+                            <a href="mailto:tim.hauke@hauknetz.de" className="hover:underline">
+                              tim.hauke@hauknetz.de
                             </a>
                           </CardDescription>
                         </div>
@@ -127,8 +127,8 @@ export default function ContactPage() {
                         <div>
                           <CardTitle className="text-lg">Phone</CardTitle>
                           <CardDescription>
-                            <a href="tel:+1234567890" className="hover:underline">
-                              +1 (234) 567-890
+                            <a href="tel:+491726166860" className="hover:underline">
+                              +49 172 6166860
                             </a>
                           </CardDescription>
                         </div>
@@ -141,7 +141,7 @@ export default function ContactPage() {
                         </div>
                         <div>
                           <CardTitle className="text-lg">Location</CardTitle>
-                          <CardDescription>San Francisco, California</CardDescription>
+                          <CardDescription>Itzehoe, Germany</CardDescription>
                         </div>
                       </CardContent>
                     </Card>

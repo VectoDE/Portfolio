@@ -7,9 +7,9 @@ export function SiteFooter() {
     return (
         <footer className="w-full border-t py-6 bg-background/80 backdrop-blur-sm">
             <div className="container flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-6">
-                <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Tim Hauke. All rights reserved.</p>
+                <p className="text-sm text-muted-foreground">© {new Date().getFullYear()} Hauknetz. All rights reserved.</p>
                 <div className="flex items-center gap-4">
-                    <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
+                    <Link href="https://github.com/VectoDE" target="_blank" rel="noopener noreferrer">
                         <Button
                             variant="ghost"
                             size="icon"
@@ -19,7 +19,7 @@ export function SiteFooter() {
                             <span className="sr-only">GitHub</span>
                         </Button>
                     </Link>
-                    <Link href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                    <Link href="https://www.linkedin.com/in/tim-hauke-b3b24b2b5/" target="_blank" rel="noopener noreferrer">
                         <Button
                             variant="ghost"
                             size="icon"
@@ -29,7 +29,7 @@ export function SiteFooter() {
                             <span className="sr-only">LinkedIn</span>
                         </Button>
                     </Link>
-                    <Link href="mailto:contact@example.com">
+                    <Link href="mailto:tim.hauke@hauknetz.de">
                         <Button
                             variant="ghost"
                             size="icon"
