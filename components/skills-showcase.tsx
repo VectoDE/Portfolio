@@ -1,5 +1,5 @@
 import type React from "react"
-import { Suspense } from "react"
+import { Suspense, cache } from "react"
 import { Code2, Database, Server, Globe, Cpu, Layers } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 import { getAllSkills } from "@/lib/skills"
@@ -21,8 +21,10 @@ const categoryIcons: Record<string, LucideIconType> = {
   Other: Layers,
 }
 
+const getCachedSkills = cache(getAllSkills)
+
 async function SkillsContent() {
-  const skills = await getAllSkills()
+  const skills = await getCachedSkills()
 
   // Group skills by category
   const groupedSkills: Record<string, Skill[]> = {}

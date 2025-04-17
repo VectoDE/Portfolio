@@ -1,4 +1,4 @@
-import { Suspense } from "react"
+import { Suspense, cache } from "react"
 import Link from "next/link"
 import { ExternalLink, GraduationCap } from "lucide-react"
 
@@ -8,8 +8,10 @@ import { getAllCertificates } from "@/lib/certificates"
 import { CertificatesShowcaseSkeleton } from "@/components/skeletons/certificates-showcase-skeleton"
 import type { Certificate } from "@/types/database"
 
+const getCachedCertificates = cache(getAllCertificates)
+
 async function CertificatesShowcaseContent() {
-    const certificates = await getAllCertificates(3)
+    const certificates = await getCachedCertificates(3)
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
