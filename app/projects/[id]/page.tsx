@@ -77,7 +77,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
                 <div className="aspect-video relative bg-muted rounded-lg overflow-hidden shadow-xl">
                   <Image
-                    src={`/placeholder.svg?height=720&width=1280&text=${encodeURIComponent(project.title)}`}
+                    src={project.imageUrl || ""}
                     alt={project.title}
                     width={1280}
                     height={720}

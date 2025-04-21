@@ -2,10 +2,11 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Upload, X } from "lucide-react"
+import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,8 +15,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
-import { FileUpload } from "@/components/file-upload"
 
 export default function NewCareerPage() {
   const router = useRouter()
@@ -23,6 +22,9 @@ export default function NewCareerPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isPresentPosition, setIsPresentPosition] = useState(false)
   const [logoUrl, setLogoUrl] = useState("")
+  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [logoPreview, setLogoPreview] = useState<string | null>(null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -77,6 +79,66 @@ export default function NewCareerPage() {
     }
   }
 
+  async function handleLogoUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Create a preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setLogoPreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // Upload the file
+    setUploadingLogo(true)
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to upload logo")
+      }
+
+      const data = await response.json()
+      setLogoUrl(data.imageUrl)
+
+      toast({
+        title: "Logo uploaded",
+        description: "Company logo has been uploaded successfully.",
+      })
+    } catch (error) {
+      console.error("Logo upload error:", error)
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      })
+      // Reset preview on error
+      setLogoPreview(null)
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
+  function triggerFileInput() {
+    fileInputRef.current?.click()
+  }
+
+  function removeLogo() {
+    setLogoUrl("")
+    setLogoPreview(null)
+    if (fileInputRef.current) {
+      fileInputRef.current.value = ""
+    }
+  }
+
   return (
     <div>
       <DashboardHeader heading="Add New Position" text="Add a new career position to your portfolio">
@@ -105,14 +167,56 @@ export default function NewCareerPage() {
               <Label htmlFor="location">Location</Label>
               <Input id="location" name="location" placeholder="City, Country" />
             </div>
-            <FileUpload
-              id="company-logo"
-              label="Company Logo"
-              value={logoUrl}
-              onChange={setLogoUrl}
-              accept="image/*"
-              maxSize={1}
-            />
+            <div className="space-y-2">
+              <Label htmlFor="company-logo">Company Logo</Label>
+              <div className="mt-2 flex items-center gap-4">
+                {logoPreview ? (
+                  <div className="relative h-16 w-16 overflow-hidden rounded-md border">
+                    <Image
+                      src={logoPreview || "/placeholder.svg"}
+                      alt="Company logo preview"
+                      fill
+                      className="object-cover"
+                    />
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-0 top-0 h-6 w-6 rounded-full"
+                      onClick={removeLogo}
+                    >
+                      <X className="h-3 w-3" />
+                      <span className="sr-only">Remove logo</span>
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={triggerFileInput}
+                    disabled={uploadingLogo}
+                    className="h-16 w-16 rounded-md border border-dashed"
+                  >
+                    <Upload className="h-4 w-4" />
+                    <span className="sr-only">Upload company logo</span>
+                  </Button>
+                )}
+                <div>
+                  <input
+                    ref={fileInputRef}
+                    id="company-logo"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleLogoUpload}
+                    disabled={uploadingLogo}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    {uploadingLogo ? "Uploading logo..." : "Upload a company logo (PNG, JPG, GIF up to 5MB)"}
+                  </p>
+                </div>
+              </div>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="startDate">Start Date</Label>
               <Input id="startDate" name="startDate" type="date" required />
@@ -147,7 +251,7 @@ export default function NewCareerPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSubmitting} className="w-full md:w-auto">
+            <Button type="submit" disabled={isSubmitting || uploadingLogo} className="w-full md:w-auto">
               {isSubmitting ? "Creating..." : "Create Position"}
             </Button>
           </CardFooter>
@@ -156,4 +260,3 @@ export default function NewCareerPage() {
     </div>
   )
 }
-

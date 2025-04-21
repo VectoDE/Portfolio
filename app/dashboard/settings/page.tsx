@@ -2,10 +2,10 @@
 
 import type React from "react"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Eye, EyeOff, KeyRound, Mail, User } from "lucide-react"
+import { Eye, EyeOff, KeyRound, Mail, Upload, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,7 +14,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -23,6 +23,9 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
+  const [imagePreview, setImagePreview] = useState<string | null>(session?.user?.image || null)
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingImage, setUploadingImage] = useState(false)
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -31,6 +34,7 @@ export default function SettingsPage() {
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
     const email = formData.get("email") as string
+    const imageUrl = session?.user?.image || null
 
     try {
       const response = await fetch("/api/user/profile", {
@@ -41,6 +45,7 @@ export default function SettingsPage() {
         body: JSON.stringify({
           name,
           email,
+          imageUrl,
         }),
       })
 
@@ -57,6 +62,7 @@ export default function SettingsPage() {
             ...session.user,
             name,
             email,
+            image: imageUrl,
           },
         })
       }
@@ -134,6 +140,76 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    // Create a preview
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string)
+    }
+    reader.readAsDataURL(file)
+
+    // Upload the file
+    setUploadingImage(true)
+    const formData = new FormData()
+    formData.append("file", file)
+
+    try {
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to upload image")
+      }
+
+      const data = await response.json()
+
+      // Update session with new image URL
+      if (session) {
+        await update({
+          ...session,
+          user: {
+            ...session.user,
+            image: data.imageUrl,
+          },
+        })
+      }
+
+      toast({
+        title: "Image uploaded",
+        description: "Your profile image has been updated successfully.",
+      })
+    } catch (error) {
+      console.error("Image upload error:", error)
+      toast({
+        title: "Upload failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      })
+      // Reset preview on error
+      setImagePreview(session?.user?.image || null)
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
+  function triggerFileInput() {
+    fileInputRef.current?.click()
+  }
+
+  const userInitials = session?.user?.name
+    ? session.user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+    : "U"
+
   return (
     <div>
       <DashboardHeader heading="Settings" text="Manage your account settings" />
@@ -154,7 +230,35 @@ export default function SettingsPage() {
                 <CardDescription>Update your account profile information and email address.</CardDescription>
               </CardHeader>
               <form onSubmit={handleProfileUpdate}>
-                <CardContent className="space-y-4">
+                <CardContent className="space-y-6">
+                  <div className="flex flex-col items-center space-y-4">
+                    <div className="relative">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage src={imagePreview || undefined} alt={session?.user?.name || "User"} />
+                        <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
+                      </Avatar>
+                      <Button
+                        type="button"
+                        size="icon"
+                        variant="outline"
+                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
+                        onClick={triggerFileInput}
+                        disabled={uploadingImage}
+                      >
+                        <Upload className="h-4 w-4" />
+                        <span className="sr-only">Upload profile picture</span>
+                      </Button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageUpload}
+                        disabled={uploadingImage}
+                      />
+                    </div>
+                    {uploadingImage && <p className="text-sm text-muted-foreground">Uploading image...</p>}
+                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <div className="relative">
@@ -186,7 +290,7 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" disabled={isLoading}>
+                  <Button type="submit" disabled={isLoading || uploadingImage}>
                     {isLoading ? "Saving..." : "Save Changes"}
                   </Button>
                 </CardFooter>
@@ -282,4 +386,3 @@ export default function SettingsPage() {
     </div>
   )
 }
-

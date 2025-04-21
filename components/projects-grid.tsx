@@ -22,7 +22,7 @@ export async function ProjectsGrid() {
                 >
                     <div className="aspect-video relative bg-muted overflow-hidden">
                         <Image
-                            src={`/placeholder.svg?height=400&width=600&text=${encodeURIComponent(project.title)}`}
+                            src={project.imageUrl || ""}
                             alt={project.title}
                             width={600}
                             height={400}

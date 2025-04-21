@@ -12,9 +12,8 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { name, email } = await req.json()
+    const { name, email, imageUrl } = await req.json()
 
-    // Check if email is already taken by another user
     if (email !== session.user.email) {
       const existingUser = await prisma.user.findUnique({
         where: {
@@ -27,7 +26,6 @@ export async function PUT(req: Request) {
       }
     }
 
-    // Update user profile
     const updatedUser = await prisma.user.update({
       where: {
         id: session.user.id as string,
@@ -35,10 +33,10 @@ export async function PUT(req: Request) {
       data: {
         name,
         email,
+        imageUrl,
       },
     })
 
-    // Return user without password
     const { password: _, ...userWithoutPassword } = updatedUser
 
     return NextResponse.json({ user: userWithoutPassword })

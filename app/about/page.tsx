@@ -42,10 +42,10 @@ export default function AboutPage() {
 
               <div className="grid gap-10 md:grid-cols-2 md:gap-16">
                 <div>
-                  <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
+                <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
                     <div className="h-full w-full overflow-hidden rounded-lg">
                       <Image
-                        src="/placeholder.svg?height=600&width=600&text=Tim+Hauke"
+                        src="/timhauke.png?height=600&width=600&text=Tim+Hauke"
                         alt="Profile"
                         width={600}
                         height={600}
