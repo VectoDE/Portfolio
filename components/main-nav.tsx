@@ -222,7 +222,7 @@ export function MainNav() {
                                     <>
                                         <div className="flex items-center gap-3 py-3 border-t border-b">
                                             <Avatar className="h-10 w-10">
-                                                <AvatarImage src="/placeholder.svg" alt={session.user?.name || "User"} />
+                                                <AvatarImage src="/placeholder.svg?height=600&width=600" alt={session.user?.name || "User"} />
                                                 <AvatarFallback>{getInitials(session.user?.name)}</AvatarFallback>
                                             </Avatar>
                                             <div>

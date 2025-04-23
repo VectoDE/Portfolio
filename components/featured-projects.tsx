@@ -24,7 +24,7 @@ export async function FeaturedProjects() {
                 >
                     <div className="aspect-video relative bg-muted overflow-hidden">
                         <Image
-                            src={project.imageUrl || ""}
+                            src={project.imageUrl || "/placeholder.svg?height=600&width=600"}
                             alt={project.title}
                             width={600}
                             height={400}

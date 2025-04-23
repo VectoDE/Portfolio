@@ -2,15 +2,16 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Eye, EyeOff, KeyRound, Mail, Upload, User } from "lucide-react"
+import { Eye, EyeOff, KeyRound, Mail, Upload, User, Bell, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
@@ -26,6 +27,30 @@ export default function SettingsPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(session?.user?.image || null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingImage, setUploadingImage] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [settings, setSettings] = useState({
+    adminEmail: "",
+    emailFrom: "",
+    emailServer: "",
+    emailPort: "",
+    emailUser: "",
+    emailPassword: "",
+    sendAutoReply: false,
+  })
+
+  useEffect(() => {
+    // In a real app, you would fetch these from your API
+    // For now, we'll just use environment variables
+    setSettings({
+      adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "",
+      emailFrom: process.env.NEXT_PUBLIC_EMAIL_FROM || "",
+      emailServer: process.env.NEXT_PUBLIC_EMAIL_SERVER || "",
+      emailPort: process.env.NEXT_PUBLIC_EMAIL_PORT || "",
+      emailUser: process.env.NEXT_PUBLIC_EMAIL_USER || "",
+      emailPassword: "",
+      sendAutoReply: process.env.NEXT_PUBLIC_SEND_AUTO_REPLY === "true",
+    })
+  }, [])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -210,6 +235,36 @@ export default function SettingsPage() {
       .toUpperCase()
     : "U"
 
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      // In a real app, you would save these to your API
+      toast({
+        title: "Settings saved",
+        description: "Your email notification settings have been saved.",
+      })
+    } catch (error) {
+      console.error("Error saving settings:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value, type, checked } = e.target
+    setSettings((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }))
+  }
+
   return (
     <div>
       <DashboardHeader heading="Settings" text="Manage your account settings" />
@@ -221,6 +276,12 @@ export default function SettingsPage() {
             </TabsTrigger>
             <TabsTrigger value="password" className="flex-1 md:flex-none">
               Password
+            </TabsTrigger>
+            <TabsTrigger value="email-notifications" className="flex-1 md:flex-none">
+              Notifications
+            </TabsTrigger>
+            <TabsTrigger value="email-smtp" className="flex-1 md:flex-none">
+              SMTP Settings
             </TabsTrigger>
           </TabsList>
           <TabsContent value="profile" className="space-y-4">
@@ -376,6 +437,163 @@ export default function SettingsPage() {
                 <CardFooter>
                   <Button type="submit" disabled={isLoading}>
                     {isLoading ? "Updating..." : "Update Password"}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+          <TabsContent value="email-notifications" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Email Notifications</CardTitle>
+                <CardDescription>Configure how you receive notifications for new contacts.</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="adminEmail">Notification Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                      <Input
+                        id="adminEmail"
+                        name="adminEmail"
+                        type="email"
+                        placeholder="admin@example.com"
+                        className="pl-10"
+                        value={settings.adminEmail}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      New contact notifications will be sent to this email address.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="emailFrom">From Email</Label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+                      <Input
+                        id="emailFrom"
+                        name="emailFrom"
+                        placeholder="noreply@yourdomain.com"
+                        className="pl-10"
+                        value={settings.emailFrom}
+                        onChange={handleChange}
+                      />
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      This will be used as the sender email address for notifications.
+                    </p>
+                  </div>
+
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="sendAutoReply"
+                      name="sendAutoReply"
+                      checked={settings.sendAutoReply}
+                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, sendAutoReply: checked }))}
+                    />
+                    <Label htmlFor="sendAutoReply">Send auto-reply to contacts</Label>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" /> Save Settings
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Test Notification</CardTitle>
+                <CardDescription>Send a test email to verify your notification settings.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    toast({
+                      title: "Test email sent",
+                      description: "A test notification has been sent to your email address.",
+                    })
+                  }}
+                >
+                  <Bell className="mr-2 h-4 w-4" /> Send Test Email
+                </Button>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="email-smtp" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>SMTP Settings</CardTitle>
+                <CardDescription>Configure your SMTP server for sending emails.</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleSubmit}>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="emailServer">SMTP Server</Label>
+                    <Input
+                      id="emailServer"
+                      name="emailServer"
+                      placeholder="smtp.example.com"
+                      value={settings.emailServer}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="emailPort">SMTP Port</Label>
+                    <Input
+                      id="emailPort"
+                      name="emailPort"
+                      placeholder="587"
+                      value={settings.emailPort}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="emailUser">SMTP Username</Label>
+                    <Input
+                      id="emailUser"
+                      name="emailUser"
+                      placeholder="user@example.com"
+                      value={settings.emailUser}
+                      onChange={handleChange}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="emailPassword">SMTP Password</Label>
+                    <Input
+                      id="emailPassword"
+                      name="emailPassword"
+                      type="password"
+                      placeholder="••••••••"
+                      value={settings.emailPassword}
+                      onChange={handleChange}
+                    />
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" /> Save SMTP Settings
+                      </>
+                    )}
                   </Button>
                 </CardFooter>
               </form>

@@ -1,5 +1,7 @@
 "use client"
 
+import type React from "react"
+
 import { useState, useEffect } from "react"
 import * as LucideIcons from "lucide-react"
 
@@ -19,9 +21,11 @@ export function IconRenderer({ iconName, className = "h-6 w-6" }: IconRendererPr
         return <div className={`animate-pulse bg-muted rounded-sm ${className}`} />
     }
 
-    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as React.ComponentType<{
-        className?: string
-    }> | undefined
+    const IconComponent = LucideIcons[iconName as keyof typeof LucideIcons] as
+        | React.ComponentType<{
+            className?: string
+        }>
+        | undefined
 
     if (!IconComponent) {
         return <div className={`bg-muted rounded-sm ${className}`} />

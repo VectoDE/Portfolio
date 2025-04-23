@@ -19,6 +19,8 @@ import {
     Sun,
     ChevronLeft,
     BarChart,
+    Contact,
+    LineChart,
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
@@ -56,10 +58,12 @@ export function DashboardNav() {
 
     const navItems = [
         { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+        { href: "/dashboard/analytics", label: "Analytics", icon: LineChart },
         { href: "/dashboard/projects", label: "Projects", icon: FolderKanban },
         { href: "/dashboard/certificates", label: "Certificates", icon: GraduationCap },
         { href: "/dashboard/skills", label: "Skills", icon: Languages },
         { href: "/dashboard/career", label: "Career", icon: FileText },
+        { href: "/dashboard/contacts", label: "Contacts", icon: Contact },
         { href: "/dashboard/settings", label: "Settings", icon: Settings },
     ]
 

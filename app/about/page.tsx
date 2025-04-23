@@ -45,7 +45,7 @@ export default function AboutPage() {
                 <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
                     <div className="h-full w-full overflow-hidden rounded-lg">
                       <Image
-                        src="/timhauke.png?height=600&width=600&text=Tim+Hauke"
+                        src="/placeholder.svg?height=600&width=600"
                         alt="Profile"
                         width={600}
                         height={600}

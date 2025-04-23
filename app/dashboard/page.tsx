@@ -8,6 +8,7 @@ import {
   FileText,
   TrendingUp,
   TrendingDown,
+  Mail,
 } from "lucide-react"
 import { getServerSession } from "next-auth"
 
@@ -18,36 +19,146 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/db"
 
 // Import the necessary types
-import type { Project, Certificate, StatsWithChange } from "@/types/database"
+import type { Project, Certificate, Contact } from "@/types/database"
+
+interface StatsWithChange {
+  count: number
+  change: number
+  percentage: number
+}
 
 // Function to calculate 30-day change statistics
 async function calculateStatsWithChange(
   userId: string,
-  model: "project" | "certificate" | "skill" | "career",
+  model: "project" | "certificate" | "skill" | "career" | "contact",
 ): Promise<StatsWithChange> {
   const thirtyDaysAgo = new Date()
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-  // Get total count
-  const totalCount = await prisma[model].count({
-    where: { userId },
-  })
+  const sixtyDaysAgo = new Date()
+  sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60)
 
-  // Get count from 30 days ago (items created before 30 days ago)
-  const countBefore30Days = await prisma[model].count({
-    where: {
-      userId,
-      createdAt: {
-        lt: thirtyDaysAgo,
-      },
-    },
-  })
+  // Get total count
+  let totalCount = 0
+  let countLast30Days = 0
+  let countPrevious30Days = 0
+
+  // Use separate queries for each model to avoid TypeScript errors
+  switch (model) {
+    case "project":
+      totalCount = await prisma.project.count({
+        where: { userId },
+      })
+      countLast30Days = await prisma.project.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      })
+      countPrevious30Days = await prisma.project.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: sixtyDaysAgo,
+            lt: thirtyDaysAgo,
+          },
+        },
+      })
+      break
+    case "certificate":
+      totalCount = await prisma.certificate.count({
+        where: { userId },
+      })
+      countLast30Days = await prisma.certificate.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      })
+      countPrevious30Days = await prisma.certificate.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: sixtyDaysAgo,
+            lt: thirtyDaysAgo,
+          },
+        },
+      })
+      break
+    case "skill":
+      totalCount = await prisma.skill.count({
+        where: { userId },
+      })
+      countLast30Days = await prisma.skill.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      })
+      countPrevious30Days = await prisma.skill.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: sixtyDaysAgo,
+            lt: thirtyDaysAgo,
+          },
+        },
+      })
+      break
+    case "career":
+      totalCount = await prisma.career.count({
+        where: { userId },
+      })
+      countLast30Days = await prisma.career.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      })
+      countPrevious30Days = await prisma.career.count({
+        where: {
+          userId,
+          createdAt: {
+            gte: sixtyDaysAgo,
+            lt: thirtyDaysAgo,
+          },
+        },
+      })
+      break
+    case "contact":
+      totalCount = await prisma.contact.count()
+      countLast30Days = await prisma.contact.count({
+        where: {
+          createdAt: {
+            gte: thirtyDaysAgo,
+          },
+        },
+      })
+      countPrevious30Days = await prisma.contact.count({
+        where: {
+          createdAt: {
+            gte: sixtyDaysAgo,
+            lt: thirtyDaysAgo,
+          },
+        },
+      })
+      break
+  }
 
   // Calculate change
-  const change = totalCount - countBefore30Days
+  const change = countLast30Days - countPrevious30Days
 
   // Calculate percentage change
-  const percentage = countBefore30Days === 0 ? (change > 0 ? 100 : 0) : Math.round((change / countBefore30Days) * 100)
+  const percentage =
+    countPrevious30Days === 0 ? (change > 0 ? 100 : 0) : Math.round((change / countPrevious30Days) * 100)
 
   return {
     count: totalCount,
@@ -65,44 +176,80 @@ async function getStats() {
       certificates: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
       skills: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
       career: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
+      contacts: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
       featuredProjects: [] as Project[],
       recentCertificates: [] as Certificate[],
+      recentContacts: [] as Contact[],
+      contactStatusBreakdown: [] as { status: string; count: number }[],
     }
   }
 
   const userId = session.user.id
 
   // Get stats with 30-day changes
-  const [projectStats, certificateStats, skillStats, careerStats, featuredProjects, recentCertificates] =
-    await Promise.all([
-      calculateStatsWithChange(userId, "project"),
-      calculateStatsWithChange(userId, "certificate"),
-      calculateStatsWithChange(userId, "skill"),
-      calculateStatsWithChange(userId, "career"),
-      prisma.project.findMany({
-        where: { userId, featured: true },
-        orderBy: { createdAt: "desc" },
-        take: 3,
-      }),
-      prisma.certificate.findMany({
-        where: { userId },
-        orderBy: { date: "desc" },
-        take: 3,
-      }),
-    ])
+  const [
+    projectStats,
+    certificateStats,
+    skillStats,
+    careerStats,
+    contactStats,
+    featuredProjects,
+    recentCertificates,
+    recentContacts,
+    contactStatusBreakdown,
+  ] = await Promise.all([
+    calculateStatsWithChange(userId, "project"),
+    calculateStatsWithChange(userId, "certificate"),
+    calculateStatsWithChange(userId, "skill"),
+    calculateStatsWithChange(userId, "career"),
+    calculateStatsWithChange(userId, "contact"),
+    prisma.project.findMany({
+      where: { userId, featured: true },
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+    prisma.certificate.findMany({
+      where: { userId },
+      orderBy: { date: "desc" },
+      take: 3,
+    }),
+    prisma.contact.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 3,
+    }),
+    prisma.$queryRaw`
+      SELECT status, COUNT(*) as count
+      FROM "Contact"
+      GROUP BY status
+      ORDER BY count DESC
+    ` as Promise<{ status: string; count: number }[]>,
+  ])
 
   return {
     projects: projectStats,
     certificates: certificateStats,
     skills: skillStats,
     career: careerStats,
+    contacts: contactStats,
     featuredProjects,
     recentCertificates,
+    recentContacts,
+    contactStatusBreakdown,
   }
 }
 
 export default async function DashboardPage() {
-  const { projects, certificates, skills, career, featuredProjects, recentCertificates } = await getStats()
+  const {
+    projects,
+    certificates,
+    skills,
+    career,
+    contacts,
+    featuredProjects,
+    recentCertificates,
+    recentContacts,
+    contactStatusBreakdown,
+  } = await getStats()
 
   return (
     <div className="space-y-8">
@@ -114,7 +261,7 @@ export default async function DashboardPage() {
         </Link>
       </DashboardHeader>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
         <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Projects</CardTitle>
@@ -234,6 +381,36 @@ export default async function DashboardPage() {
             </Link>
           </CardFooter>
         </Card>
+
+        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Contacts</CardTitle>
+            <Mail className="h-4 w-4 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{contacts.count}</div>
+            <div className="flex items-center mt-1">
+              {contacts.change > 0 ? (
+                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+              ) : contacts.change < 0 ? (
+                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+              ) : null}
+              <p
+                className={`text-xs ${contacts.change > 0 ? "text-green-500" : contacts.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
+              >
+                {contacts.change > 0 ? "+" : ""}
+                {contacts.change} in the last 30 days ({contacts.percentage}%)
+              </p>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Link href="/dashboard/contacts" className="w-full">
+              <Button variant="outline" size="sm" className="w-full">
+                Manage Contacts
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -314,74 +491,152 @@ export default async function DashboardPage() {
         <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
           <CardHeader className="flex flex-row items-center justify-between">
             <div>
-              <CardTitle>Recent Certificates</CardTitle>
-              <CardDescription>Your latest certifications</CardDescription>
+              <CardTitle>Recent Contacts</CardTitle>
+              <CardDescription>Latest contact form submissions</CardDescription>
             </div>
-            <Link href="/dashboard/certificates/new">
+            <Link href="/dashboard/contacts/new">
               <Button size="sm" className="gap-1">
-                <Plus className="h-4 w-4" /> Add Certificate
+                <Plus className="h-4 w-4" /> Add Contact
               </Button>
             </Link>
           </CardHeader>
           <CardContent>
-            {recentCertificates.length === 0 ? (
+            {recentContacts.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
-                <p>No certificates added yet</p>
-                <p className="text-sm mt-1">Add your professional certifications</p>
+                <p>No contacts received yet</p>
+                <p className="text-sm mt-1">Contact submissions will appear here</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {recentCertificates.map((cert: Certificate) => (
-                  <div key={cert.id} className="flex items-start justify-between border-b pb-4 last:border-0">
-                    <div className="flex gap-3">
-                      {cert.imageUrl && (
-                        <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
-                          <img
-                            src={cert.imageUrl || "/placeholder.svg"}
-                            alt={cert.name}
-                            className="h-full w-full object-cover"
-                          />
-                        </div>
-                      )}
+                {recentContacts.map((contact) => {
+                  // Convert Date to string for display
+                  const createdAtString =
+                    typeof contact.createdAt === "string"
+                      ? contact.createdAt
+                      : new Date(contact.createdAt).toISOString()
+
+                  return (
+                    <div key={contact.id} className="flex items-start justify-between border-b pb-4 last:border-0">
                       <div>
-                        <h3 className="font-medium">{cert.name}</h3>
-                        <p className="text-sm text-muted-foreground">{cert.issuer}</p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(cert.date).toLocaleDateString("en-US", {
-                            year: "numeric",
-                            month: "short",
-                          })}
-                        </p>
+                        <h3 className="font-medium">{contact.name}</h3>
+                        <p className="text-sm text-muted-foreground">{contact.email}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{contact.subject}</p>
+                        <div className="mt-1">
+                          {contact.status === "unread" ? (
+                            <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-100">
+                              Unread
+                            </span>
+                          ) : contact.status === "read" ? (
+                            <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-100">
+                              Read
+                            </span>
+                          ) : contact.status === "replied" ? (
+                            <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-100">
+                              Replied
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-100">
+                              Archived
+                            </span>
+                          )}
+                        </div>
                       </div>
+                      <Link href={`/dashboard/contacts/${contact.id}`}>
+                        <Button variant="ghost" size="sm">
+                          View
+                        </Button>
+                      </Link>
                     </div>
-                    <Link href={`/dashboard/certificates/${cert.id}`}>
-                      <Button variant="ghost" size="sm">
-                        Edit
-                      </Button>
-                    </Link>
-                  </div>
-                ))}
+                  )
+                })}
               </div>
             )}
           </CardContent>
           <CardFooter>
-            <Link href="/dashboard/certificates" className="w-full">
+            <Link href="/dashboard/contacts" className="w-full">
               <Button variant="outline" className="w-full">
-                View All Certificates
+                View All Contacts
               </Button>
             </Link>
           </CardFooter>
         </Card>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-1">
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+          <CardHeader>
+            <CardTitle>Contact Status Breakdown</CardTitle>
+            <CardDescription>Distribution of contact statuses</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {contactStatusBreakdown.length === 0 ? (
+              <div className="text-center py-6 text-muted-foreground">
+                <p>No contact data available</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {contactStatusBreakdown.map((item) => {
+                  const totalCount = contactStatusBreakdown.reduce((acc, curr) => acc + Number(curr.count), 0)
+                  const percentage = totalCount > 0 ? Math.round((Number(item.count) / totalCount) * 100) : 0
+
+                  return (
+                    <div key={item.status} className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <div
+                            className={`h-3 w-3 rounded-full mr-2 ${item.status === "unread"
+                                ? "bg-blue-500"
+                                : item.status === "read"
+                                  ? "bg-gray-500"
+                                  : item.status === "replied"
+                                    ? "bg-green-500"
+                                    : "bg-yellow-500"
+                              }`}
+                          />
+                          <span className="capitalize">{item.status}</span>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <span className="font-medium">{item.count}</span>
+                          <span className="text-sm text-muted-foreground">({percentage}%)</span>
+                        </div>
+                      </div>
+                      <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${item.status === "unread"
+                              ? "bg-blue-500"
+                              : item.status === "read"
+                                ? "bg-gray-500"
+                                : item.status === "replied"
+                                  ? "bg-green-500"
+                                  : "bg-yellow-500"
+                            }`}
+                          style={{
+                            width: `${percentage}%`,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            )}
+          </CardContent>
+          <CardFooter>
+            <Link href="/dashboard/analytics" className="w-full">
+              <Button variant="outline" className="w-full">
+                View Detailed Analytics
+              </Button>
+            </Link>
+          </CardFooter>
+        </Card>
+
         <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
           <CardHeader>
             <CardTitle>Quick Actions</CardTitle>
             <CardDescription>Manage your portfolio content</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <Link href="/dashboard/projects/new" className="w-full">
                 <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
                   <FolderKanban className="h-6 w-6" />
@@ -394,16 +649,16 @@ export default async function DashboardPage() {
                   <span>New Certificate</span>
                 </Button>
               </Link>
-              <Link href="/dashboard/skills/new" className="w-full">
+              <Link href="/dashboard/contacts/new" className="w-full">
                 <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
-                  <Languages className="h-6 w-6" />
-                  <span>New Skill</span>
+                  <Mail className="h-6 w-6" />
+                  <span>New Contact</span>
                 </Button>
               </Link>
-              <Link href="/dashboard/career/new" className="w-full">
+              <Link href="/dashboard/analytics" className="w-full">
                 <Button variant="outline" className="w-full h-full py-6 flex flex-col gap-2">
-                  <FileText className="h-6 w-6" />
-                  <span>New Position</span>
+                  <TrendingUp className="h-6 w-6" />
+                  <span>Analytics</span>
                 </Button>
               </Link>
             </div>
@@ -413,4 +668,3 @@ export default async function DashboardPage() {
     </div>
   )
 }
-

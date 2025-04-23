@@ -21,6 +21,7 @@ export default function ContactPage() {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    subject: "",
     message: "",
   })
 
@@ -34,16 +35,21 @@ export default function ContactPage() {
     setIsSubmitting(true)
 
     try {
-      const response = await fetch("/api/contact", {
+      const response = await fetch("/api/contacts", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          status: "unread",
+          createdAt: new Date().toISOString(),
+        }),
       })
 
       if (!response.ok) {
-        throw new Error("Failed to send message")
+        const error = await response.json()
+        throw new Error(error.error || "Failed to send message")
       }
 
       toast({
@@ -54,13 +60,14 @@ export default function ContactPage() {
       setFormData({
         name: "",
         email: "",
+        subject: "",
         message: "",
       })
     } catch (error) {
       console.error("Error sending message:", error)
       toast({
         title: "Error",
-        description: "Failed to send message. Please try again later.",
+        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
         variant: "destructive",
       })
     } finally {
@@ -181,6 +188,17 @@ export default function ContactPage() {
                           />
                         </div>
                         <div className="space-y-2">
+                          <Label htmlFor="subject">Subject</Label>
+                          <Input
+                            id="subject"
+                            name="subject"
+                            placeholder="Subject of your message"
+                            required
+                            value={formData.subject}
+                            onChange={handleChange}
+                          />
+                        </div>
+                        <div className="space-y-2">
                           <Label htmlFor="message">Message</Label>
                           <Textarea
                             id="message"
@@ -213,4 +231,3 @@ export default function ContactPage() {
     </div>
   )
 }
-

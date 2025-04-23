@@ -77,7 +77,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
                 <div className="aspect-video relative bg-muted rounded-lg overflow-hidden shadow-xl">
                   <Image
-                    src={project.imageUrl || ""}
+                    src={project.imageUrl || "/placeholder.svg?height=600&width=600"}
                     alt={project.title}
                     width={1280}
                     height={720}
@@ -97,14 +97,16 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </Button>
                       </Link>
                     )}
-                    <Link href="https://github.com" target="_blank" rel="noopener noreferrer">
-                      <Button
-                        variant="outline"
-                        className="gap-1 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
-                      >
-                        View Code <Github className="h-4 w-4" />
-                      </Button>
-                    </Link>
+                    {project.githubUrl && (
+                      <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                        <Button
+                          variant="outline"
+                          className="gap-1 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
+                        >
+                          View Code <Github className="h-4 w-4" />
+                        </Button>
+                      </Link>
+                    )}
                   </div>
                 </div>
 
