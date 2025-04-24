@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { compare, hash } from "bcrypt"
+import bcrypt from "bcryptjs"
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/db"
 
+// PUT /api/user/password - Update user password
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -13,12 +14,19 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { currentPassword, newPassword } = await req.json()
+    const userId = session.user.id as string
+    const data = await req.json()
+    const { currentPassword, newPassword } = data
 
-    // Get user with password
+    if (!currentPassword || !newPassword) {
+      return NextResponse.json({ error: "Current password and new password are required" }, { status: 400 })
+    }
+
     const user = await prisma.user.findUnique({
-      where: {
-        id: session.user.id as string,
+      where: { id: userId },
+      select: {
+        id: true,
+        password: true,
       },
     })
 
@@ -26,30 +34,26 @@ export async function PUT(req: Request) {
       return NextResponse.json({ error: "User not found" }, { status: 404 })
     }
 
-    // Verify current password
-    const isPasswordValid = await compare(currentPassword, user.password)
-
+    const isPasswordValid = await bcrypt.compare(currentPassword, user.password)
     if (!isPasswordValid) {
       return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 })
     }
 
-    // Hash new password
-    const hashedPassword = await hash(newPassword, 10)
+    const hashedPassword = await bcrypt.hash(newPassword, 10)
 
-    // Update password
     await prisma.user.update({
-      where: {
-        id: session.user.id as string,
-      },
+      where: { id: userId },
       data: {
         password: hashedPassword,
       },
     })
 
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: true,
+      message: "Password updated successfully",
+    })
   } catch (error) {
     console.error("Error updating password:", error)
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
-

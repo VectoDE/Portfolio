@@ -30,13 +30,19 @@ export async function ProjectsGrid() {
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
                             <div className="flex gap-2">
-                                <Button size="sm" variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-none">
-                                    <Github className="h-4 w-4 mr-1" /> Code
-                                </Button>
+                                {project.githubUrl && (
+                                    <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-none">
+                                            <Github className="h-4 w-4 mr-1" /> Code
+                                        </Button>
+                                    </Link>
+                                )}
                                 {project.link && (
-                                    <Button size="sm" variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-none">
-                                        <ExternalLink className="h-4 w-4 mr-1" /> Demo
-                                    </Button>
+                                    <Link href={project.link} target="_blank" rel="noopener noreferrer">
+                                        <Button size="sm" variant="secondary" className="bg-white/20 backdrop-blur-md text-white border-none">
+                                            <ExternalLink className="h-4 w-4 mr-1" /> Demo
+                                        </Button>
+                                    </Link>
                                 )}
                             </div>
                         </div>

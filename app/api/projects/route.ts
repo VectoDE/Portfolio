@@ -4,9 +4,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/db"
 
-export const dynamic = "force-dynamic"
-
-export async function GET() {
+// GET /api/projects - Get all projects
+export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -14,22 +13,68 @@ export async function GET() {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const projects = await prisma.project.findMany({
-      where: {
-        userId: session.user.id as string,
-      },
-      orderBy: {
-        createdAt: "desc",
+    const userId = session.user.id as string
+
+    // Get query parameters
+    const { searchParams } = new URL(req.url)
+    const page = Number.parseInt(searchParams.get("page") || "1")
+    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const search = searchParams.get("search") || ""
+    const featured = searchParams.get("featured") === "true"
+
+    // Calculate pagination
+    const skip = (page - 1) * limit
+
+    // Build where clause
+    const where: any = { userId }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search, mode: "insensitive" } },
+        { description: { contains: search, mode: "insensitive" } },
+        { technologies: { contains: search, mode: "insensitive" } },
+      ]
+    }
+
+    if (featured) {
+      where.featured = true
+    }
+
+    // Get projects with pagination
+    const [projects, totalProjects] = await Promise.all([
+      prisma.project.findMany({
+        where,
+        orderBy: { createdAt: "desc" },
+        skip,
+        take: limit,
+        include: {
+          features: true,
+        },
+      }),
+      prisma.project.count({ where }),
+    ])
+
+    // Calculate pagination metadata
+    const totalPages = Math.ceil(totalProjects / limit)
+    const hasMore = page < totalPages
+
+    return NextResponse.json({
+      projects,
+      pagination: {
+        page,
+        limit,
+        totalProjects,
+        totalPages,
+        hasMore,
       },
     })
-
-    return NextResponse.json({ projects })
   } catch (error) {
     console.error("Error fetching projects:", error)
-    return NextResponse.json({ error: "Failed to fetch projects" }, { status: 500 })
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
 
+// POST /api/projects - Create a new project
 export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
@@ -38,25 +83,61 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { title, description, technologies, link, githubUrl, imageUrl, featured } = await req.json()
+    const userId = session.user.id as string
+    const data = await req.json()
 
+    const {
+      title,
+      description,
+      technologies,
+      link,
+      githubUrl,
+      imageUrl,
+      logoUrl,
+      featured,
+      developmentProcess,
+      challengesFaced,
+      futurePlans,
+      logContent,
+      features = [],
+    } = data
+
+    // Validate required fields
+    if (!title || !description || !technologies) {
+      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    }
+
+    // Create project with features
     const project = await prisma.project.create({
       data: {
         title,
         description,
-        technologies: Array.isArray(technologies) ? technologies.join(", ") : technologies,
+        technologies,
         link,
         githubUrl,
         imageUrl,
+        logoUrl,
         featured: Boolean(featured),
-        userId: session.user.id as string,
+        developmentProcess,
+        challengesFaced,
+        futurePlans,
+        logContent,
+        userId,
+        features: {
+          create: features.map((feature: any) => ({
+            name: feature.name,
+            description: feature.description || null,
+          })),
+        },
+      },
+      include: {
+        features: true,
       },
     })
 
-    return NextResponse.json({ project }, { status: 201 })
+    return NextResponse.json({ project })
   } catch (error) {
     console.error("Error creating project:", error)
-    return NextResponse.json({ error: "Failed to create project" }, { status: 500 })
+    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
-

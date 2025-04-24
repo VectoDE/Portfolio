@@ -1,11 +1,13 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { writeFile } from "fs/promises"
-import { join } from "path"
+import path from "path"
 import { v4 as uuidv4 } from "uuid"
 
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import prisma from "@/lib/db"
 
+// POST /api/upload - Upload a file
 export async function POST(req: Request) {
     try {
         const session = await getServerSession(authOptions)
@@ -14,32 +16,46 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        const userId = session.user.id as string
         const formData = await req.formData()
         const file = formData.get("file") as File
 
         if (!file) {
-            return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
+            return NextResponse.json({ error: "No file provided" }, { status: 400 })
         }
 
-        const validTypes = ["image/jpeg", "image/png", "image/webp", "image/gif"]
-        if (!validTypes.includes(file.type)) {
-            return NextResponse.json({ error: "Invalid file type" }, { status: 400 })
+        if (!file.type.startsWith("image/")) {
+            return NextResponse.json({ error: "File must be an image" }, { status: 400 })
         }
 
-        if (file.size > 5 * 1024 * 1024) {
-            return NextResponse.json({ error: "File too large (max 5MB)" }, { status: 400 })
+        const maxSize = 5 * 1024 * 1024 // 5MB
+        if (file.size > maxSize) {
+            return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 })
         }
 
-        const bytes = await file.arrayBuffer()
-        const buffer = Buffer.from(bytes)
+        const uploadsDir = path.join(process.cwd(), "public", "uploads")
+        try {
+            await writeFile(path.join(uploadsDir, "test.txt"), "test")
+        } catch (error) {
+            const fs = require("fs")
+            if (!fs.existsSync(uploadsDir)) {
+                fs.mkdirSync(uploadsDir, { recursive: true })
+            }
+        }
 
-        const originalExt = file.name.split(".").pop()
-        const filename = `${uuidv4()}.${originalExt}`
+        const fileExtension = file.name.split(".").pop()
+        const fileName = `${uuidv4()}.${fileExtension}`
+        const filePath = path.join(uploadsDir, fileName)
 
-        const path = join(process.cwd(), "public/uploads", filename)
-        await writeFile(path, buffer)
+        const buffer = Buffer.from(await file.arrayBuffer())
+        await writeFile(filePath, buffer)
 
-        const imageUrl = `/uploads/${filename}`
+        const imageUrl = `/uploads/${fileName}`
+
+        await prisma.user.update({
+            where: { id: userId },
+            data: { imageUrl },
+        })
 
         return NextResponse.json({ imageUrl })
     } catch (error) {

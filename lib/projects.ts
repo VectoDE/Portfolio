@@ -1,6 +1,26 @@
 import prisma from "@/lib/db"
 import type { Project } from "@/types/database"
 
+export async function getProjects() {
+  try {
+    if (!prisma) {
+      console.error("Prisma client is not initialized")
+      return []
+    }
+    
+    const projects = await prisma.project.findMany({
+      orderBy: { createdAt: "desc" },
+      include: {
+        features: true,
+      },
+    })
+    return projects
+  } catch (error) {
+    console.error("Error fetching projects:", error)
+    return []
+  }
+}
+
 export async function getAllProjects(): Promise<Project[]> {
   try {
     if (!prisma) {
@@ -35,6 +55,9 @@ export async function getProjectById(id: string): Promise<Project | null> {
       where: {
         id,
       },
+      include: {
+        features: true,
+      },
     })
 
     return project
@@ -59,6 +82,9 @@ export async function getFeaturedProjects(limit = 3): Promise<Project[]> {
         createdAt: "desc",
       },
       take: limit,
+      include: {
+        features: true,
+      },
     })
 
     return projects

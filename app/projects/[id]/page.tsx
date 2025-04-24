@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation"
 import Image from "next/image"
 import Link from "next/link"
-import { ArrowLeft, ExternalLink, Github } from "lucide-react"
+import { ArrowLeft, ExternalLink, Github, Terminal } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
@@ -9,6 +9,7 @@ import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { getProjectById } from "@/lib/projects"
+import { CodeBlock } from "@/components/code-block"
 
 interface ProjectPageProps {
   params: {
@@ -59,19 +60,32 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   <span>Back to Projects</span>
                 </Link>
 
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    {project.title}
-                  </h1>
-                  <div className="flex flex-wrap gap-2">
-                    {project.technologies.split(", ").map((tech: string) => (
-                      <span
-                        key={tech}
-                        className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
-                      >
-                        {tech}
-                      </span>
-                    ))}
+                <div className="flex flex-col md:flex-row gap-6 items-start">
+                  {project.logoUrl && (
+                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-white shadow-md flex-shrink-0">
+                      <Image
+                        src={project.logoUrl || "/placeholder.svg"}
+                        alt={`${project.title} logo`}
+                        width={96}
+                        height={96}
+                        className="object-contain w-full h-full"
+                      />
+                    </div>
+                  )}
+                  <div className="space-y-2 flex-1">
+                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                      {project.title}
+                    </h1>
+                    <div className="flex flex-wrap gap-2">
+                      {project.technologies.split(", ").map((tech: string) => (
+                        <span
+                          key={tech}
+                          className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
 
@@ -111,32 +125,72 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                 </div>
 
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                  <CardContent className="p-6 space-y-4">
+                  <CardContent className="p-6 space-y-6">
                     <h2 className="text-2xl font-bold">Project Details</h2>
-                    <div className="space-y-4">
+                    <div className="space-y-6">
+                      {/* Features section */}
                       <div>
                         <h3 className="text-lg font-semibold">Features</h3>
-                        <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-500 dark:text-gray-400">
-                          <li>Responsive design for all device sizes</li>
-                          <li>Modern UI/UX with intuitive navigation</li>
-                          <li>Optimized performance and accessibility</li>
-                          <li>Secure authentication and data handling</li>
-                        </ul>
+                        {project.features && project.features.length > 0 ? (
+                          <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-500 dark:text-gray-400">
+                            {project.features.map((feature: any) => (
+                              <li key={feature.id}>
+                                <span className="font-medium">{feature.name}</span>
+                                {feature.description && (
+                                  <span className="block text-sm ml-2">{feature.description}</span>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">No specific features listed for this project.</p>
+                        )}
                       </div>
 
+                      {/* Technologies section */}
                       <div>
                         <h3 className="text-lg font-semibold">Technologies Used</h3>
                         <p className="mt-2 text-gray-500 dark:text-gray-400">{project.technologies}</p>
                       </div>
 
+                      {/* Development Process section */}
                       <div>
                         <h3 className="text-lg font-semibold">Development Process</h3>
-                        <p className="mt-2 text-gray-500 dark:text-gray-400">
-                          This project was developed using an agile methodology, with regular iterations and feedback
-                          cycles. The development process included planning, design, implementation, testing, and
-                          deployment phases.
-                        </p>
+                        {project.developmentProcess ? (
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.developmentProcess}</p>
+                        ) : (
+                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">No development process information provided.</p>
+                        )}
                       </div>
+
+                      {/* Challenges Faced section - only show if data exists */}
+                      {project.challengesFaced && (
+                        <div>
+                          <h3 className="text-lg font-semibold">Challenges Faced</h3>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.challengesFaced}</p>
+                        </div>
+                      )}
+
+                      {/* Future Plans section - only show if data exists */}
+                      {project.futurePlans && (
+                        <div>
+                          <h3 className="text-lg font-semibold">Future Plans</h3>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.futurePlans}</p>
+                        </div>
+                      )}
+
+                      {/* Project Logs section - only show if data exists */}
+                      {project.logContent && (
+                        <div>
+                          <h3 className="text-lg font-semibold flex items-center gap-2">
+                            <Terminal className="h-4 w-4" />
+                            Project Logs
+                          </h3>
+                          <div className="mt-2">
+                            <CodeBlock language="shell" code={project.logContent} />
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -150,4 +204,3 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     </div>
   )
 }
-

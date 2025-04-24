@@ -31,26 +31,45 @@ export default function SettingsPage() {
   const [settings, setSettings] = useState({
     adminEmail: "",
     emailFrom: "",
-    emailServer: "",
-    emailPort: "",
-    emailUser: "",
-    emailPassword: "",
+    smtpServer: "",
+    smtpPort: "",
+    smtpUser: "",
+    smtpPassword: "",
     sendAutoReply: false,
   })
 
   useEffect(() => {
-    // In a real app, you would fetch these from your API
-    // For now, we'll just use environment variables
-    setSettings({
-      adminEmail: process.env.NEXT_PUBLIC_ADMIN_EMAIL || "",
-      emailFrom: process.env.NEXT_PUBLIC_EMAIL_FROM || "",
-      emailServer: process.env.NEXT_PUBLIC_EMAIL_SERVER || "",
-      emailPort: process.env.NEXT_PUBLIC_EMAIL_PORT || "",
-      emailUser: process.env.NEXT_PUBLIC_EMAIL_USER || "",
-      emailPassword: "",
-      sendAutoReply: process.env.NEXT_PUBLIC_SEND_AUTO_REPLY === "true",
-    })
-  }, [])
+    // Fetch email settings from the API
+    async function fetchEmailSettings() {
+      try {
+        const response = await fetch("/api/settings/email")
+        if (!response.ok) {
+          throw new Error("Failed to fetch email settings")
+        }
+
+        const data = await response.json()
+        setSettings({
+          ...settings,
+          adminEmail: data.adminEmail || "",
+          emailFrom: data.emailFrom || "",
+          smtpServer: data.smtpServer || "",
+          smtpPort: data.smtpPort || "",
+          smtpUser: data.smtpUser || "",
+          smtpPassword: "", // Password is not returned for security
+          sendAutoReply: data.sendAutoReply || false,
+        })
+      } catch (error) {
+        console.error("Error fetching email settings:", error)
+        toast({
+          title: "Error",
+          description: "Failed to load email settings",
+          variant: "destructive",
+        })
+      }
+    }
+
+    fetchEmailSettings()
+  }, [toast])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -235,12 +254,24 @@ export default function SettingsPage() {
       .toUpperCase()
     : "U"
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  async function handleEmailSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
 
     try {
-      // In a real app, you would save these to your API
+      const response = await fetch("/api/settings/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settings),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save email settings")
+      }
+
       toast({
         title: "Settings saved",
         description: "Your email notification settings have been saved.",
@@ -263,6 +294,35 @@ export default function SettingsPage() {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }))
+  }
+
+  async function handleSendTestEmail() {
+    try {
+      const response = await fetch("/api/settings/email/test", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: settings.adminEmail }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to send test email")
+      }
+
+      toast({
+        title: "Test email sent",
+        description: "A test notification has been sent to your email address.",
+      })
+    } catch (error) {
+      console.error("Error sending test email:", error)
+      toast({
+        title: "Error",
+        description: "Failed to send test email",
+        variant: "destructive",
+      })
+    }
   }
 
   return (
@@ -448,7 +508,7 @@ export default function SettingsPage() {
                 <CardTitle>Email Notifications</CardTitle>
                 <CardDescription>Configure how you receive notifications for new contacts.</CardDescription>
               </CardHeader>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleEmailSettingsSubmit}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="adminEmail">Notification Email</Label>
@@ -517,15 +577,7 @@ export default function SettingsPage() {
                 <CardDescription>Send a test email to verify your notification settings.</CardDescription>
               </CardHeader>
               <CardContent>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    toast({
-                      title: "Test email sent",
-                      description: "A test notification has been sent to your email address.",
-                    })
-                  }}
-                >
+                <Button variant="outline" onClick={handleSendTestEmail}>
                   <Bell className="mr-2 h-4 w-4" /> Send Test Email
                 </Button>
               </CardContent>
@@ -538,49 +590,49 @@ export default function SettingsPage() {
                 <CardTitle>SMTP Settings</CardTitle>
                 <CardDescription>Configure your SMTP server for sending emails.</CardDescription>
               </CardHeader>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleEmailSettingsSubmit}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="emailServer">SMTP Server</Label>
+                    <Label htmlFor="smtpServer">SMTP Server</Label>
                     <Input
-                      id="emailServer"
-                      name="emailServer"
+                      id="smtpServer"
+                      name="smtpServer"
                       placeholder="smtp.example.com"
-                      value={settings.emailServer}
+                      value={settings.smtpServer}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="emailPort">SMTP Port</Label>
+                    <Label htmlFor="smtpPort">SMTP Port</Label>
                     <Input
-                      id="emailPort"
-                      name="emailPort"
+                      id="smtpPort"
+                      name="smtpPort"
                       placeholder="587"
-                      value={settings.emailPort}
+                      value={settings.smtpPort}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="emailUser">SMTP Username</Label>
+                    <Label htmlFor="smtpUser">SMTP Username</Label>
                     <Input
-                      id="emailUser"
-                      name="emailUser"
+                      id="smtpUser"
+                      name="smtpUser"
                       placeholder="user@example.com"
-                      value={settings.emailUser}
+                      value={settings.smtpUser}
                       onChange={handleChange}
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="emailPassword">SMTP Password</Label>
+                    <Label htmlFor="smtpPassword">SMTP Password</Label>
                     <Input
-                      id="emailPassword"
-                      name="emailPassword"
+                      id="smtpPassword"
+                      name="smtpPassword"
                       type="password"
                       placeholder="••••••••"
-                      value={settings.emailPassword}
+                      value={settings.smtpPassword}
                       onChange={handleChange}
                     />
                   </div>

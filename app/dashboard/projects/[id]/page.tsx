@@ -2,10 +2,10 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -14,8 +14,8 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { FileUpload } from "@/components/file-upload"
+import { FeatureInput } from "@/components/feature-input"
 
 interface EditProjectPageProps {
   params: {
@@ -30,6 +30,11 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [project, setProject] = useState<any>(null)
   const [imageUrl, setImageUrl] = useState("")
+  const [logoUrl, setLogoUrl] = useState("")
+  const [logContent, setLogContent] = useState("")
+  const [features, setFeatures] = useState<any[]>([])
+  const logFileInputRef = useRef<HTMLInputElement>(null)
+  const [uploadingLog, setUploadingLog] = useState(false)
 
   useEffect(() => {
     async function fetchProject() {
@@ -43,6 +48,9 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
         const data = await response.json()
         setProject(data.project)
         setImageUrl(data.project.imageUrl || "")
+        setLogoUrl(data.project.logoUrl || "")
+        setLogContent(data.project.logContent || "")
+        setFeatures(data.project.features || [])
       } catch (error) {
         console.error("Error fetching project:", error)
         toast({
@@ -69,6 +77,9 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     const link = formData.get("link") as string
     const githubUrl = formData.get("githubUrl") as string
     const featured = Boolean(formData.get("featured"))
+    const developmentProcess = formData.get("developmentProcess") as string
+    const challengesFaced = formData.get("challengesFaced") as string
+    const futurePlans = formData.get("futurePlans") as string
 
     try {
       const response = await fetch(`/api/projects/${params.id}`, {
@@ -83,7 +94,16 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           link,
           githubUrl,
           imageUrl,
+          logoUrl,
           featured,
+          developmentProcess,
+          challengesFaced,
+          futurePlans,
+          logContent,
+          features: features.map((feature) => ({
+            name: feature.name,
+            description: feature.description,
+          })),
         }),
       })
 
@@ -143,6 +163,44 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     }
   }
 
+  async function handleLogFileUpload(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setUploadingLog(true)
+
+    try {
+      // Read file content
+      const text = await file.text()
+      setLogContent(text)
+
+      toast({
+        title: "Log file loaded",
+        description: "Log file has been loaded successfully.",
+      })
+    } catch (error) {
+      console.error("Log file reading error:", error)
+      toast({
+        title: "File reading failed",
+        description: error instanceof Error ? error.message : "Something went wrong",
+        variant: "destructive",
+      })
+    } finally {
+      setUploadingLog(false)
+    }
+  }
+
+  function triggerLogFileInput() {
+    logFileInputRef.current?.click()
+  }
+
+  function removeLogFile() {
+    setLogContent("")
+    if (logFileInputRef.current) {
+      logFileInputRef.current.value = ""
+    }
+  }
+
   if (isLoading) {
     return (
       <div>
@@ -183,11 +241,12 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           <CardDescription>Update the details of your project.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input id="title" name="title" defaultValue={project.title} placeholder="Project title" required />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
               <Textarea
@@ -199,6 +258,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                 required
               />
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="technologies">Technologies</Label>
               <Input
@@ -210,32 +270,127 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
               />
               <p className="text-sm text-muted-foreground">Separate technologies with commas</p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="link">Project Link</Label>
-              <Input
-                id="link"
-                name="link"
-                defaultValue={project.link || ""}
-                placeholder="https://example.com/project"
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="link">Project Link</Label>
+                <Input
+                  id="link"
+                  name="link"
+                  defaultValue={project.link || ""}
+                  placeholder="https://example.com/project"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="githubUrl">GitHub Repository</Label>
+                <Input
+                  id="githubUrl"
+                  name="githubUrl"
+                  defaultValue={project.githubUrl || ""}
+                  placeholder="https://github.com/username/repo"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <FileUpload
+                id="project-image"
+                label="Project Screenshot"
+                value={imageUrl}
+                onChange={setImageUrl}
+                accept="image/*"
+                maxSize={2}
+              />
+
+              <FileUpload
+                id="project-logo"
+                label="Project Logo"
+                value={logoUrl}
+                onChange={setLogoUrl}
+                accept="image/*"
+                maxSize={1}
               />
             </div>
+
+            <FeatureInput features={features} onChange={setFeatures} />
+
             <div className="space-y-2">
-              <Label htmlFor="githubUrl">GitHub Repository</Label>
-              <Input
-                id="githubUrl"
-                name="githubUrl"
-                defaultValue={project.githubUrl || ""}
-                placeholder="https://github.com/username/repo"
+              <Label htmlFor="developmentProcess">Development Process</Label>
+              <Textarea
+                id="developmentProcess"
+                name="developmentProcess"
+                defaultValue={
+                  project.developmentProcess ||
+                  "This project was developed using an agile methodology, with regular iterations and feedback cycles. The development process included planning, design, implementation, testing, and deployment phases."
+                }
+                placeholder="Describe your development process, methodology, and approach"
+                rows={3}
               />
             </div>
-            <FileUpload
-              id="project-image"
-              label="Project Image"
-              value={imageUrl}
-              onChange={setImageUrl}
-              accept="image/*"
-              maxSize={2}
-            />
+
+            <div className="space-y-2">
+              <Label htmlFor="challengesFaced">Challenges Faced</Label>
+              <Textarea
+                id="challengesFaced"
+                name="challengesFaced"
+                defaultValue={project.challengesFaced || ""}
+                placeholder="Describe any challenges you faced during development and how you overcame them"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="futurePlans">Future Plans</Label>
+              <Textarea
+                id="futurePlans"
+                name="futurePlans"
+                defaultValue={project.futurePlans || ""}
+                placeholder="Describe any future plans or improvements for this project"
+                rows={3}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="log-file">Project Log File</Label>
+              <div className="mt-2 flex flex-col gap-4">
+                {logContent && (
+                  <div className="relative overflow-hidden rounded-md border p-3 bg-gray-900 text-gray-200">
+                    <pre className="text-xs overflow-auto max-h-40">
+                      {logContent.slice(0, 500)}
+                      {logContent.length > 500 && "..."}
+                    </pre>
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      size="icon"
+                      className="absolute right-2 top-2 h-6 w-6 rounded-full"
+                      onClick={removeLogFile}
+                    >
+                      <X className="h-3 w-3" />
+                      <span className="sr-only">Remove log file</span>
+                    </Button>
+                  </div>
+                )}
+                <div className="flex items-center gap-4">
+                  <Button type="button" variant="outline" onClick={triggerLogFileInput} disabled={uploadingLog}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    {logContent ? "Change Log File" : "Upload Log File"}
+                  </Button>
+                  <input
+                    ref={logFileInputRef}
+                    id="log-file"
+                    type="file"
+                    accept=".log,.txt"
+                    className="hidden"
+                    onChange={handleLogFileUpload}
+                    disabled={uploadingLog}
+                  />
+                  {uploadingLog && <p className="text-sm text-muted-foreground">Loading log file...</p>}
+                </div>
+              </div>
+            </div>
+
             <div className="flex items-center space-x-2">
               <input
                 id="featured"
@@ -251,7 +406,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
             <Button type="button" variant="destructive" onClick={handleDelete}>
               Delete Project
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || uploadingLog}>
               {isSubmitting ? "Saving..." : "Save Changes"}
             </Button>
           </CardFooter>
@@ -260,4 +415,3 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     </div>
   )
 }
-
