@@ -134,7 +134,10 @@ export function MainNav() {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" size="sm" className="gap-2 hidden md:inline-flex">
                                     <Avatar className="h-8 w-8">
-                                        <AvatarImage src="/placeholder.svg" alt={session.user?.name || "User"} />
+                                        <AvatarImage
+                                            src=""
+                                            alt={session.user?.name || "User"}
+                                        />
                                         <AvatarFallback>{getInitials(session.user?.name)}</AvatarFallback>
                                     </Avatar>
                                     <span className="font-medium">{session.user?.name}</span>
@@ -222,7 +225,10 @@ export function MainNav() {
                                     <>
                                         <div className="flex items-center gap-3 py-3 border-t border-b">
                                             <Avatar className="h-10 w-10">
-                                                <AvatarImage src="/placeholder.svg" alt={session.user?.name || "User"} />
+                                                <AvatarImage
+                                                    src= ""
+                                                    alt={session.user?.name || "User"}
+                                                />
                                                 <AvatarFallback>{getInitials(session.user?.name)}</AvatarFallback>
                                             </Avatar>
                                             <div>
@@ -274,4 +280,3 @@ export function MainNav() {
         </header>
     )
 }
-

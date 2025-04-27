@@ -121,7 +121,7 @@ export function DashboardNav() {
                     {!isCollapsed && session?.user && (
                         <div className="flex items-center gap-2">
                             <Avatar className="h-8 w-8">
-                                <AvatarImage src="/placeholder.svg" alt={session.user.name || "User"} />
+                                <AvatarImage src="" alt={session.user.name || "User"} />
                                 <AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
                             </Avatar>
                         </div>

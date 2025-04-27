@@ -110,12 +110,14 @@ export interface Analytics {
   updatedAt: Date | string
 }
 
+// Type for 30-day change statistics
 export interface StatsWithChange {
   count: number
   change: number
   percentage: number
 }
 
+// Add EmailSettings interface to the types
 export interface EmailSettings {
   id: string
   adminEmail: string | null
@@ -125,6 +127,54 @@ export interface EmailSettings {
   smtpUser: string | null
   smtpPassword: string | null
   sendAutoReply: boolean
+  createdAt: Date | string
+  updatedAt: Date | string
+}
+
+// New types for newsletter functionality
+export interface Subscriber {
+  id: string
+  email: string
+  name: string | null
+  token: string
+  isConfirmed: boolean
+  createdAt: Date | string
+  updatedAt: Date | string
+  preferences?: SubscriberPreference
+}
+
+export interface SubscriberPreference {
+  id: string
+  subscriberId: string
+  projects: boolean
+  certificates: boolean
+  skills: boolean
+  careers: boolean
+  createdAt: Date | string
+  updatedAt: Date | string
+}
+
+export interface Newsletter {
+  id: string
+  subject: string
+  content: string
+  sentAt: Date | string | null
+  scheduledFor: Date | string | null
+  status: "draft" | "scheduled" | "sent" | "cancelled"
+  type: "project" | "certificate" | "skill" | "career" | "manual"
+  projectId: string | null
+  createdAt: Date | string
+  updatedAt: Date | string
+  project?: Project
+}
+
+export interface AnnouncementSettings {
+  id: string
+  userId: string
+  newProjects: boolean
+  newCertificates: boolean
+  newSkills: boolean
+  newCareers: boolean
   createdAt: Date | string
   updatedAt: Date | string
 }

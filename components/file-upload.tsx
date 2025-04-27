@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState, useRef } from "react"
-import { Upload, X } from "lucide-react"
+import { Upload, X, File } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -15,11 +15,21 @@ interface FileUploadProps {
   onChange: (value: string) => void
   accept?: string
   maxSize?: number // in MB
+  isImage?: boolean
 }
 
-export function FileUpload({ id, label, value, onChange, accept = "image/*", maxSize = 5 }: FileUploadProps) {
+export function FileUpload({
+  id,
+  label,
+  value,
+  onChange,
+  accept = "image/*",
+  maxSize = 5,
+  isImage = true
+}: FileUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null)
   const [error, setError] = useState<string | null>(null)
+  const [fileName, setFileName] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -33,10 +43,19 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
     }
 
     setError(null)
+    setFileName(file.name)
 
-    // Create a preview URL
-    const objectUrl = URL.createObjectURL(file)
-    setPreview(objectUrl)
+    // For images, create a preview URL
+    if (isImage && file.type.startsWith('image/')) {
+      const objectUrl = URL.createObjectURL(file)
+      setPreview(objectUrl)
+    } else if (isImage) {
+      setError("Selected file is not an image")
+      return
+    } else {
+      // For non-image files, we don't need a visual preview
+      setPreview(null)
+    }
 
     // Convert to base64 for storage
     const reader = new FileReader()
@@ -49,6 +68,7 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
 
   const clearFile = () => {
     setPreview(null)
+    setFileName(null)
     onChange("")
     setError(null)
     if (fileInputRef.current) {
@@ -61,7 +81,7 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
       <Label htmlFor={id}>{label}</Label>
 
       <div className="flex flex-col gap-3">
-        {preview && (
+        {isImage && preview && (
           <div className="relative w-full max-w-[200px] h-[150px] rounded-md overflow-hidden border">
             <img src={preview || "/placeholder.svg"} alt="Preview" className="w-full h-full object-cover" />
             <Button
@@ -76,7 +96,24 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
           </div>
         )}
 
-        {!preview && (
+        {!isImage && value && (
+          <div className="flex items-center gap-2 p-3 border rounded-md bg-muted/20 max-w-md">
+            <File className="h-5 w-5 text-muted-foreground" />
+            <span className="text-sm truncate flex-1">{fileName || "File uploaded"}</span>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={clearFile}
+              className="h-7 px-2 text-destructive"
+            >
+              <X className="h-3.5 w-3.5 mr-1" />
+              Remove
+            </Button>
+          </div>
+        )}
+
+        {(!preview && isImage) || (!value && !isImage) ? (
           <div className="flex items-center gap-2">
             <Input
               ref={fileInputRef}
@@ -86,12 +123,17 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
               onChange={handleFileChange}
               className="hidden"
             />
-            <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} className="gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => fileInputRef.current?.click()}
+              className={`gap-2 ${!isImage ? 'w-auto' : 'h-32 w-full border-dashed'}`}
+            >
               <Upload className="h-4 w-4" />
-              Upload {label}
+              Upload {isImage ? "Image" : "File"}
             </Button>
           </div>
-        )}
+        ) : null}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
         <p className="text-xs text-muted-foreground">
@@ -101,4 +143,3 @@ export function FileUpload({ id, label, value, onChange, accept = "image/*", max
     </div>
   )
 }
-

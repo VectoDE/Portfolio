@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
 import { Eye, EyeOff, KeyRound, Mail, Upload, User, Bell, Save } from "lucide-react"
@@ -16,6 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { FileUpload } from "@/components/file-upload"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -24,10 +25,8 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
-  const [imagePreview, setImagePreview] = useState<string | null>(session?.user?.image || null)
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const [uploadingImage, setUploadingImage] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showFileUpload, setShowFileUpload] = useState(false)
   const [settings, setSettings] = useState({
     adminEmail: "",
     emailFrom: "",
@@ -36,6 +35,12 @@ export default function SettingsPage() {
     smtpUser: "",
     smtpPassword: "",
     sendAutoReply: false,
+  })
+  const [announcements, setAnnouncements] = useState({
+    newProjects: true,
+    newCertificates: true,
+    newSkills: true,
+    newCareers: true,
   })
 
   useEffect(() => {
@@ -68,7 +73,29 @@ export default function SettingsPage() {
       }
     }
 
+    // Fetch announcement settings
+    async function fetchAnnouncementSettings() {
+      try {
+        const response = await fetch("/api/settings/announcements")
+        if (!response.ok) {
+          throw new Error("Failed to fetch announcement settings")
+        }
+
+        const data = await response.json()
+        setAnnouncements({
+          newProjects: data.newProjects,
+          newCertificates: data.newCertificates,
+          newSkills: data.newSkills,
+          newCareers: data.newCareers,
+        })
+      } catch (error) {
+        console.error("Error fetching announcement settings:", error)
+        // Don't show toast for this, just use defaults
+      }
+    }
+
     fetchEmailSettings()
+    fetchAnnouncementSettings()
   }, [toast])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
@@ -78,7 +105,6 @@ export default function SettingsPage() {
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
     const email = formData.get("email") as string
-    const imageUrl = session?.user?.image || null
 
     try {
       const response = await fetch("/api/user/profile", {
@@ -89,7 +115,6 @@ export default function SettingsPage() {
         body: JSON.stringify({
           name,
           email,
-          imageUrl,
         }),
       })
 
@@ -98,7 +123,7 @@ export default function SettingsPage() {
         throw new Error(error.error || "Failed to update profile")
       }
 
-      // Update session
+      // Update session with the correct field name (imageUrl)
       if (session) {
         await update({
           ...session,
@@ -106,7 +131,6 @@ export default function SettingsPage() {
             ...session.user,
             name,
             email,
-            image: imageUrl,
           },
         })
       }
@@ -184,110 +208,6 @@ export default function SettingsPage() {
     }
   }
 
-  async function handleImageUpload(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-    if (!file) return
-
-    // Create a preview
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImagePreview(reader.result as string)
-    }
-    reader.readAsDataURL(file)
-
-    // Upload the file
-    setUploadingImage(true)
-    const formData = new FormData()
-    formData.append("file", file)
-
-    try {
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to upload image")
-      }
-
-      const data = await response.json()
-
-      // Update session with new image URL
-      if (session) {
-        await update({
-          ...session,
-          user: {
-            ...session.user,
-            image: data.imageUrl,
-          },
-        })
-      }
-
-      toast({
-        title: "Image uploaded",
-        description: "Your profile image has been updated successfully.",
-      })
-    } catch (error) {
-      console.error("Image upload error:", error)
-      toast({
-        title: "Upload failed",
-        description: error instanceof Error ? error.message : "Something went wrong",
-        variant: "destructive",
-      })
-      // Reset preview on error
-      setImagePreview(session?.user?.image || null)
-    } finally {
-      setUploadingImage(false)
-    }
-  }
-
-  function triggerFileInput() {
-    fileInputRef.current?.click()
-  }
-
-  const userInitials = session?.user?.name
-    ? session.user.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-    : "U"
-
-  async function handleEmailSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setIsSubmitting(true)
-
-    try {
-      const response = await fetch("/api/settings/email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(settings),
-      })
-
-      if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to save email settings")
-      }
-
-      toast({
-        title: "Settings saved",
-        description: "Your email notification settings have been saved.",
-      })
-    } catch (error) {
-      console.error("Error saving settings:", error)
-      toast({
-        title: "Error",
-        description: "Failed to save settings",
-        variant: "destructive",
-      })
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     const { name, value, type, checked } = e.target
     setSettings((prev) => ({
@@ -325,6 +245,90 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleEmailSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/settings/email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(settings),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save email settings")
+      }
+
+      toast({
+        title: "Settings saved",
+        description: "Your email notification settings have been saved.",
+      })
+    } catch (error) {
+      console.error("Error saving settings:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save settings",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  const userInitials = session?.user?.name
+    ? session.user.name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+    : "U"
+
+  async function handleAnnouncementSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault()
+    setIsSubmitting(true)
+
+    try {
+      const response = await fetch("/api/settings/announcements", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(announcements),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to save announcement settings")
+      }
+
+      toast({
+        title: "Settings saved",
+        description: "Your announcement settings have been saved.",
+      })
+    } catch (error) {
+      console.error("Error saving settings:", error)
+      toast({
+        title: "Error",
+        description: "Failed to save announcement settings",
+        variant: "destructive",
+      })
+    } finally {
+      setIsSubmitting(false)
+    }
+  }
+
+  function handleAnnouncementChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const { name, checked } = e.target
+    setAnnouncements((prev) => ({
+      ...prev,
+      [name]: checked,
+    }))
+  }
+
   return (
     <div>
       <DashboardHeader heading="Settings" text="Manage your account settings" />
@@ -336,6 +340,9 @@ export default function SettingsPage() {
             </TabsTrigger>
             <TabsTrigger value="password" className="flex-1 md:flex-none">
               Password
+            </TabsTrigger>
+            <TabsTrigger value="announcements" className="flex-1 md:flex-none">
+              Announcements
             </TabsTrigger>
             <TabsTrigger value="email-notifications" className="flex-1 md:flex-none">
               Notifications
@@ -352,34 +359,6 @@ export default function SettingsPage() {
               </CardHeader>
               <form onSubmit={handleProfileUpdate}>
                 <CardContent className="space-y-6">
-                  <div className="flex flex-col items-center space-y-4">
-                    <div className="relative">
-                      <Avatar className="h-24 w-24">
-                        <AvatarImage src={imagePreview || undefined} alt={session?.user?.name || "User"} />
-                        <AvatarFallback className="text-lg">{userInitials}</AvatarFallback>
-                      </Avatar>
-                      <Button
-                        type="button"
-                        size="icon"
-                        variant="outline"
-                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full"
-                        onClick={triggerFileInput}
-                        disabled={uploadingImage}
-                      >
-                        <Upload className="h-4 w-4" />
-                        <span className="sr-only">Upload profile picture</span>
-                      </Button>
-                      <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleImageUpload}
-                        disabled={uploadingImage}
-                      />
-                    </div>
-                    {uploadingImage && <p className="text-sm text-muted-foreground">Uploading image...</p>}
-                  </div>
                   <div className="space-y-2">
                     <Label htmlFor="name">Name</Label>
                     <div className="relative">
@@ -411,7 +390,7 @@ export default function SettingsPage() {
                   </div>
                 </CardContent>
                 <CardFooter>
-                  <Button type="submit" disabled={isLoading || uploadingImage}>
+                  <Button type="submit" disabled={isLoading}>
                     {isLoading ? "Saving..." : "Save Changes"}
                   </Button>
                 </CardFooter>
@@ -502,6 +481,67 @@ export default function SettingsPage() {
               </form>
             </Card>
           </TabsContent>
+
+          <TabsContent value="announcements" className="space-y-4">
+            <Card>
+              <CardHeader>
+                <CardTitle>Announcement Notifications</CardTitle>
+                <CardDescription>Configure which announcements you want to receive.</CardDescription>
+              </CardHeader>
+              <form onSubmit={handleAnnouncementSettingsSubmit}>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="newProjects"
+                      name="newProjects"
+                      checked={announcements.newProjects}
+                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newProjects: checked }))}
+                    />
+                    <Label htmlFor="newProjects">New Projects</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="newCertificates"
+                      name="newCertificates"
+                      checked={announcements.newCertificates}
+                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCertificates: checked }))}
+                    />
+                    <Label htmlFor="newCertificates">New Certificates</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="newSkills"
+                      name="newSkills"
+                      checked={announcements.newSkills}
+                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newSkills: checked }))}
+                    />
+                    <Label htmlFor="newSkills">New Skills</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Switch
+                      id="newCareers"
+                      name="newCareers"
+                      checked={announcements.newCareers}
+                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCareers: checked }))}
+                    />
+                    <Label htmlFor="newCareers">New Careers</Label>
+                  </div>
+                </CardContent>
+                <CardFooter>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting ? (
+                      "Saving..."
+                    ) : (
+                      <>
+                        <Save className="mr-2 h-4 w-4" /> Save Announcement Settings
+                      </>
+                    )}
+                  </Button>
+                </CardFooter>
+              </form>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="email-notifications" className="space-y-4">
             <Card>
               <CardHeader>

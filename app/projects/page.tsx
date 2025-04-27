@@ -4,6 +4,8 @@ import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { ProjectsGrid } from "@/components/projects-grid"
 import { ProjectsSkeleton } from "@/components/skeletons/projects-skeleton"
+import { NewsletterForm } from "@/components/newsletter-form"
+import { Card, CardContent } from "@/components/ui/card"
 
 export const metadata = {
   title: "Projects | Tim Hauke",
@@ -39,6 +41,14 @@ export default function ProjectsPage() {
               <Suspense fallback={<ProjectsSkeleton />}>
                 <ProjectsGrid />
               </Suspense>
+
+              <div className="mt-24 mb-12">
+                <Card className="border border-purple-200 dark:border-purple-800 bg-background/60 backdrop-blur-sm">
+                  <CardContent className="pt-6">
+                    <NewsletterForm />
+                  </CardContent>
+                </Card>
+              </div>
             </div>
           </section>
         </main>
@@ -48,4 +58,3 @@ export default function ProjectsPage() {
     </div>
   )
 }
-

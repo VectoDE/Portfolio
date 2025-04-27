@@ -11,40 +11,42 @@ datasource db {
 }
 
 model User {
-  id           String        @id @default(cuid())
-  email        String        @unique
-  password     String
-  name         String?
-  username     String?
-  imageUrl     String?
-  role         String?       @default("Member")
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  projects     Project[]
-  certificates Certificate[]
-  skills       Skill[]
-  careers      Career[]
+  id            String                @id @default(cuid())
+  email         String                @unique
+  password      String
+  name          String?
+  username      String?
+  imageUrl      String?
+  role          String?               @default("Member")
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  projects      Project[]
+  certificates  Certificate[]
+  skills        Skill[]
+  careers       Career[]
+  announcements AnnouncementSettings?
 }
 
 model Project {
-  id               String          @id @default(cuid())
-  title            String
-  description      String
-  technologies     String
-  link             String?
-  imageUrl         String?
-  logoUrl          String?
-  githubUrl        String?
-  featured         Boolean         @default(false)
-  developmentProcess String?       @default("This project was developed using an agile methodology, with regular iterations and feedback cycles.")
-  challengesFaced  String?
-  futurePlans      String?
-  logContent       String?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  userId           String
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  features         ProjectFeature[]
+  id                 String           @id @default(cuid())
+  title              String
+  description        String
+  technologies       String
+  link               String?
+  imageUrl           String?
+  logoUrl            String?
+  githubUrl          String?
+  featured           Boolean          @default(false)
+  developmentProcess String?          @default("This project was developed using an agile methodology, with regular iterations and feedback cycles.")
+  challengesFaced    String?
+  futurePlans        String?
+  logContent         String?
+  createdAt          DateTime         @default(now())
+  updatedAt          DateTime         @updatedAt
+  userId             String
+  user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  features           ProjectFeature[]
+  newsletters        Newsletter[]
 }
 
 model ProjectFeature {
@@ -95,7 +97,7 @@ model Career {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   userId      String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Contact {
@@ -121,7 +123,7 @@ model PageView {
 
 model Analytics {
   id        String   @id @default(cuid())
-  type      String   // daily, weekly, monthly
+  type      String // daily, weekly, monthly
   date      DateTime
   views     Int      @default(0)
   visitors  Int      @default(0)
@@ -140,4 +142,54 @@ model EmailSettings {
   sendAutoReply Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+// New models for newsletter functionality
+model Subscriber {
+  id          String                @id @default(cuid())
+  email       String                @unique
+  name        String?
+  token       String                @unique // For subscription management (unsubscribe, preferences)
+  isConfirmed Boolean               @default(false)
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+  preferences SubscriberPreference?
+}
+
+model SubscriberPreference {
+  id           String     @id @default(cuid())
+  subscriberId String     @unique
+  subscriber   Subscriber @relation(fields: [subscriberId], references: [id], onDelete: Cascade)
+  projects     Boolean    @default(true)
+  certificates Boolean    @default(true)
+  skills       Boolean    @default(true)
+  careers      Boolean    @default(true)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+}
+
+model Newsletter {
+  id           String    @id @default(cuid())
+  subject      String
+  content      String
+  sentAt       DateTime?
+  scheduledFor DateTime?
+  status       String    @default("draft") // draft, scheduled, sent, cancelled
+  type         String // project, certificate, skill, career, manual
+  projectId    String?
+  project      Project?  @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model AnnouncementSettings {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newProjects     Boolean  @default(true)
+  newCertificates Boolean  @default(true)
+  newSkills       Boolean  @default(true)
+  newCareers      Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
