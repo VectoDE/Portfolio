@@ -42,7 +42,7 @@ export default function AboutPage() {
 
               <div className="grid gap-10 md:grid-cols-2 md:gap-16">
                 <div>
-                <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
+                  <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
                     <div className="h-full w-full overflow-hidden rounded-lg">
                       <Image
                         src="/placeholder.svg?height=600&width=600"
@@ -60,24 +60,22 @@ export default function AboutPage() {
                       My Journey
                     </h2>
                     <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                      I'm a passionate Full Stack Developer with over 5 years of experience building web applications. I
+                      I'm a passionate Full Stack Developer with over 10 years of experience building web applications. I
                       specialize in React, Next.js, Node.js, and modern web technologies.
                     </p>
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Education</h3>
                     <p className="text-gray-500 dark:text-gray-400">
-                      Bachelor of Science in Computer Science
+                      Secondary School Certificate
                       <br />
-                      University of Technology, 2015-2019
+                      RBZ Itzehoe, 2020-2021
                     </p>
                   </div>
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Professional Experience</h3>
                     <p className="text-gray-500 dark:text-gray-400">
-                      I've worked with various companies from startups to enterprises, helping them build scalable and
-                      maintainable web applications. My focus is on creating exceptional user experiences with clean,
-                      efficient code.
+                      I've worked with startups, clubs, and associations, helping them develop scalable and maintainable web applications. My focus is on creating exceptional user experiences with clean, efficient code.
                     </p>
                   </div>
                 </div>
