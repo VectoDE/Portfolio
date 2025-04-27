@@ -9,6 +9,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { PageViewTracker } from "@/components/page-view-tracker"
 import { CookieBanner } from "@/components/cookie-banner"
+import { Logger } from "@/components/logger"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <NextAuthProvider>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+            <Logger />
             <PageViewTracker />
             {children}
             <Toaster />
