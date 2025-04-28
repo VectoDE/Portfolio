@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useState } from "react"
-import { MapPin, Phone, Mail } from "lucide-react"
+import { MapPin, Phone, Mail, User, Tag, MessageSquare } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -165,7 +165,10 @@ export default function ContactPage() {
                     <CardContent>
                       <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                          <Label htmlFor="name">Name</Label>
+                          <Label htmlFor="name" className="flex items-center gap-2">
+                            <User className="h-5 w-5 text-muted-foreground" />
+                            Name
+                          </Label>
                           <Input
                             id="name"
                             name="name"
@@ -176,7 +179,10 @@ export default function ContactPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="email">Email</Label>
+                          <Label htmlFor="email" className="flex items-center gap-2">
+                            <Mail className="h-5 w-5 text-muted-foreground" />
+                            Email
+                          </Label>
                           <Input
                             id="email"
                             name="email"
@@ -188,7 +194,10 @@ export default function ContactPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="subject">Subject</Label>
+                          <Label htmlFor="subject" className="flex items-center gap-2">
+                            <Tag className="h-5 w-5 text-muted-foreground" />
+                            Subject
+                          </Label>
                           <Input
                             id="subject"
                             name="subject"
@@ -199,7 +208,10 @@ export default function ContactPage() {
                           />
                         </div>
                         <div className="space-y-2">
-                          <Label htmlFor="message">Message</Label>
+                          <Label htmlFor="message" className="flex items-center gap-2">
+                            <MessageSquare className="h-5 w-5 text-muted-foreground" />
+                            Message
+                          </Label>
                           <Textarea
                             id="message"
                             name="message"

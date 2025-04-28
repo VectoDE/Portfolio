@@ -41,6 +41,46 @@ const getEmailConfig = async () => {
   }
 }
 
+// Generic email sending function for all types of emails
+export async function sendEmail({
+  to,
+  subject,
+  html,
+  text,
+}: {
+  to: string
+  subject: string
+  html: string
+  text?: string
+}) {
+  try {
+    const transporter = await createTransporter()
+    const emailConfig = await getEmailConfig()
+
+    // Create email content
+    const mailOptions = {
+      from: emailConfig.from,
+      to,
+      subject,
+      html,
+      text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML tags for plain text version if not provided
+    }
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    // For development with Ethereal, log the preview URL
+    if (process.env.NODE_ENV !== "production" && info.messageId) {
+      console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+
+    return { success: true, messageId: info.messageId }
+  } catch (error) {
+    console.error("Error sending email:", error)
+    return { success: false, error }
+  }
+}
+
 // Send email notification for new contact
 export async function sendContactNotification(contact: {
   name: string

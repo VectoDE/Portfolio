@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useEffect } from "react"
+import { useEffect } from "react";
 
 export const Logger = () => {
     useEffect(() => {
@@ -12,24 +12,36 @@ export const Logger = () => {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({ level, message }),
-                })
+                });
             } catch (err) {
-                console.error("Failed to send log:", err)
+                console.error("Failed to send log:", err);
             }
-        }
+        };
 
-        sendLog("info", "Page loaded")
+        // Log basic info when page loads
+        sendLog("info", "Page loaded");
 
-        sendLog("debug", `User agent: ${navigator.userAgent}`)
+        // Log user agent (debug info)
+        sendLog("debug", `User agent: ${navigator.userAgent}`);
 
-        window.addEventListener("error", (e) => {
-            sendLog("error", `Global error: ${e.message}`)
-        })
+        // Capture global JS errors
+        const handleError = (event: ErrorEvent) => {
+            sendLog("error", `Global error: ${event.message}`);
+        };
 
-        window.addEventListener("unhandledrejection", (e) => {
-            sendLog("error", `Unhandled promise rejection: ${e.reason}`)
-        })
-    }, [])
+        const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+            sendLog("error", `Unhandled promise rejection: ${event.reason}`);
+        };
 
-    return null
-}
+        window.addEventListener("error", handleError);
+        window.addEventListener("unhandledrejection", handleUnhandledRejection);
+
+        return () => {
+            // Cleanup listeners on unmount
+            window.removeEventListener("error", handleError);
+            window.removeEventListener("unhandledrejection", handleUnhandledRejection);
+        };
+    }, []);
+
+    return null;
+};

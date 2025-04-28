@@ -28,6 +28,10 @@ medium-private-key.pem
 # typescript
 *.tsbuildinfo
 
+# logs
+/logs
+*.log
+
 prisma/migrations/*
 prisma/dev.db
 prisma/dev.db-journal

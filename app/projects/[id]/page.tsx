@@ -52,7 +52,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <section className="w-full py-12 md:py-24 lg:py-12">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col space-y-8">
                 <Link href="/projects" className="flex items-center gap-2 text-primary hover:underline w-fit">

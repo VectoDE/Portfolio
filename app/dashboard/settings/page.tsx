@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Eye, EyeOff, KeyRound, Mail, Upload, User, Bell, Save } from "lucide-react"
+import { Eye, EyeOff, KeyRound, Mail, User, Bell, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,8 +15,6 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { FileUpload } from "@/components/file-upload"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -73,29 +71,37 @@ export default function SettingsPage() {
       }
     }
 
-    // Fetch announcement settings
-    async function fetchAnnouncementSettings() {
+    // Fetch newsletter preferences (announcements)
+    async function fetchNewsletterPreferences() {
       try {
-        const response = await fetch("/api/settings/announcements")
+        const response = await fetch(`/api/newsletter/preferences`);
+
         if (!response.ok) {
-          throw new Error("Failed to fetch announcement settings")
+          const errorData = await response.json();
+          throw new Error(errorData.error || "Failed to fetch newsletter preferences");
         }
 
-        const data = await response.json()
+        const data = await response.json();
+
         setAnnouncements({
-          newProjects: data.newProjects,
-          newCertificates: data.newCertificates,
-          newSkills: data.newSkills,
-          newCareers: data.newCareers,
-        })
+          newProjects: data.projects ?? true,
+          newCertificates: data.certificates ?? true,
+          newSkills: data.skills ?? true,
+          newCareers: data.careers ?? true,
+        });
       } catch (error) {
-        console.error("Error fetching announcement settings:", error)
-        // Don't show toast for this, just use defaults
+        console.error("Error fetching newsletter preferences:", error);
+
+        toast({
+          title: "Error",
+          description: error instanceof Error ? error.message : "Failed to load newsletter announcement settings",
+          variant: "destructive",
+        });
       }
     }
 
     fetchEmailSettings()
-    fetchAnnouncementSettings()
+    fetchNewsletterPreferences()
   }, [toast])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
@@ -288,45 +294,69 @@ export default function SettingsPage() {
     : "U"
 
   async function handleAnnouncementSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault()
-    setIsSubmitting(true)
+    event.preventDefault();
+    setIsSubmitting(true);
 
     try {
-      const response = await fetch("/api/settings/announcements", {
+      // Sicherstellen, dass die Session existiert und ein Token vorhanden ist
+      const adminToken = session?.user?.id || session?.user?.id;
+
+      if (!adminToken) {
+        throw new Error("No valid admin token found");
+      }
+
+      const payload = {
+        token: adminToken,
+        preferences: {
+          projects: announcements?.newProjects ?? false,
+          certificates: announcements?.newCertificates ?? false,
+          skills: announcements?.newSkills ?? false,
+          careers: announcements?.newCareers ?? false,
+        },
+      };
+
+      const response = await fetch("/api/newsletter/preferences", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(announcements),
-      })
+        body: JSON.stringify(payload),
+      });
 
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Failed to save announcement settings")
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save newsletter preferences");
       }
+
+      const result = await response.json();
 
       toast({
         title: "Settings saved",
-        description: "Your announcement settings have been saved.",
-      })
-    } catch (error) {
-      console.error("Error saving settings:", error)
+        description: result.message || "Your newsletter announcement settings have been saved.",
+      });
+    } catch (error: any) {
+      console.error("Error saving settings:", error.message);
       toast({
         title: "Error",
-        description: "Failed to save announcement settings",
+        description: error.message || "Failed to save newsletter announcement settings",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
     }
   }
 
-  function handleAnnouncementChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const { name, checked } = e.target
-    setAnnouncements((prev) => ({
-      ...prev,
-      [name]: checked,
-    }))
+  function handleAnnouncementChange(checked: boolean) {
+    // Get the name from the event target
+    // We need to use a different approach since we can't access the event directly
+    // We'll use the active element's ID to determine which switch was toggled
+    const id = document.activeElement?.id
+    if (id) {
+      setAnnouncements((prev) => ({
+        ...prev,
+        [id]: checked,
+      }))
+    }
   }
 
   return (
@@ -386,6 +416,34 @@ export default function SettingsPage() {
                         defaultValue={session?.user?.email || ""}
                         required
                       />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="profileImage">Profile Image</Label>
+                    <div className="flex items-center space-x-4">
+                      {showFileUpload ? (
+                        <div className="space-y-2 w-full">
+                          <Input
+                            id="profileImage"
+                            name="profileImage"
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              // Handle file upload logic here
+                              console.log("File selected:", e.target.files?.[0])
+                              // After upload is complete:
+                              setShowFileUpload(false)
+                            }}
+                          />
+                          <Button type="button" variant="outline" size="sm" onClick={() => setShowFileUpload(false)}>
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <Button type="button" variant="outline" onClick={() => setShowFileUpload(true)}>
+                          Upload Profile Image
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>
@@ -485,46 +543,42 @@ export default function SettingsPage() {
           <TabsContent value="announcements" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Announcement Notifications</CardTitle>
-                <CardDescription>Configure which announcements you want to receive.</CardDescription>
+                <CardTitle>Newsletter Announcements</CardTitle>
+                <CardDescription>Configure which announcements will be sent to newsletter subscribers.</CardDescription>
               </CardHeader>
               <form onSubmit={handleAnnouncementSettingsSubmit}>
                 <CardContent className="space-y-4">
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="newProjects"
-                      name="newProjects"
                       checked={announcements.newProjects}
                       onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newProjects: checked }))}
                     />
-                    <Label htmlFor="newProjects">New Projects</Label>
+                    <Label htmlFor="newProjects">Send newsletter when new projects are added</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="newCertificates"
-                      name="newCertificates"
                       checked={announcements.newCertificates}
                       onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCertificates: checked }))}
                     />
-                    <Label htmlFor="newCertificates">New Certificates</Label>
+                    <Label htmlFor="newCertificates">Send newsletter when new certificates are added</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="newSkills"
-                      name="newSkills"
                       checked={announcements.newSkills}
                       onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newSkills: checked }))}
                     />
-                    <Label htmlFor="newSkills">New Skills</Label>
+                    <Label htmlFor="newSkills">Send newsletter when new skills are added</Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="newCareers"
-                      name="newCareers"
                       checked={announcements.newCareers}
                       onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCareers: checked }))}
                     />
-                    <Label htmlFor="newCareers">New Careers</Label>
+                    <Label htmlFor="newCareers">Send newsletter when career updates are added</Label>
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -533,7 +587,7 @@ export default function SettingsPage() {
                       "Saving..."
                     ) : (
                       <>
-                        <Save className="mr-2 h-4 w-4" /> Save Announcement Settings
+                        <Save className="mr-2 h-4 w-4" /> Save Newsletter Settings
                       </>
                     )}
                   </Button>
@@ -590,7 +644,6 @@ export default function SettingsPage() {
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="sendAutoReply"
-                      name="sendAutoReply"
                       checked={settings.sendAutoReply}
                       onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, sendAutoReply: checked }))}
                     />

@@ -82,21 +82,37 @@ export default function RegisterPage() {
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Name</Label>
+              <Label htmlFor="name" className="flex items-center gap-2">
+                <User className="h-5 w-5 text-muted-foreground" />
+                Name
+              </Label>
               <div className="relative">
                 <User className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 <Input id="name" name="name" placeholder="John Doe" className="pl-10" required />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="flex items-center gap-2">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                Email
+              </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
-                <Input id="email" name="email" type="email" placeholder="name@example.com" className="pl-10" required />
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="name@example.com"
+                  className="pl-10"
+                  required
+                />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password" className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-muted-foreground" />
+                Password
+              </Label>
               <div className="relative">
                 <KeyRound className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
                 <Input

@@ -120,7 +120,7 @@ export default function AboutPage() {
                       <FileCode2 className="h-12 w-12 text-primary" />
                       <h3 className="text-xl font-bold">Frontend Development</h3>
                       <p className="text-gray-500 dark:text-gray-400 text-center">
-                        React, Next.js, TypeScript, Tailwind CSS, Redux, HTML/CSS
+                        React, Next.js, TypeScript, Tailwind CSS, PHP, HTML/CSS
                       </p>
                     </div>
                   </CardContent>
@@ -131,7 +131,7 @@ export default function AboutPage() {
                       <FileCode2 className="h-12 w-12 text-primary" />
                       <h3 className="text-xl font-bold">Backend Development</h3>
                       <p className="text-gray-500 dark:text-gray-400 text-center">
-                        Node.js, Express, NestJS, GraphQL, REST APIs, Prisma
+                        Node.js, Express, TypeScript, PHP, C++, REST APIs, Prisma
                       </p>
                     </div>
                   </CardContent>
@@ -142,7 +142,7 @@ export default function AboutPage() {
                       <FileCode2 className="h-12 w-12 text-primary" />
                       <h3 className="text-xl font-bold">Database & DevOps</h3>
                       <p className="text-gray-500 dark:text-gray-400 text-center">
-                        PostgreSQL, MongoDB, Docker, AWS, CI/CD, Git
+                        PostgreSQL, MongoDB, MySQL, Docker, CI/CD, Git
                       </p>
                     </div>
                   </CardContent>
