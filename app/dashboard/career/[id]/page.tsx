@@ -33,6 +33,17 @@ interface CareerEntry {
   logoUrl?: string | null
 }
 
+interface CareerEntry {
+  id: string
+  position: string
+  company: string
+  startDate: string
+  endDate: string
+  description: string
+  location?: string | null
+  logoUrl?: string | null
+}
+
 export default function EditCareerPage({ params }: EditCareerPageProps) {
   const router = useRouter()
   const { toast } = useToast()
