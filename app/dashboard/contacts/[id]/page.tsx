@@ -27,9 +27,9 @@ interface Contact {
 }
 
 interface ContactDetailsPageProps {
-    params: Promise<{
-        id: string
-    }>
+    params: {
+        id?: string
+    }
 }
 
 export default function ContactDetailsPage({ params }: ContactDetailsPageProps) {
@@ -42,44 +42,18 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
     const [contactId, setContactId] = useState<string | null>(null)
 
     useEffect(() => {
-        let isMounted = true
-
-        params
-            .then((value) => {
-                if (!isMounted) {
-                    return
-                }
-
-                if (!value?.id) {
-                    console.error("Missing contact id in route params")
-                    toast({
-                        title: "Invalid route",
-                        description: "The contact identifier is missing from the URL.",
-                        variant: "destructive",
-                    })
-                    setLoading(false)
-                    return
-                }
-
-                setContactId(value.id)
+        if (!params?.id) {
+            console.error("Missing contact id in route params")
+            toast({
+                title: "Invalid route",
+                description: "The contact identifier is missing from the URL.",
+                variant: "destructive",
             })
-            .catch((error) => {
-                if (!isMounted) {
-                    return
-                }
-
-                console.error("Failed to resolve contact route params:", error)
-                toast({
-                    title: "Invalid route",
-                    description: "We were unable to read the contact identifier from the URL.",
-                    variant: "destructive",
-                })
-                setLoading(false)
-            })
-
-        return () => {
-            isMounted = false
+            setLoading(false)
+            return
         }
+
+        setContactId(params.id)
     }, [params, toast])
 
     const handleStatusChange = useCallback(

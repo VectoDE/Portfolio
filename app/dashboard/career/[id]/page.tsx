@@ -17,9 +17,9 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
 
 interface EditCareerPageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: {
+    id?: string
+  }
 }
 
 interface CareerEntry {
@@ -55,44 +55,18 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
   const [careerId, setCareerId] = useState<string | null>(null)
 
   useEffect(() => {
-    let isMounted = true
-
-    params
-      .then((value) => {
-        if (!isMounted) {
-          return
-        }
-
-        if (!value?.id) {
-          console.error("Missing career id in route params")
-          toast({
-            title: "Invalid route",
-            description: "The career entry identifier is missing from the URL.",
-            variant: "destructive",
-          })
-          setIsLoading(false)
-          return
-        }
-
-        setCareerId(value.id)
+    if (!params?.id) {
+      console.error("Missing career id in route params")
+      toast({
+        title: "Invalid route",
+        description: "The career entry identifier is missing from the URL.",
+        variant: "destructive",
       })
-      .catch((error) => {
-        if (!isMounted) {
-          return
-        }
-
-        console.error("Failed to resolve career route params:", error)
-        toast({
-          title: "Invalid route",
-          description: "We were unable to read the career entry identifier from the URL.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
+      setIsLoading(false)
+      return
     }
+
+    setCareerId(params.id)
   }, [params, toast])
 
   useEffect(() => {
