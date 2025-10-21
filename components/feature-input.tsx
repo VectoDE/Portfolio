@@ -6,20 +6,20 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 
-interface Feature {
+export type FeatureDraft = {
     id: string
     name: string
     description: string
 }
 
 interface FeatureInputProps {
-    features: Feature[]
-    onChange: (features: Feature[]) => void
+    features: FeatureDraft[]
+    onChange: (features: FeatureDraft[]) => void
 }
 
 export function FeatureInput({ features = [], onChange }: FeatureInputProps) {
     const addFeature = () => {
-        const newFeature = {
+        const newFeature: FeatureDraft = {
             id: `temp-${Date.now()}`,
             name: "",
             description: "",
@@ -27,7 +27,7 @@ export function FeatureInput({ features = [], onChange }: FeatureInputProps) {
         onChange([...features, newFeature])
     }
 
-    const updateFeature = (index: number, field: keyof Feature, value: string) => {
+    const updateFeature = (index: number, field: keyof FeatureDraft, value: string) => {
         const updatedFeatures = [...features]
         updatedFeatures[index] = {
             ...updatedFeatures[index],

@@ -26,8 +26,17 @@ import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 
+interface ProjectTableEntry {
+  id: string
+  title: string
+  description: string
+  technologies: string[]
+  link: string
+  featured: boolean
+}
+
 // Mock data for projects
-const initialProjects = [
+const initialProjects: ProjectTableEntry[] = [
   {
     id: "1",
     title: "E-commerce Platform",
@@ -55,12 +64,12 @@ const initialProjects = [
 ]
 
 export function ProjectsTable() {
-  const [projects, setProjects] = useState(initialProjects)
+  const [projects, setProjects] = useState<ProjectTableEntry[]>(initialProjects)
   const [open, setOpen] = useState(false)
-  const [editingProject, setEditingProject] = useState<any>(null)
+  const [editingProject, setEditingProject] = useState<ProjectTableEntry | null>(null)
 
   const handleAddProject = (formData: FormData) => {
-    const newProject = {
+    const newProject: ProjectTableEntry = {
       id: Date.now().toString(),
       title: formData.get("title") as string,
       description: formData.get("description") as string,
@@ -74,7 +83,11 @@ export function ProjectsTable() {
   }
 
   const handleEditProject = (formData: FormData) => {
-    const updatedProject = {
+    if (!editingProject) {
+      return
+    }
+
+    const updatedProject: ProjectTableEntry = {
       id: editingProject.id,
       title: formData.get("title") as string,
       description: formData.get("description") as string,
@@ -92,7 +105,7 @@ export function ProjectsTable() {
     setProjects(projects.filter((p) => p.id !== id))
   }
 
-  const openEditDialog = (project: any) => {
+  const openEditDialog = (project: ProjectTableEntry) => {
     setEditingProject(project)
     setOpen(true)
   }

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Edit, Filter, MoreHorizontal, Trash } from "lucide-react"
@@ -50,40 +50,43 @@ export function DashboardProjectsTable() {
     })
 
     // Fetch projects
-    async function fetchProjects(page = 1, featured?: string) {
-        setLoading(true)
-        try {
-            let url = `/api/projects?page=${page}&limit=${pagination?.limit || 10}`
-            if (featured && featured !== "all") {
-                url += `&featured=${featured === "featured" ? "true" : "false"}`
-            }
+    const fetchProjects = useCallback(
+        async (page = 1, featured?: string) => {
+            setLoading(true)
+            try {
+                let url = `/api/projects?page=${page}&limit=${pagination?.limit || 10}`
+                if (featured && featured !== "all") {
+                    url += `&featured=${featured === "featured" ? "true" : "false"}`
+                }
 
-            const response = await fetch(url)
-            if (!response.ok) {
-                throw new Error("Failed to fetch projects")
-            }
+                const response = await fetch(url)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch projects")
+                }
 
-            const data = await response.json()
-            setProjects(data.projects || [])
-            setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
-        } catch (error) {
-            console.error("Error fetching projects:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load projects",
-                variant: "destructive",
-            })
-            // Set default pagination on error
-            setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
-        } finally {
-            setLoading(false)
-        }
-    }
+                const data = await response.json()
+                setProjects(data.projects || [])
+                setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
+            } catch (error) {
+                console.error("Error fetching projects:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load projects",
+                    variant: "destructive",
+                })
+                // Set default pagination on error
+                setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
+            } finally {
+                setLoading(false)
+            }
+        },
+        [pagination.limit, toast],
+    )
 
     // Initial fetch
     useEffect(() => {
         fetchProjects(1, featuredFilter !== "all" ? featuredFilter : undefined)
-    }, [featuredFilter])
+    }, [featuredFilter, fetchProjects])
 
     // Handle delete
     async function handleDeleteProject(id: string) {

@@ -97,7 +97,7 @@ export function CookieBanner() {
             trackPageView(currentPath)
 
             const originalPushState = history.pushState
-            history.pushState = function (state: any, title: string, url?: string | URL | null) {
+            history.pushState = function (state: unknown, title: string, url?: string | URL | null) {
                 originalPushState.call(this, state, title, url)
                 trackPageView(window.location.pathname)
             }

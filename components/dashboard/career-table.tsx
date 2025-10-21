@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
@@ -36,6 +36,11 @@ interface PaginationData {
     limit: number
 }
 
+interface CareersResponse {
+    careers: Career[]
+    pagination: PaginationData
+}
+
 export function DashboardCareerTable() {
     const router = useRouter()
     const { toast } = useToast()
@@ -51,40 +56,47 @@ export function DashboardCareerTable() {
     })
 
     // Fetch career entries
-    async function fetchCareers(page = 1, company?: string) {
-        setLoading(true)
-        try {
-            let url = `/api/career?page=${page}&limit=${pagination?.limit || 10}`
-            if (company && company !== "all") {
-                url += `&company=${company}`
-            }
+    const fetchCareers = useCallback(
+        async (page = 1, company?: string) => {
+            setLoading(true)
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: pagination.limit.toString(),
+                })
 
-            const response = await fetch(url)
-            if (!response.ok) {
-                throw new Error("Failed to fetch career entries")
-            }
+                if (company && company !== "all") {
+                    params.set("company", company)
+                }
 
-            const data = await response.json()
-            setCareers(data.careers || [])
-            setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
-        } catch (error) {
-            console.error("Error fetching career entries:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load career entries",
-                variant: "destructive",
-            })
-            // Set default pagination on error
-            setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
-        } finally {
-            setLoading(false)
-        }
-    }
+                const response = await fetch(`/api/career?${params.toString()}`)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch career entries")
+                }
+
+                const data: CareersResponse = await response.json()
+                setCareers(data.careers || [])
+                setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
+            } catch (error) {
+                console.error("Error fetching career entries:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load career entries",
+                    variant: "destructive",
+                })
+                // Set default pagination on error
+                setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
+            } finally {
+                setLoading(false)
+            }
+        },
+        [pagination.limit, toast],
+    )
 
     // Initial fetch
     useEffect(() => {
         fetchCareers(1, companyFilter !== "all" ? companyFilter : undefined)
-    }, [companyFilter])
+    }, [companyFilter, fetchCareers])
 
     // Handle delete
     async function handleDeleteCareer(id: string) {

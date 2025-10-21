@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 type FeatureInput = {
@@ -9,8 +9,14 @@ type FeatureInput = {
   description?: string | null
 }
 
+interface RouteParams {
+  params: Promise<{
+    id: string
+  }>
+}
+
 // GET /api/projects/[id] - Get a project by ID
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -19,7 +25,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     }
 
     const userId = session.user.id as string
-    const projectId = params.id
+    const { id: projectId } = await params
 
     const project = await prisma.project.findUnique({
       where: {
@@ -43,7 +49,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PUT /api/projects/[id] - Update a project
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -52,7 +58,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     }
 
     const userId = session.user.id as string
-    const projectId = params.id
+    const { id: projectId } = await params
     const data = await req.json()
 
     const {
@@ -133,7 +139,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
 }
 
 // DELETE /api/projects/[id] - Delete a project
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteParams) {
   try {
     const session = await getServerSession(authOptions)
 
@@ -142,7 +148,7 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
     }
 
     const userId = session.user.id as string
-    const projectId = params.id
+    const { id: projectId } = await params
 
     // Check if project exists and belongs to user
     const existingProject = await prisma.project.findUnique({

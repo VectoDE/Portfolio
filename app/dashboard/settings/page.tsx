@@ -15,6 +15,7 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
+import type { AnnouncementSettings, EmailSettings } from "@/types/database"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -25,7 +26,22 @@ export default function SettingsPage() {
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showFileUpload, setShowFileUpload] = useState(false)
-  const [settings, setSettings] = useState({
+  type EmailSettingsFormState = {
+    adminEmail: string
+    emailFrom: string
+    smtpServer: string
+    smtpPort: string
+    smtpUser: string
+    smtpPassword: string
+    sendAutoReply: boolean
+  }
+
+  type AnnouncementPreferences = Pick<
+    AnnouncementSettings,
+    "newProjects" | "newCertificates" | "newSkills" | "newCareers"
+  >
+
+  const [settings, setSettings] = useState<EmailSettingsFormState>({
     adminEmail: "",
     emailFrom: "",
     smtpServer: "",
@@ -34,7 +50,7 @@ export default function SettingsPage() {
     smtpPassword: "",
     sendAutoReply: false,
   })
-  const [announcements, setAnnouncements] = useState({
+  const [announcements, setAnnouncements] = useState<AnnouncementPreferences>({
     newProjects: true,
     newCertificates: true,
     newSkills: true,
@@ -50,17 +66,17 @@ export default function SettingsPage() {
           throw new Error("Failed to fetch email settings")
         }
 
-        const data = await response.json()
-        setSettings({
-          ...settings,
-          adminEmail: data.adminEmail || "",
-          emailFrom: data.emailFrom || "",
-          smtpServer: data.smtpServer || "",
-          smtpPort: data.smtpPort || "",
-          smtpUser: data.smtpUser || "",
-          smtpPassword: "", // Password is not returned for security
-          sendAutoReply: data.sendAutoReply || false,
-        })
+        const data: Partial<EmailSettings> = await response.json()
+        setSettings((prev) => ({
+          ...prev,
+          adminEmail: data.adminEmail ?? "",
+          emailFrom: data.emailFrom ?? "",
+          smtpServer: data.smtpServer ?? "",
+          smtpPort: data.smtpPort ?? "",
+          smtpUser: data.smtpUser ?? "",
+          smtpPassword: "",
+          sendAutoReply: data.sendAutoReply ?? false,
+        }))
       } catch (error) {
         console.error("Error fetching email settings:", error)
         toast({
@@ -74,29 +90,30 @@ export default function SettingsPage() {
     // Fetch newsletter preferences (announcements)
     async function fetchNewsletterPreferences() {
       try {
-        const response = await fetch(`/api/newsletter/preferences`);
+        const response = await fetch(`/api/newsletter/preferences`)
 
         if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || "Failed to fetch newsletter preferences");
+          const errorData = await response.json()
+          throw new Error(errorData.error || "Failed to fetch newsletter preferences")
         }
 
-        const data = await response.json();
+        const data: Partial<AnnouncementPreferences> = await response.json()
 
-        setAnnouncements({
-          newProjects: data.projects ?? true,
-          newCertificates: data.certificates ?? true,
-          newSkills: data.skills ?? true,
-          newCareers: data.careers ?? true,
-        });
+        setAnnouncements((prev) => ({
+          ...prev,
+          newProjects: data.newProjects ?? prev.newProjects,
+          newCertificates: data.newCertificates ?? prev.newCertificates,
+          newSkills: data.newSkills ?? prev.newSkills,
+          newCareers: data.newCareers ?? prev.newCareers,
+        }))
       } catch (error) {
-        console.error("Error fetching newsletter preferences:", error);
+        console.error("Error fetching newsletter preferences:", error)
 
         toast({
           title: "Error",
           description: error instanceof Error ? error.message : "Failed to load newsletter announcement settings",
           variant: "destructive",
-        });
+        })
       }
     }
 
@@ -285,21 +302,13 @@ export default function SettingsPage() {
     }
   }
 
-  const userInitials = session?.user?.name
-    ? session.user.name
-      .split(" ")
-      .map((n) => n[0])
-      .join("")
-      .toUpperCase()
-    : "U"
-
   async function handleAnnouncementSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setIsSubmitting(true);
 
     try {
       // Sicherstellen, dass die Session existiert und ein Token vorhanden ist
-      const adminToken = session?.user?.id || session?.user?.id;
+      const adminToken = session?.user?.id
 
       if (!adminToken) {
         throw new Error("No valid admin token found");
@@ -334,28 +343,18 @@ export default function SettingsPage() {
         title: "Settings saved",
         description: result.message || "Your newsletter announcement settings have been saved.",
       });
-    } catch (error: any) {
-      console.error("Error saving settings:", error.message);
+    } catch (error) {
+      console.error("Error saving settings:", error)
       toast({
         title: "Error",
-        description: error.message || "Failed to save newsletter announcement settings",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to save newsletter announcement settings",
         variant: "destructive",
-      });
+      })
     } finally {
-      setIsSubmitting(false);
-    }
-  }
-
-  function handleAnnouncementChange(checked: boolean) {
-    // Get the name from the event target
-    // We need to use a different approach since we can't access the event directly
-    // We'll use the active element's ID to determine which switch was toggled
-    const id = document.activeElement?.id
-    if (id) {
-      setAnnouncements((prev) => ({
-        ...prev,
-        [id]: checked,
-      }))
+      setIsSubmitting(false)
     }
   }
 

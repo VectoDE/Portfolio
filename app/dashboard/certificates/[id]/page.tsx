@@ -13,13 +13,13 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { FileUpload } from "@/components/file-upload"
+import type { Certificate } from "@/types/database"
 
 interface EditCertificatePageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditCertificatePage({ params }: EditCertificatePageProps) {
@@ -27,19 +27,65 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [certificate, setCertificate] = useState<any>(null)
+  const [certificate, setCertificate] = useState<Certificate | null>(null)
   const [imageUrl, setImageUrl] = useState("")
+  const [certificateId, setCertificateId] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
+    params
+      .then((value) => {
+        if (!isMounted) {
+          return
+        }
+
+        if (!value?.id) {
+          console.error("Missing certificate id in route params")
+          toast({
+            title: "Invalid route",
+            description: "The certificate identifier is missing from the URL.",
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+
+        setCertificateId(value.id)
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return
+        }
+
+        console.error("Failed to resolve certificate route params:", error)
+        toast({
+          title: "Invalid route",
+          description: "We were unable to read the certificate identifier from the URL.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [params, toast])
+
+  useEffect(() => {
+    if (!certificateId) {
+      return
+    }
+
     async function fetchCertificate() {
       try {
-        const response = await fetch(`/api/certificates/${params.id}`)
+        const response = await fetch(`/api/certificates/${certificateId}`)
 
         if (!response.ok) {
           throw new Error("Failed to fetch certificate")
         }
 
-        const data = await response.json()
+        const data: { certificate: Certificate } = await response.json()
         setCertificate(data.certificate)
         setImageUrl(data.certificate.imageUrl || "")
       } catch (error) {
@@ -55,11 +101,21 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
     }
 
     fetchCertificate()
-  }, [params.id, toast])
+  }, [certificateId, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
+
+    if (!certificateId) {
+      toast({
+        title: "Missing certificate",
+        description: "We couldn't determine which certificate should be updated.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
 
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
@@ -68,7 +124,7 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
     const link = formData.get("link") as string
 
     try {
-      const response = await fetch(`/api/certificates/${params.id}`, {
+      const response = await fetch(`/api/certificates/${certificateId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -111,8 +167,17 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
       return
     }
 
+    if (!certificateId) {
+      toast({
+        title: "Missing certificate",
+        description: "We couldn't determine which certificate should be deleted.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
-      const response = await fetch(`/api/certificates/${params.id}`, {
+      const response = await fetch(`/api/certificates/${certificateId}`, {
         method: "DELETE",
       })
 
@@ -164,8 +229,8 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
   }
 
   // Format date string for input field (yyyy-MM-dd)
-  const formatDateForInput = (dateString: string) => {
-    const date = new Date(dateString)
+  const formatDateForInput = (dateValue: string | Date) => {
+    const date = typeof dateValue === "string" ? new Date(dateValue) : dateValue
     return date.toISOString().split("T")[0]
   }
 

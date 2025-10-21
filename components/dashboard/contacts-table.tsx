@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { format } from "date-fns"
 import { Archive, CheckCircle, Eye, Filter, MoreHorizontal, Trash2 } from "lucide-react"
@@ -38,6 +38,11 @@ interface PaginationData {
     limit: number
 }
 
+interface ContactsResponse {
+    contacts: Contact[]
+    pagination: PaginationData
+}
+
 export function DashboardContactsTable() {
     const router = useRouter()
     const { toast } = useToast()
@@ -53,43 +58,50 @@ export function DashboardContactsTable() {
     })
 
     // Fetch contacts
-    async function fetchContacts(page = 1, status?: string) {
-        setLoading(true)
-        try {
-            let url = `/api/contacts?page=${page}&limit=${pagination?.limit || 10}`
-            if (status && status !== "all") {
-                url += `&status=${status}`
-            }
+    const fetchContacts = useCallback(
+        async (page = 1, status?: string) => {
+            setLoading(true)
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: pagination.limit.toString(),
+                })
 
-            const response = await fetch(url)
-            if (!response.ok) {
-                throw new Error("Failed to fetch contacts")
-            }
+                if (status && status !== "all") {
+                    params.set("status", status)
+                }
 
-            const data = await response.json()
-            setContacts(data.contacts || [])
-            setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
-        } catch (error) {
-            console.error("Error fetching contacts:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load contacts",
-                variant: "destructive",
-            })
-            // Set default pagination on error
-            setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
-        } finally {
-            setLoading(false)
-        }
-    }
+                const response = await fetch(`/api/contacts?${params.toString()}`)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch contacts")
+                }
+
+                const data: ContactsResponse = await response.json()
+                setContacts(data.contacts || [])
+                setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
+            } catch (error) {
+                console.error("Error fetching contacts:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load contacts",
+                    variant: "destructive",
+                })
+                // Set default pagination on error
+                setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
+            } finally {
+                setLoading(false)
+            }
+        },
+        [pagination.limit, toast],
+    )
 
     // Initial fetch
     useEffect(() => {
         fetchContacts(1, statusFilter !== "all" ? statusFilter : undefined)
-    }, [statusFilter])
+    }, [statusFilter, fetchContacts])
 
     // Handle status change
-    async function handleStatusChange(contactId: string, newStatus: string) {
+    async function handleStatusChange(contactId: string, newStatus: Contact["status"]) {
         try {
             const response = await fetch(`/api/contacts/${contactId}`, {
                 method: "PATCH",
@@ -105,7 +117,7 @@ export function DashboardContactsTable() {
 
             // Update the contact in the local state
             setContacts((prevContacts) =>
-                prevContacts.map((contact) => (contact.id === contactId ? { ...contact, status: newStatus as any } : contact)),
+                prevContacts.map((contact) => (contact.id === contactId ? { ...contact, status: newStatus } : contact)),
             )
 
             toast({

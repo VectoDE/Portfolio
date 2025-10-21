@@ -1,11 +1,17 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
+interface RouteParams {
+    params: Promise<{
+        id: string
+    }>
+}
+
 // GET /api/contacts/[id] - Get a single contact (protected)
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export async function GET(req: Request, { params }: RouteParams) {
     try {
         const session = await getServerSession(authOptions)
 
@@ -13,9 +19,11 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        const { id } = await params
+
         const contact = await prisma.contact.findUnique({
             where: {
-                id: params.id,
+                id,
             },
         })
 
@@ -31,7 +39,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
 }
 
 // PATCH /api/contacts/[id] - Update a contact (protected)
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, { params }: RouteParams) {
     try {
         const session = await getServerSession(authOptions)
 
@@ -41,9 +49,11 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
         const { status, notes } = await req.json()
 
+        const { id } = await params
+
         const contact = await prisma.contact.update({
             where: {
-                id: params.id,
+                id,
             },
             data: {
                 status,
@@ -59,7 +69,7 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 }
 
 // DELETE /api/contacts/[id] - Delete a contact (protected)
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, { params }: RouteParams) {
     try {
         const session = await getServerSession(authOptions)
 
@@ -67,9 +77,11 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
             return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
         }
 
+        const { id } = await params
+
         await prisma.contact.delete({
             where: {
-                id: params.id,
+                id,
             },
         })
 

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { format, subDays, startOfDay, endOfDay } from "date-fns"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // Function to calculate period change statistics

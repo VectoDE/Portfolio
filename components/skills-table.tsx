@@ -28,8 +28,16 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+interface SkillTableEntry {
+  id: string
+  name: string
+  category: string
+  level: string
+  years: number
+}
+
 // Mock data for skills
-const initialSkills = [
+const initialSkills: SkillTableEntry[] = [
   {
     id: "1",
     name: "React",
@@ -68,15 +76,15 @@ const initialSkills = [
 ]
 
 export function SkillsTable() {
-  const [skills, setSkills] = useState(initialSkills)
+  const [skills, setSkills] = useState<SkillTableEntry[]>(initialSkills)
   const [open, setOpen] = useState(false)
-  const [editingSkill, setEditingSkill] = useState<any>(null)
+  const [editingSkill, setEditingSkill] = useState<SkillTableEntry | null>(null)
 
   const handleAddSkill = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
 
-    const newSkill = {
+    const newSkill: SkillTableEntry = {
       id: Date.now().toString(),
       name: formData.get("name") as string,
       category: formData.get("category") as string,
@@ -92,7 +100,11 @@ export function SkillsTable() {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
 
-    const updatedSkill = {
+    if (!editingSkill) {
+      return
+    }
+
+    const updatedSkill: SkillTableEntry = {
       id: editingSkill.id,
       name: formData.get("name") as string,
       category: formData.get("category") as string,
@@ -109,7 +121,7 @@ export function SkillsTable() {
     setSkills(skills.filter((s) => s.id !== id))
   }
 
-  const openEditDialog = (skill: any) => {
+  const openEditDialog = (skill: SkillTableEntry) => {
     setEditingSkill(skill)
     setOpen(true)
   }

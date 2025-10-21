@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
+    const { id } = await params
+
     const career = await prisma.career.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     })
 
@@ -41,10 +43,12 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
     const { position, company, startDate, endDate, description, location, logoUrl } = await req.json()
 
+    const { id } = await params
+
     // Check if career entry exists and belongs to user
     const existingCareer = await prisma.career.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id as string,
       },
     })
@@ -55,7 +59,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
     const updatedCareer = await prisma.career.update({
       where: {
-        id: params.id,
+        id,
       },
       data: {
         position,
@@ -83,10 +87,12 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { id } = await params
+
     // Check if career entry exists and belongs to user
     const existingCareer = await prisma.career.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id as string,
       },
     })
@@ -97,7 +103,7 @@ export async function DELETE(req: Request, { params }: RouteParams) {
 
     await prisma.career.delete({
       where: {
-        id: params.id,
+        id,
       },
     })
 

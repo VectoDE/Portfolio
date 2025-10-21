@@ -4,7 +4,7 @@ import { writeFile } from "fs/promises"
 import path from "path"
 import { v4 as uuidv4 } from "uuid"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // POST /api/upload - Upload a file

@@ -1,3 +1,4 @@
+import Image from "next/image"
 import Link from "next/link"
 import {
   ArrowUpRight,
@@ -15,11 +16,11 @@ import { getServerSession } from "next-auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // Import the necessary types
-import type { Project, Certificate, Contact } from "@/types/database"
+import type { Project, Contact } from "@/types/database"
 
 type ContactStatusRow = {
   status: string
@@ -183,7 +184,6 @@ async function getStats() {
       career: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
       contacts: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
       featuredProjects: [] as Project[],
-      recentCertificates: [] as Certificate[],
       recentContacts: [] as Contact[],
       contactStatusBreakdown: [] as { status: string; count: number }[],
     }
@@ -199,7 +199,6 @@ async function getStats() {
     careerStats,
     contactStats,
     featuredProjects,
-    recentCertificates,
     recentContacts,
     contactStatusBreakdown,
   ] = await Promise.all([
@@ -213,11 +212,6 @@ async function getStats() {
       orderBy: { createdAt: "desc" },
       take: 3,
     }) as Promise<Project[]>,
-    prisma.certificate.findMany({
-      where: { userId },
-      orderBy: { date: "desc" },
-      take: 3,
-    }) as Promise<Certificate[]>,
     prisma.contact.findMany({
       orderBy: { createdAt: "desc" },
       take: 3,
@@ -237,7 +231,6 @@ async function getStats() {
     career: careerStats,
     contacts: contactStats,
     featuredProjects,
-    recentCertificates,
     recentContacts,
     contactStatusBreakdown,
   }
@@ -251,7 +244,6 @@ export default async function DashboardPage() {
     career,
     contacts,
     featuredProjects,
-    recentCertificates,
     recentContacts,
     contactStatusBreakdown,
   } = await getStats()
@@ -444,9 +436,11 @@ export default async function DashboardPage() {
                     <div className="flex gap-3">
                       {project.imageUrl && (
                         <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
-                          <img
+                          <Image
                             src={project.imageUrl || "/placeholder.svg"}
                             alt={project.title}
+                            width={48}
+                            height={48}
                             className="h-full w-full object-cover"
                           />
                         </div>
@@ -514,11 +508,10 @@ export default async function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recentContacts.map((contact: Contact) => {
-                  // Convert Date to string for display
-                  const createdAtString =
+                  const createdAt =
                     typeof contact.createdAt === "string"
-                      ? contact.createdAt
-                      : new Date(contact.createdAt).toISOString()
+                      ? new Date(contact.createdAt)
+                      : new Date(contact.createdAt)
 
                   return (
                     <div key={contact.id} className="flex items-start justify-between border-b pb-4 last:border-0">
@@ -526,6 +519,9 @@ export default async function DashboardPage() {
                         <h3 className="font-medium">{contact.name}</h3>
                         <p className="text-sm text-muted-foreground">{contact.email}</p>
                         <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{contact.subject}</p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Received {createdAt.toLocaleDateString()} at {createdAt.toLocaleTimeString()}
+                        </p>
                         <div className="mt-1">
                           {contact.status === "unread" ? (
                             <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-100">

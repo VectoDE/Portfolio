@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { Edit, Filter, MoreHorizontal, Trash } from "lucide-react"
@@ -50,12 +50,13 @@ export function DashboardSkillsTable() {
     })
 
     // Fetch skills
-    async function fetchSkills(page = 1, category?: string) {
-        setLoading(true)
-        try {
-            let url = `/api/skills?page=${page}&limit=${pagination?.limit || 10}`
-            if (category && category !== "all") {
-                url += `&category=${category}`
+    const fetchSkills = useCallback(
+        async (page = 1, category?: string) => {
+            setLoading(true)
+            try {
+                let url = `/api/skills?page=${page}&limit=${pagination?.limit || 10}`
+                if (category && category !== "all") {
+                    url += `&category=${category}`
             }
 
             const response = await fetch(url)
@@ -65,25 +66,27 @@ export function DashboardSkillsTable() {
 
             const data = await response.json()
             setSkills(data.skills || [])
-            setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
-        } catch (error) {
-            console.error("Error fetching skills:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load skills",
-                variant: "destructive",
-            })
-            // Set default pagination on error
-            setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
-        } finally {
-            setLoading(false)
-        }
-    }
+                setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
+            } catch (error) {
+                console.error("Error fetching skills:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load skills",
+                    variant: "destructive",
+                })
+                // Set default pagination on error
+                setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
+            } finally {
+                setLoading(false)
+            }
+        },
+        [pagination.limit, toast],
+    )
 
     // Initial fetch
     useEffect(() => {
         fetchSkills(1, categoryFilter !== "all" ? categoryFilter : undefined)
-    }, [categoryFilter])
+    }, [categoryFilter, fetchSkills])
 
     // Handle delete
     async function handleDeleteSkill(id: string) {

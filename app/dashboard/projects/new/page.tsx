@@ -16,6 +16,7 @@ import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
 import { FeatureInput } from "@/components/feature-input"
+import type { FeatureDraft } from "@/components/feature-input"
 
 export default function NewProjectPage() {
   const router = useRouter()
@@ -24,7 +25,7 @@ export default function NewProjectPage() {
   const [imageUrl, setImageUrl] = useState("")
   const [logoUrl, setLogoUrl] = useState("")
   const [logContent, setLogContent] = useState("")
-  const [features, setFeatures] = useState<any[]>([])
+  const [features, setFeatures] = useState<FeatureDraft[]>([])
   const logFileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingLog, setUploadingLog] = useState(false)
 
@@ -62,10 +63,12 @@ export default function NewProjectPage() {
           challengesFaced,
           futurePlans,
           logContent,
-          features: features.map((feature) => ({
-            name: feature.name,
-            description: feature.description,
-          })),
+          features: features
+            .filter((feature) => feature.name.trim().length > 0)
+            .map((feature) => ({
+              name: feature.name,
+              description: feature.description.trim() ? feature.description : null,
+            })),
         }),
       })
 
