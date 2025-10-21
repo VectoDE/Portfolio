@@ -21,6 +21,11 @@ import prisma from "@/lib/db"
 // Import the necessary types
 import type { Project, Certificate, Contact } from "@/types/database"
 
+type ContactStatusRow = {
+  status: string
+  count: number | string
+}
+
 interface StatsWithChange {
   count: number
   change: number
@@ -207,22 +212,22 @@ async function getStats() {
       where: { userId, featured: true },
       orderBy: { createdAt: "desc" },
       take: 3,
-    }),
+    }) as Promise<Project[]>,
     prisma.certificate.findMany({
       where: { userId },
       orderBy: { date: "desc" },
       take: 3,
-    }),
+    }) as Promise<Certificate[]>,
     prisma.contact.findMany({
       orderBy: { createdAt: "desc" },
       take: 3,
-    }),
+    }) as Promise<Contact[]>,
     prisma.$queryRaw`
       SELECT status, COUNT(*) as count
       FROM "Contact"
       GROUP BY status
       ORDER BY count DESC
-    ` as Promise<{ status: string; count: number }[]>,
+    ` as Promise<ContactStatusRow[]>,
   ])
 
   return {
@@ -508,7 +513,7 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {recentContacts.map((contact) => {
+                {recentContacts.map((contact: Contact) => {
                   // Convert Date to string for display
                   const createdAtString =
                     typeof contact.createdAt === "string"
@@ -575,8 +580,11 @@ export default async function DashboardPage() {
               </div>
             ) : (
               <div className="space-y-4">
-                {contactStatusBreakdown.map((item) => {
-                  const totalCount = contactStatusBreakdown.reduce((acc, curr) => acc + Number(curr.count), 0)
+                {contactStatusBreakdown.map((item: ContactStatusRow) => {
+                  const totalCount = contactStatusBreakdown.reduce(
+                    (acc: number, curr: ContactStatusRow) => acc + Number(curr.count),
+                    0,
+                  )
                   const percentage = totalCount > 0 ? Math.round((Number(item.count) / totalCount) * 100) : 0
 
                   return (

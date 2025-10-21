@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { hash } from "bcrypt"
+import bcrypt from "bcryptjs"
 
 import prisma from "@/lib/db"
 
@@ -17,7 +17,7 @@ export async function POST() {
     }
 
     // Create admin user
-    const hashedPassword = await hash("password123", 10)
+    const hashedPassword = await bcrypt.hash("password123", 10)
     const user = await prisma.user.create({
       data: {
         email: "admin@example.com",

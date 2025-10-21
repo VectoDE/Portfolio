@@ -1,6 +1,22 @@
 import nodemailer from "nodemailer"
 import prisma from "@/lib/db"
 
+type SubscriberPreferences = {
+    projects: boolean
+    certificates: boolean
+    skills: boolean
+    careers: boolean
+}
+
+type SubscriberRecord = {
+    id: string
+    email: string
+    name?: string | null
+    token: string
+    isConfirmed: boolean
+    preferences?: SubscriberPreferences | null
+}
+
 // Create a transporter with settings from the database
 const createTransporter = async () => {
     // Get email settings from database
@@ -249,10 +265,10 @@ export async function sendNewsletter(newsletter: {
         const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
         // Get all confirmed subscribers with their preferences
-        const subscribers = await prisma.subscriber.findMany({
+        const subscribers = (await prisma.subscriber.findMany({
             where: { isConfirmed: true },
             include: { preferences: true },
-        })
+        })) as SubscriberRecord[]
 
         // Filter subscribers based on newsletter type and preferences
         const filteredSubscribers = subscribers.filter((subscriber) => {
@@ -286,7 +302,7 @@ export async function sendNewsletter(newsletter: {
 
         // Send to each subscriber
         const results = await Promise.all(
-            filteredSubscribers.map(async (subscriber) => {
+            filteredSubscribers.map(async (subscriber: SubscriberRecord) => {
                 const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${subscriber.token}`
 
                 // Create email content
@@ -373,7 +389,7 @@ export async function generateProjectNewsletterContent(projectId: string) {
           <ul style="padding-left: 20px;">
             ${project.features
                     .map(
-                        (feature) => `
+                        (feature: { name: string; description?: string | null }) => `
               <li style="margin-bottom: 8px;">
                 <strong>${feature.name}</strong>${feature.description ? `: ${feature.description}` : ""}
               </li>

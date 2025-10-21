@@ -3,13 +3,12 @@ import prisma from "@/lib/db"
 import { sendEmail } from "@/lib/email"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
-import { Prisma } from "@prisma/client"
 
 // Definiere die erlaubten Content-Typen
 type ContentType = "project" | "certificate" | "skill" | "career"
 
 // Mapping von ContentType zu Preferences-Feldnamen
-const preferenceMap: Record<ContentType, keyof Prisma.SubscriberPreferenceUncheckedCreateInput> = {
+const preferenceMap: Record<ContentType, "projects" | "certificates" | "skills" | "careers"> = {
     project: "projects",
     certificate: "certificates",
     skill: "skills",
