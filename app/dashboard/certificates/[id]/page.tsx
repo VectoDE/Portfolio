@@ -17,9 +17,9 @@ import { FileUpload } from "@/components/file-upload"
 import type { Certificate } from "@/types/database"
 
 interface EditCertificatePageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: {
+    id?: string
+  }
 }
 
 export default function EditCertificatePage({ params }: EditCertificatePageProps) {
@@ -32,44 +32,18 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
   const [certificateId, setCertificateId] = useState<string | null>(null)
 
   useEffect(() => {
-    let isMounted = true
-
-    params
-      .then((value) => {
-        if (!isMounted) {
-          return
-        }
-
-        if (!value?.id) {
-          console.error("Missing certificate id in route params")
-          toast({
-            title: "Invalid route",
-            description: "The certificate identifier is missing from the URL.",
-            variant: "destructive",
-          })
-          setIsLoading(false)
-          return
-        }
-
-        setCertificateId(value.id)
+    if (!params?.id) {
+      console.error("Missing certificate id in route params")
+      toast({
+        title: "Invalid route",
+        description: "The certificate identifier is missing from the URL.",
+        variant: "destructive",
       })
-      .catch((error) => {
-        if (!isMounted) {
-          return
-        }
-
-        console.error("Failed to resolve certificate route params:", error)
-        toast({
-          title: "Invalid route",
-          description: "We were unable to read the certificate identifier from the URL.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
+      setIsLoading(false)
+      return
     }
+
+    setCertificateId(params.id)
   }, [params, toast])
 
   useEffect(() => {

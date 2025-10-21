@@ -20,9 +20,9 @@ import type { FeatureDraft } from "@/components/feature-input"
 import type { Project } from "@/types/database"
 
 interface EditProjectPageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: {
+    id?: string
+  }
 }
 
 export default function EditProjectPage({ params }: EditProjectPageProps) {
@@ -40,44 +40,18 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   const [projectId, setProjectId] = useState<string | null>(null)
 
   useEffect(() => {
-    let isMounted = true
-
-    params
-      .then((value) => {
-        if (!isMounted) {
-          return
-        }
-
-        if (!value?.id) {
-          console.error("Missing project id in route params")
-          toast({
-            title: "Invalid route",
-            description: "The project identifier is missing from the URL.",
-            variant: "destructive",
-          })
-          setIsLoading(false)
-          return
-        }
-
-        setProjectId(value.id)
+    if (!params?.id) {
+      console.error("Missing project id in route params")
+      toast({
+        title: "Invalid route",
+        description: "The project identifier is missing from the URL.",
+        variant: "destructive",
       })
-      .catch((error) => {
-        if (!isMounted) {
-          return
-        }
-
-        console.error("Failed to resolve project route params:", error)
-        toast({
-          title: "Invalid route",
-          description: "We were unable to read the project identifier from the URL.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
+      setIsLoading(false)
+      return
     }
+
+    setProjectId(params.id)
   }, [params, toast])
 
   useEffect(() => {
