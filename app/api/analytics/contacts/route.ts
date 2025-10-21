@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { format, subDays } from "date-fns"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // GET /api/analytics/contacts - Get contact analytics
@@ -56,7 +56,9 @@ export async function GET(req: Request) {
             previousPeriodCount === 0 ? (change > 0 ? 100 : 0) : Math.round((change / previousPeriodCount) * 100)
 
         // Get status breakdown
-        const statusBreakdownRaw = await prisma.$queryRaw`
+        const statusBreakdownRaw = await prisma.$queryRaw<
+            Array<{ status: string; count: bigint }>
+        >`
       SELECT status, COUNT(*) as count
       FROM "Contact"
       GROUP BY status
@@ -64,9 +66,9 @@ export async function GET(req: Request) {
     `
 
         // Convert BigInt to Number to avoid serialization issues
-        const statusBreakdown = (statusBreakdownRaw as any[]).map((item) => ({
-            status: item.status,
-            count: Number(item.count),
+        const statusBreakdown = statusBreakdownRaw.map(({ status, count }: { status: string; count: bigint }) => ({
+            status,
+            count: Number(count),
         }))
 
         // Get daily contacts for the period

@@ -14,13 +14,23 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { FileUpload } from "@/components/file-upload"
 
 interface EditCareerPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
+}
+
+interface CareerEntry {
+  id: string
+  position: string
+  company: string
+  startDate: string
+  endDate: string
+  description: string
+  location?: string | null
+  logoUrl?: string | null
 }
 
 export default function EditCareerPage({ params }: EditCareerPageProps) {
@@ -28,20 +38,66 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [careerEntry, setCareerEntry] = useState<any>(null)
+  const [careerEntry, setCareerEntry] = useState<CareerEntry | null>(null)
   const [isPresentPosition, setIsPresentPosition] = useState(false)
   const [logoUrl, setLogoUrl] = useState("")
+  const [careerId, setCareerId] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
+    params
+      .then((value) => {
+        if (!isMounted) {
+          return
+        }
+
+        if (!value?.id) {
+          console.error("Missing career id in route params")
+          toast({
+            title: "Invalid route",
+            description: "The career entry identifier is missing from the URL.",
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+
+        setCareerId(value.id)
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return
+        }
+
+        console.error("Failed to resolve career route params:", error)
+        toast({
+          title: "Invalid route",
+          description: "We were unable to read the career entry identifier from the URL.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [params, toast])
+
+  useEffect(() => {
+    if (!careerId) {
+      return
+    }
+
     async function fetchCareerEntry() {
       try {
-        const response = await fetch(`/api/career/${params.id}`)
+        const response = await fetch(`/api/career/${careerId}`)
 
         if (!response.ok) {
           throw new Error("Failed to fetch career entry")
         }
 
-        const data = await response.json()
+        const data: { career: CareerEntry } = await response.json()
         setCareerEntry(data.career)
         setIsPresentPosition(data.career.endDate === "Present")
         setLogoUrl(data.career.logoUrl || "")
@@ -58,11 +114,21 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
     }
 
     fetchCareerEntry()
-  }, [params.id, toast])
+  }, [careerId, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
+
+    if (!careerId) {
+      toast({
+        title: "Missing career entry",
+        description: "We couldn't determine which career entry should be updated.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
 
     const formData = new FormData(event.currentTarget)
     const position = formData.get("position") as string
@@ -73,20 +139,20 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
     const location = formData.get("location") as string
 
     try {
-      const response = await fetch(`/api/career/${params.id}`, {
+      const response = await fetch(`/api/career/${careerId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          position,
-          company,
-          startDate,
-          endDate,
-          description,
-          location,
-          logoUrl,
-        }),
+          body: JSON.stringify({
+            position,
+            company,
+            startDate,
+            endDate,
+            description,
+            location,
+            logoUrl,
+          }),
       })
 
       if (!response.ok) {
@@ -118,8 +184,17 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
       return
     }
 
+    if (!careerId) {
+      toast({
+        title: "Missing career entry",
+        description: "We couldn't determine which career entry should be deleted.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
-      const response = await fetch(`/api/career/${params.id}`, {
+      const response = await fetch(`/api/career/${careerId}`, {
         method: "DELETE",
       })
 

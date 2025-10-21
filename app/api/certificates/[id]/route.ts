@@ -1,22 +1,24 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 export const dynamic = "force-dynamic"
 
 interface RouteParams {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
+    const { id } = await params
+
     const certificate = await prisma.certificate.findUnique({
       where: {
-        id: params.id,
+        id,
       },
     })
 
@@ -41,10 +43,12 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
     const { name, issuer, date, link, imageUrl } = await req.json()
 
+    const { id } = await params
+
     // Check if certificate exists and belongs to user
     const existingCertificate = await prisma.certificate.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id as string,
       },
     })
@@ -55,7 +59,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
     const updatedCertificate = await prisma.certificate.update({
       where: {
-        id: params.id,
+        id,
       },
       data: {
         name,
@@ -81,10 +85,12 @@ export async function DELETE(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
+    const { id } = await params
+
     // Check if certificate exists and belongs to user
     const existingCertificate = await prisma.certificate.findFirst({
       where: {
-        id: params.id,
+        id,
         userId: session.user.id as string,
       },
     })
@@ -95,7 +101,7 @@ export async function DELETE(req: Request, { params }: RouteParams) {
 
     await prisma.certificate.delete({
       where: {
-        id: params.id,
+        id,
       },
     })
 

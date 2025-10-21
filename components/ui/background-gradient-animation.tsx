@@ -189,7 +189,11 @@ export function BackgroundGradientAnimation({
     <div
       ref={canvasContainerRef}
       className={`absolute inset-0 overflow-hidden ${containerClassName || ""}`}
-      style={{ width: size, height: size }}
+      style={{
+        width: size,
+        height: size,
+        background: `radial-gradient(circle at top left, ${gradientBackgroundStart}, transparent 55%), radial-gradient(circle at bottom right, ${gradientBackgroundEnd}, transparent 55%)`,
+      }}
     >
       <canvas
         ref={canvasRef}

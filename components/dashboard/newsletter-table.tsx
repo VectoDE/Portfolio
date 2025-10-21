@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { Mail, Send, Trash2, CheckCircle, XCircle, Filter, MoreHorizontal } from "lucide-react"
 
@@ -44,17 +44,9 @@ export function NewsletterTable() {
     const [selectAll, setSelectAll] = useState(false)
     const [statusFilter, setStatusFilter] = useState<string>("all")
     const [searchQuery, setSearchQuery] = useState("")
-    const [newsletterData, setNewsletterData] = useState({
-        subject: "",
-        content: "",
-        contentType: "project" as "project" | "certificate" | "skill" | "career",
-        contentId: "",
-        targetEmail: "",
-    })
-    const [isSending, setIsSending] = useState(false)
 
     // Fetch subscribers
-    async function fetchSubscribers() {
+    const fetchSubscribers = useCallback(async () => {
         setIsLoading(true)
         try {
             const response = await fetch("/api/newsletter/subscribers")
@@ -74,12 +66,12 @@ export function NewsletterTable() {
         } finally {
             setIsLoading(false)
         }
-    }
+    }, [toast])
 
     // Initial fetch
     useEffect(() => {
         fetchSubscribers()
-    }, [])
+    }, [fetchSubscribers])
 
     function handleSelectAll(checked: boolean) {
         setSelectAll(checked)
@@ -96,21 +88,6 @@ export function NewsletterTable() {
         } else {
             setSelectedSubscribers((prev) => prev.filter((subId) => subId !== id))
         }
-    }
-
-    function handleNewsletterChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-        const { name, value } = e.target
-        setNewsletterData((prev) => ({
-            ...prev,
-            [name]: value,
-        }))
-    }
-
-    function handleContentTypeChange(value: string) {
-        setNewsletterData((prev) => ({
-            ...prev,
-            contentType: value as "project" | "certificate" | "skill" | "career",
-        }))
     }
 
     async function handleDeleteSubscribers() {
@@ -286,37 +263,14 @@ export function NewsletterTable() {
                                                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                                     <DropdownMenuSeparator />
                                                     <DropdownMenuItem
-                                                        onClick={() => {
-                                                            // Set the subscriber email as the target
-                                                            setNewsletterData((prev) => ({
-                                                                ...prev,
-                                                                targetEmail: subscriber.email,
-                                                            }))
-
-                                                            // Show a confirmation dialog
-                                                            if (confirm(`Send a test newsletter to ${subscriber.email}?`)) {
-                                                                setIsSending(true)
-
-                                                                // Simulate sending (replace with actual API call)
-                                                                setTimeout(() => {
-                                                                    setIsSending(false)
-                                                                    toast({
-                                                                        title: "Test email sent",
-                                                                        description: `A test newsletter was sent to ${subscriber.email}`,
-                                                                    })
-                                                                }, 1500)
-                                                            }
-                                                        }}
+                                                        onClick={() =>
+                                                            toast({
+                                                                title: "Email action",
+                                                                description: `Use the dashboard actions to send newsletters to ${subscriber.email}.`,
+                                                            })
+                                                        }
                                                     >
-                                                        {isSending ? (
-                                                            <>
-                                                                <span className="mr-2 h-4 w-4 animate-spin">⏳</span> Sending...
-                                                            </>
-                                                        ) : (
-                                                            <>
-                                                                <Send className="mr-2 h-4 w-4" /> Send Email
-                                                            </>
-                                                        )}
+                                                        <Send className="mr-2 h-4 w-4" /> Send Email
                                                     </DropdownMenuItem>
                                                     <DropdownMenuItem>
                                                         <Trash2 className="mr-2 h-4 w-4" /> Delete

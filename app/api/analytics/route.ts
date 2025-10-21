@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { format, subDays, startOfDay, endOfDay } from "date-fns"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // Function to calculate period change statistics
@@ -280,7 +280,9 @@ async function getPageViewAnalytics(days = 30) {
     const dailyViews = await getDailyData("", "pageview", days)
 
     // Get top pages
-    const topPages = await prisma.$queryRaw`
+    const topPages = await prisma.$queryRaw<
+        Array<{ path: string; count: bigint }>
+    >`
     SELECT path, COUNT(*) as count
     FROM PageView
     WHERE createdAt >= ${periodStartDate} AND createdAt <= ${periodEndDate}
@@ -290,20 +292,23 @@ async function getPageViewAnalytics(days = 30) {
   `
 
     // Convert BigInt to Number to avoid serialization issues
-    const formattedTopPages = (topPages as any[]).map((page) => ({
-        path: page.path,
-        count: Number(page.count),
+    const formattedTopPages = topPages.map(({ path, count }: { path: string; count: bigint }) => ({
+        path,
+        count: Number(count),
     }))
 
     // Get unique visitors (approximated by unique IP addresses)
-    const uniqueVisitors = await prisma.$queryRaw`
+    const uniqueVisitors = await prisma.$queryRaw<
+        Array<{ count: bigint }>
+    >`
     SELECT COUNT(DISTINCT ipAddress) as count
     FROM PageView
     WHERE createdAt >= ${periodStartDate} AND createdAt <= ${periodEndDate}
   `
 
     // Convert BigInt to Number
-    const visitorCount = Number((uniqueVisitors as any[])[0]?.count || 0)
+    const visitorCountValue = uniqueVisitors[0]?.count
+    const visitorCount = visitorCountValue ? Number(visitorCountValue) : 0
 
     return {
         totalViews,

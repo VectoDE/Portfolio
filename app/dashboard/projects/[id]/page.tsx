@@ -16,11 +16,13 @@ import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
 import { FeatureInput } from "@/components/feature-input"
+import type { FeatureDraft } from "@/components/feature-input"
+import type { Project } from "@/types/database"
 
 interface EditProjectPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditProjectPage({ params }: EditProjectPageProps) {
@@ -28,29 +30,86 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [project, setProject] = useState<any>(null)
+  const [project, setProject] = useState<Project | null>(null)
   const [imageUrl, setImageUrl] = useState("")
   const [logoUrl, setLogoUrl] = useState("")
   const [logContent, setLogContent] = useState("")
-  const [features, setFeatures] = useState<any[]>([])
+  const [features, setFeatures] = useState<FeatureDraft[]>([])
   const logFileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingLog, setUploadingLog] = useState(false)
+  const [projectId, setProjectId] = useState<string | null>(null)
 
   useEffect(() => {
+    let isMounted = true
+
+    params
+      .then((value) => {
+        if (!isMounted) {
+          return
+        }
+
+        if (!value?.id) {
+          console.error("Missing project id in route params")
+          toast({
+            title: "Invalid route",
+            description: "The project identifier is missing from the URL.",
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+
+        setProjectId(value.id)
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return
+        }
+
+        console.error("Failed to resolve project route params:", error)
+        toast({
+          title: "Invalid route",
+          description: "We were unable to read the project identifier from the URL.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [params, toast])
+
+  useEffect(() => {
+    if (!projectId) {
+      return
+    }
+
     async function fetchProject() {
       try {
-        const response = await fetch(`/api/projects/${params.id}`)
+        const response = await fetch(`/api/projects/${projectId}`)
 
         if (!response.ok) {
           throw new Error("Failed to fetch project")
         }
 
-        const data = await response.json()
+        const data: {
+          project: Project & {
+            features?: Array<{ id: string; name: string; description: string | null }>
+          }
+        } = await response.json()
+
         setProject(data.project)
         setImageUrl(data.project.imageUrl || "")
         setLogoUrl(data.project.logoUrl || "")
         setLogContent(data.project.logContent || "")
-        setFeatures(data.project.features || [])
+        setFeatures(
+          (data.project.features || []).map((feature) => ({
+            id: feature.id,
+            name: feature.name,
+            description: feature.description ?? "",
+          })),
+        )
       } catch (error) {
         console.error("Error fetching project:", error)
         toast({
@@ -64,11 +123,21 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     }
 
     fetchProject()
-  }, [params.id, toast])
+  }, [projectId, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
+
+    if (!projectId) {
+      toast({
+        title: "Missing project",
+        description: "We couldn't determine which project should be updated.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
 
     const formData = new FormData(event.currentTarget)
     const title = formData.get("title") as string
@@ -82,7 +151,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     const futurePlans = formData.get("futurePlans") as string
 
     try {
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${projectId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -100,10 +169,12 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           challengesFaced,
           futurePlans,
           logContent,
-          features: features.map((feature) => ({
-            name: feature.name,
-            description: feature.description,
-          })),
+          features: features
+            .filter((feature) => feature.name.trim().length > 0)
+            .map((feature) => ({
+              name: feature.name,
+              description: feature.description.trim() ? feature.description : null,
+            })),
         }),
       })
 
@@ -136,8 +207,17 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
       return
     }
 
+    if (!projectId) {
+      toast({
+        title: "Missing project",
+        description: "We couldn't determine which project should be deleted.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
-      const response = await fetch(`/api/projects/${params.id}`, {
+      const response = await fetch(`/api/projects/${projectId}`, {
         method: "DELETE",
       })
 

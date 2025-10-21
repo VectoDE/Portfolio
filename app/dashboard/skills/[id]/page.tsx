@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
+import type { Skill } from "@/types/database"
 
 // Get all available Lucide icons
 const iconNames = Object.keys(LucideIcons).filter(
@@ -23,9 +23,9 @@ const iconNames = Object.keys(LucideIcons).filter(
 )
 
 interface EditSkillPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default function EditSkillPage({ params }: EditSkillPageProps) {
@@ -33,8 +33,9 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [skill, setSkill] = useState<any>(null)
+  const [skill, setSkill] = useState<Skill | null>(null)
   const [selectedIcon, setSelectedIcon] = useState<string>("Code")
+  const [skillId, setSkillId] = useState<string | null>(null)
 
   // For icon preview
   const IconComponent = selectedIcon
@@ -42,15 +43,60 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
     : null
 
   useEffect(() => {
+    let isMounted = true
+
+    params
+      .then((value) => {
+        if (!isMounted) {
+          return
+        }
+
+        if (!value?.id) {
+          console.error("Missing skill id in route params")
+          toast({
+            title: "Invalid route",
+            description: "The skill identifier is missing from the URL.",
+            variant: "destructive",
+          })
+          setIsLoading(false)
+          return
+        }
+
+        setSkillId(value.id)
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return
+        }
+
+        console.error("Failed to resolve skill route params:", error)
+        toast({
+          title: "Invalid route",
+          description: "We were unable to read the skill identifier from the URL.",
+          variant: "destructive",
+        })
+        setIsLoading(false)
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [params, toast])
+
+  useEffect(() => {
+    if (!skillId) {
+      return
+    }
+
     async function fetchSkill() {
       try {
-        const response = await fetch(`/api/skills/${params.id}`)
+        const response = await fetch(`/api/skills/${skillId}`)
 
         if (!response.ok) {
           throw new Error("Failed to fetch skill")
         }
 
-        const data = await response.json()
+        const data: { skill: Skill } = await response.json()
         setSkill(data.skill)
         if (data.skill.iconName) {
           setSelectedIcon(data.skill.iconName)
@@ -68,21 +114,31 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
     }
 
     fetchSkill()
-  }, [params.id, toast])
+  }, [skillId, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
 
+    if (!skillId) {
+      toast({
+        title: "Missing skill",
+        description: "We couldn't determine which skill should be updated.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
+
     const formData = new FormData(event.currentTarget)
     const name = formData.get("name") as string
     const category = formData.get("category") as string
     const level = formData.get("level") as string
-    const years = formData.get("years") as string
+    const years = Number(formData.get("years"))
     const iconName = selectedIcon
 
     try {
-      const response = await fetch(`/api/skills/${params.id}`, {
+      const response = await fetch(`/api/skills/${skillId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -125,8 +181,17 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
       return
     }
 
+    if (!skillId) {
+      toast({
+        title: "Missing skill",
+        description: "We couldn't determine which skill should be deleted.",
+        variant: "destructive",
+      })
+      return
+    }
+
     try {
-      const response = await fetch(`/api/skills/${params.id}`, {
+      const response = await fetch(`/api/skills/${skillId}`, {
         method: "DELETE",
       })
 

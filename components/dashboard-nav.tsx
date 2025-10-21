@@ -17,7 +17,6 @@ import {
     ChevronRight,
     Moon,
     Sun,
-    ChevronLeft,
     BarChart,
     Contact,
     LineChart,
@@ -49,12 +48,6 @@ export function DashboardNav() {
             setIsCollapsed(storedState === "collapsed")
         }
     }, [])
-
-    const toggleSidebar = () => {
-        const newState = !isCollapsed
-        setIsCollapsed(newState)
-        localStorage.setItem("dashboard-sidebar-state", newState ? "collapsed" : "expanded")
-    }
 
     const navItems = [
         { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },

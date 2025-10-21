@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { sendTestEmail } from "@/lib/email"
 
 // GET /api/settings/email - Get email settings
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
     try {
         const session = await getServerSession(authOptions)
 
@@ -95,9 +95,17 @@ export async function POST(req: Request) {
     }
 }
 
+interface TestRouteParams {
+    params: Promise<{
+        test: string
+    }>
+}
+
 // POST /api/settings/email/test - Send test email
-export async function PUT(req: Request, { params }: { params: { test: string } }) {
-    if (params.test !== "test") {
+export async function PUT(req: Request, { params }: TestRouteParams) {
+    const { test } = await params
+
+    if (test !== "test") {
         return NextResponse.json({ error: "Invalid endpoint" }, { status: 404 })
     }
 
@@ -132,10 +140,6 @@ export async function PUT(req: Request, { params }: { params: { test: string } }
                 { status: 500 },
             )
         }
-        return NextResponse.json({
-            success: true,
-            message: "Test email route disabled",
-        })
     } catch (error) {
         console.error("Error sending test email:", error)
         return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

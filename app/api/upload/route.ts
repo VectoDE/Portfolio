@@ -4,7 +4,7 @@ import { writeFile } from "fs/promises"
 import path from "path"
 import { v4 as uuidv4 } from "uuid"
 
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 // POST /api/upload - Upload a file
@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         const uploadsDir = path.join(process.cwd(), "public", "uploads")
         try {
             await writeFile(path.join(uploadsDir, "test.txt"), "test")
-        } catch (error) {
+        } catch {
             const fs = require("fs")
             if (!fs.existsSync(uploadsDir)) {
                 fs.mkdirSync(uploadsDir, { recursive: true })

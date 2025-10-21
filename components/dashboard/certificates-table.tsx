@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
@@ -36,6 +36,11 @@ interface PaginationData {
     limit: number
 }
 
+interface CertificatesResponse {
+    certificates: Certificate[]
+    pagination: PaginationData
+}
+
 export function DashboardCertificatesTable() {
     const router = useRouter()
     const { toast } = useToast()
@@ -51,40 +56,47 @@ export function DashboardCertificatesTable() {
     })
 
     // Fetch certificates
-    async function fetchCertificates(page = 1, issuer?: string) {
-        setLoading(true)
-        try {
-            let url = `/api/certificates?page=${page}&limit=${pagination?.limit || 10}`
-            if (issuer && issuer !== "all") {
-                url += `&issuer=${issuer}`
-            }
+    const fetchCertificates = useCallback(
+        async (page = 1, issuer?: string) => {
+            setLoading(true)
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: pagination.limit.toString(),
+                })
 
-            const response = await fetch(url)
-            if (!response.ok) {
-                throw new Error("Failed to fetch certificates")
-            }
+                if (issuer && issuer !== "all") {
+                    params.set("issuer", issuer)
+                }
 
-            const data = await response.json()
-            setCertificates(data.certificates || [])
-            setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
-        } catch (error) {
-            console.error("Error fetching certificates:", error)
-            toast({
-                title: "Error",
-                description: "Failed to load certificates",
-                variant: "destructive",
-            })
-            // Set default pagination on error
-            setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
-        } finally {
-            setLoading(false)
-        }
-    }
+                const response = await fetch(`/api/certificates?${params.toString()}`)
+                if (!response.ok) {
+                    throw new Error("Failed to fetch certificates")
+                }
+
+                const data: CertificatesResponse = await response.json()
+                setCertificates(data.certificates || [])
+                setPagination(data.pagination || { total: 0, pages: 1, page: 1, limit: 10 })
+            } catch (error) {
+                console.error("Error fetching certificates:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to load certificates",
+                    variant: "destructive",
+                })
+                // Set default pagination on error
+                setPagination({ total: 0, pages: 1, page: 1, limit: 10 })
+            } finally {
+                setLoading(false)
+            }
+        },
+        [pagination.limit, toast],
+    )
 
     // Initial fetch
     useEffect(() => {
         fetchCertificates(1, issuerFilter !== "all" ? issuerFilter : undefined)
-    }, [issuerFilter])
+    }, [issuerFilter, fetchCertificates])
 
     // Handle delete
     async function handleDeleteCertificate(id: string) {

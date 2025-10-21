@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 import { sendEmail } from "@/lib/email"
 import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { authOptions } from "@/lib/auth"
 
 // Definiere die erlaubten Content-Typen
 type ContentType = "project" | "certificate" | "skill" | "career"

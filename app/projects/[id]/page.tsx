@@ -9,16 +9,24 @@ import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { getProjectById } from "@/lib/projects"
+import type { ProjectFeature } from "@/types/database"
 import { CodeBlock } from "@/components/code-block"
 
 interface ProjectPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export async function generateMetadata({ params }: ProjectPageProps) {
-  const project = await getProjectById(params.id as string)
+  const { id } = await params
+  if (!id) {
+    return {
+      title: "Project Not Found | Tim Hauke",
+      description: "The requested project could not be found",
+    }
+  }
+  const project = await getProjectById(id)
 
   if (!project) {
     return {
@@ -34,7 +42,11 @@ export async function generateMetadata({ params }: ProjectPageProps) {
 }
 
 export default async function ProjectPage({ params }: ProjectPageProps) {
-  const project = await getProjectById(params.id)
+  const { id } = await params
+  if (!id) {
+    notFound()
+  }
+  const project = await getProjectById(id)
 
   if (!project) {
     notFound()
@@ -133,7 +145,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         <h3 className="text-lg font-semibold">Features</h3>
                         {project.features && project.features.length > 0 ? (
                           <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-500 dark:text-gray-400">
-                            {project.features.map((feature: any) => (
+                            {project.features.map((feature: ProjectFeature) => (
                               <li key={feature.id}>
                                 <span className="font-medium">{feature.name}</span>
                                 {feature.description && (

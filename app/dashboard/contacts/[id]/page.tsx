@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
 import { format } from "date-fns"
-import { Archive, ArrowLeft, CheckCircle, Eye, Mail, Trash2, User } from 'lucide-react'
+import { Archive, ArrowLeft, CheckCircle, Eye, Mail, Trash2, User } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,20 +26,115 @@ interface Contact {
     createdAt: string
 }
 
-export default function ContactDetailsPage({ params }: { params: { id: string } }) {
+interface ContactDetailsPageProps {
+    params: Promise<{
+        id: string
+    }>
+}
+
+export default function ContactDetailsPage({ params }: ContactDetailsPageProps) {
     const router = useRouter()
     const { toast } = useToast()
     const [contact, setContact] = useState<Contact | null>(null)
     const [loading, setLoading] = useState(true)
     const [notes, setNotes] = useState("")
     const [savingNotes, setSavingNotes] = useState(false)
+    const [contactId, setContactId] = useState<string | null>(null)
+
+    useEffect(() => {
+        let isMounted = true
+
+        params
+            .then((value) => {
+                if (!isMounted) {
+                    return
+                }
+
+                if (!value?.id) {
+                    console.error("Missing contact id in route params")
+                    toast({
+                        title: "Invalid route",
+                        description: "The contact identifier is missing from the URL.",
+                        variant: "destructive",
+                    })
+                    setLoading(false)
+                    return
+                }
+
+                setContactId(value.id)
+            })
+            .catch((error) => {
+                if (!isMounted) {
+                    return
+                }
+
+                console.error("Failed to resolve contact route params:", error)
+                toast({
+                    title: "Invalid route",
+                    description: "We were unable to read the contact identifier from the URL.",
+                    variant: "destructive",
+                })
+                setLoading(false)
+            })
+
+        return () => {
+            isMounted = false
+        }
+    }, [params, toast])
+
+    const handleStatusChange = useCallback(
+        async (newStatus: Contact["status"]) => {
+            if (!contactId) {
+                toast({
+                    title: "Missing contact",
+                    description: "We couldn't determine which contact to update.",
+                    variant: "destructive",
+                })
+                return
+            }
+
+            try {
+                const response = await fetch(`/api/contacts/${contactId}`, {
+                    method: "PATCH",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ status: newStatus }),
+                })
+
+                if (!response.ok) {
+                    throw new Error("Failed to update contact status")
+                }
+
+                const data = await response.json()
+                setContact(data.contact)
+
+                toast({
+                    title: "Status updated",
+                    description: `Contact marked as ${newStatus}`,
+                })
+            } catch (error) {
+                console.error("Error updating contact status:", error)
+                toast({
+                    title: "Error",
+                    description: "Failed to update contact status",
+                    variant: "destructive",
+                })
+            }
+        },
+        [contactId, toast],
+    )
 
     // Fetch contact details
     useEffect(() => {
+        if (!contactId) {
+            return
+        }
+
         async function fetchContact() {
             setLoading(true)
             try {
-                const response = await fetch(`/api/contacts/${params.id}`)
+                const response = await fetch(`/api/contacts/${contactId}`)
                 if (!response.ok) {
                     throw new Error("Failed to fetch contact")
                 }
@@ -65,39 +160,7 @@ export default function ContactDetailsPage({ params }: { params: { id: string } 
         }
 
         fetchContact()
-    }, [params.id, toast])
-
-    // Handle status change
-    async function handleStatusChange(newStatus: string) {
-        try {
-            const response = await fetch(`/api/contacts/${params.id}`, {
-                method: "PATCH",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ status: newStatus }),
-            })
-
-            if (!response.ok) {
-                throw new Error("Failed to update contact status")
-            }
-
-            const data = await response.json()
-            setContact(data.contact)
-
-            toast({
-                title: "Status updated",
-                description: `Contact marked as ${newStatus}`,
-            })
-        } catch (error) {
-            console.error("Error updating contact status:", error)
-            toast({
-                title: "Error",
-                description: "Failed to update contact status",
-                variant: "destructive",
-            })
-        }
-    }
+    }, [contactId, toast, handleStatusChange])
 
     // Handle delete
     async function handleDelete() {
@@ -105,8 +168,17 @@ export default function ContactDetailsPage({ params }: { params: { id: string } 
             return
         }
 
+        if (!contactId) {
+            toast({
+                title: "Missing contact",
+                description: "We couldn't determine which contact to delete.",
+                variant: "destructive",
+            })
+            return
+        }
+
         try {
-            const response = await fetch(`/api/contacts/${params.id}`, {
+            const response = await fetch(`/api/contacts/${contactId}`, {
                 method: "DELETE",
             })
 
@@ -132,9 +204,18 @@ export default function ContactDetailsPage({ params }: { params: { id: string } 
 
     // Save notes
     async function saveNotes() {
+        if (!contactId) {
+            toast({
+                title: "Missing contact",
+                description: "We couldn't determine which contact to update.",
+                variant: "destructive",
+            })
+            return
+        }
+
         setSavingNotes(true)
         try {
-            const response = await fetch(`/api/contacts/${params.id}`, {
+            const response = await fetch(`/api/contacts/${contactId}`, {
                 method: "PATCH",
                 headers: {
                     "Content-Type": "application/json",
