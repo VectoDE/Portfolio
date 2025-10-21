@@ -17,7 +17,7 @@ type SubscriberRecord = {
     preferences?: SubscriberPreferences | null
 }
 
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
     try {
         // Get the current user session
         const session = await getServerSession()

@@ -36,7 +36,7 @@ export async function POST(req: Request) {
         const uploadsDir = path.join(process.cwd(), "public", "uploads")
         try {
             await writeFile(path.join(uploadsDir, "test.txt"), "test")
-        } catch (error) {
+        } catch {
             const fs = require("fs")
             if (!fs.existsSync(uploadsDir)) {
                 fs.mkdirSync(uploadsDir, { recursive: true })

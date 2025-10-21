@@ -27,7 +27,16 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Textarea } from "@/components/ui/textarea"
 
 // Mock data for career
-const initialCareer = [
+interface CareerEntry {
+  id: string
+  position: string
+  company: string
+  startDate: string
+  endDate: string
+  description: string
+}
+
+const initialCareer: CareerEntry[] = [
   {
     id: "1",
     position: "Senior Full Stack Developer",
@@ -55,9 +64,9 @@ const initialCareer = [
 ]
 
 export function CareerTable() {
-  const [career, setCareer] = useState(initialCareer)
+  const [career, setCareer] = useState<CareerEntry[]>(initialCareer)
   const [open, setOpen] = useState(false)
-  const [editingCareer, setEditingCareer] = useState<any>(null)
+  const [editingCareer, setEditingCareer] = useState<CareerEntry | null>(null)
 
   const handleAddCareer = (formData: FormData) => {
     const newCareer = {
@@ -74,7 +83,11 @@ export function CareerTable() {
   }
 
   const handleEditCareer = (formData: FormData) => {
-    const updatedCareer = {
+    if (!editingCareer) {
+      return
+    }
+
+    const updatedCareer: CareerEntry = {
       id: editingCareer.id,
       position: formData.get("position") as string,
       company: formData.get("company") as string,
@@ -92,7 +105,7 @@ export function CareerTable() {
     setCareer(career.filter((c) => c.id !== id))
   }
 
-  const openEditDialog = (careerItem: any) => {
+  const openEditDialog = (careerItem: CareerEntry) => {
     setEditingCareer(careerItem)
     setOpen(true)
   }

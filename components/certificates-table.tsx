@@ -25,8 +25,16 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
+interface CertificateEntry {
+  id: string
+  name: string
+  issuer: string
+  date: string
+  link: string
+}
+
 // Mock data for certificates
-const initialCertificates = [
+const initialCertificates: CertificateEntry[] = [
   {
     id: "1",
     name: "AWS Certified Solutions Architect",
@@ -51,9 +59,9 @@ const initialCertificates = [
 ]
 
 export function CertificatesTable() {
-  const [certificates, setCertificates] = useState(initialCertificates)
+  const [certificates, setCertificates] = useState<CertificateEntry[]>(initialCertificates)
   const [open, setOpen] = useState(false)
-  const [editingCertificate, setEditingCertificate] = useState<any>(null)
+  const [editingCertificate, setEditingCertificate] = useState<CertificateEntry | null>(null)
 
   const handleAddCertificate = (formData: FormData) => {
     const newCertificate = {
@@ -69,7 +77,11 @@ export function CertificatesTable() {
   }
 
   const handleEditCertificate = (formData: FormData) => {
-    const updatedCertificate = {
+    if (!editingCertificate) {
+      return
+    }
+
+    const updatedCertificate: CertificateEntry = {
       id: editingCertificate.id,
       name: formData.get("name") as string,
       issuer: formData.get("issuer") as string,
@@ -86,7 +98,7 @@ export function CertificatesTable() {
     setCertificates(certificates.filter((c) => c.id !== id))
   }
 
-  const openEditDialog = (certificate: any) => {
+  const openEditDialog = (certificate: CertificateEntry) => {
     setEditingCertificate(certificate)
     setOpen(true)
   }
