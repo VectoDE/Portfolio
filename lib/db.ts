@@ -26,31 +26,23 @@ function createStubClient(): PrismaClientType {
         throw new Error(stubWarning)
     }
 
+    const createStubResponse = <T>(value: T) => {
+        notifyStubUsage()
+
+        if (process.env.NODE_ENV === "production") {
+            throw new Error(stubWarning)
+        }
+
+        return value
+    }
+
     const readFallbacks: Record<string, () => Promise<unknown>> = {
-        findMany: async () => {
-            notifyStubUsage()
-            return []
-        },
-        findFirst: async () => {
-            notifyStubUsage()
-            return null
-        },
-        findUnique: async () => {
-            notifyStubUsage()
-            return null
-        },
-        count: async () => {
-            notifyStubUsage()
-            return 0
-        },
-        aggregate: async () => {
-            notifyStubUsage()
-            return {}
-        },
-        groupBy: async () => {
-            notifyStubUsage()
-            return []
-        },
+        findMany: async () => createStubResponse([]),
+        findFirst: async () => createStubResponse(null),
+        findUnique: async () => createStubResponse(null),
+        count: async () => createStubResponse(0),
+        aggregate: async () => createStubResponse({}),
+        groupBy: async () => createStubResponse([]),
     }
 
     const createModelProxy = () =>
@@ -93,12 +85,17 @@ try {
     // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
     PrismaClientCtor = require("@prisma/client").PrismaClient as PrismaClientConstructor
 } catch (error) {
-    if (process.env.NODE_ENV !== "production") {
-        console.warn(
-            "Prisma Client could not be loaded. Run `pnpm prisma generate` to enable database access. Falling back to a stub client.",
+    if (process.env.NODE_ENV === "production") {
+        throw new Error(
+            "Prisma Client could not be loaded in production. Ensure `pnpm prisma generate` has been run and the generated client is bundled.",
+            { cause: error },
         )
-        console.warn(error)
     }
+
+    console.warn(
+        "Prisma Client could not be loaded. Run `pnpm prisma generate` to enable database access. Falling back to a stub client.",
+    )
+    console.warn(error)
 }
 
 const prisma =
