@@ -1,8 +1,27 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/db"
+
+type FeatureInput = {
+    name: string
+    description?: string | null
+}
+
+type InsensitiveFilter = {
+    contains: string
+    mode?: "insensitive"
+}
+
+interface ProjectWhereInput {
+    userId: string
+    featured?: boolean
+    OR?: Array<{
+        title?: InsensitiveFilter
+        description?: InsensitiveFilter
+        technologies?: InsensitiveFilter
+    }>
+}
 
 // GET /api/projects - Get all projects
 export async function GET(req: Request) {
@@ -26,7 +45,7 @@ export async function GET(req: Request) {
     const skip = (page - 1) * limit
 
     // Build where clause
-    const where: any = { userId }
+    const where: ProjectWhereInput = { userId }
 
     if (search) {
       where.OR = [
@@ -102,6 +121,10 @@ export async function POST(req: Request) {
       features = [],
     } = data
 
+    const featureList: FeatureInput[] = Array.isArray(features)
+      ? features
+      : []
+
     // Validate required fields
     if (!title || !description || !technologies) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -124,10 +147,12 @@ export async function POST(req: Request) {
         logContent,
         userId,
         features: {
-          create: features.map((feature: any) => ({
-            name: feature.name,
-            description: feature.description || null,
-          })),
+          create: featureList
+            .filter((feature): feature is FeatureInput => Boolean(feature?.name))
+            .map((feature) => ({
+              name: feature.name,
+              description: feature.description ?? null,
+            })),
         },
       },
       include: {

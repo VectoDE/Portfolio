@@ -6,7 +6,7 @@ import prisma from "@/lib/db"
 import { sendTestEmail } from "@/lib/email"
 
 // GET /api/settings/email - Get email settings
-export async function GET(req: Request) {
+export async function GET(_req: Request) {
     try {
         const session = await getServerSession(authOptions)
 
