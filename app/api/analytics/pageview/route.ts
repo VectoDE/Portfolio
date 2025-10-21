@@ -1,6 +1,16 @@
 import { NextResponse } from "next/server"
 import prisma from "@/lib/db"
 
+type DateRangeFilter = {
+    gte?: Date
+    lte?: Date
+}
+
+interface PageViewWhereInput {
+    createdAt?: DateRangeFilter
+    path?: string
+}
+
 export async function POST(req: Request) {
     try {
         const data = await req.json()
@@ -36,22 +46,19 @@ export async function GET(req: Request) {
         const periodStartDate = new Date()
         periodStartDate.setDate(periodStartDate.getDate() - periodDays)
 
-        const whereClause: any = {
+        const whereClause: PageViewWhereInput = {
             createdAt: {
                 gte: periodStartDate,
                 lte: periodEndDate,
             },
-        }
-
-        if (path) {
-            whereClause.path = path
+            path: path ?? undefined,
         }
 
         const totalViews = await prisma.pageView.count({
             where: whereClause,
         })
 
-        const uniqueVisitorsRaw = await prisma.$queryRawUnsafe(
+        const uniqueVisitorsRaw = (await prisma.$queryRawUnsafe(
             `
             SELECT COUNT(DISTINCT "ipAddress") as count
             FROM "PageView"
@@ -62,9 +69,10 @@ export async function GET(req: Request) {
             periodStartDate,
             periodEndDate,
             path || undefined,
-        )
+        )) as Array<{ count: bigint }>
 
-        const uniqueVisitors = Number((uniqueVisitorsRaw as any[])[0]?.count || 0)
+        const uniqueVisitorsCount = uniqueVisitorsRaw[0]?.count
+        const uniqueVisitors = uniqueVisitorsCount ? Number(uniqueVisitorsCount) : 0
 
         return NextResponse.json({
             totalViews,

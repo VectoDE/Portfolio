@@ -4,6 +4,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 import prisma from "@/lib/db"
 
+type FeatureInput = {
+  name: string
+  description?: string | null
+}
+
 // GET /api/projects/[id] - Get a project by ID
 export async function GET(req: Request, { params }: { params: { id: string } }) {
   try {
@@ -66,6 +71,10 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
       features = [],
     } = data
 
+    const featureList: FeatureInput[] = Array.isArray(features)
+      ? features
+      : []
+
     // Validate required fields
     if (!title || !description || !technologies) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -103,10 +112,12 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         logContent,
         features: {
           deleteMany: {},
-          create: features.map((feature: any) => ({
-            name: feature.name,
-            description: feature.description || null,
-          })),
+          create: featureList
+            .filter((feature): feature is FeatureInput => Boolean(feature?.name))
+            .map((feature) => ({
+              name: feature.name,
+              description: feature.description ?? null,
+            })),
         },
       },
       include: {

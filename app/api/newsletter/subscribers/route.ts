@@ -2,7 +2,22 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth/next"
 import prisma from "@/lib/db"
 
-export async function GET(req: Request) {
+type SubscriberPreferences = {
+    projects: boolean
+    certificates: boolean
+    skills: boolean
+    careers: boolean
+}
+
+type SubscriberRecord = {
+    id: string
+    email: string
+    isConfirmed: boolean
+    createdAt: Date | string
+    preferences?: SubscriberPreferences | null
+}
+
+export async function GET(_req: Request) {
     try {
         // Get the current user session
         const session = await getServerSession()
@@ -12,10 +27,10 @@ export async function GET(req: Request) {
         }
 
         // Get all subscribers with their preferences
-        const subscribers = await prisma.subscriber.findMany({
+        const subscribers = (await prisma.subscriber.findMany({
             include: { preferences: true },
             orderBy: { createdAt: "desc" },
-        })
+        })) as SubscriberRecord[]
 
         return NextResponse.json({
             subscribers: subscribers.map((sub) => ({

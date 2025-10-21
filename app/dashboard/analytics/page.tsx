@@ -1,11 +1,9 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
-import { ArrowLeft, Calendar } from "lucide-react"
+import { Calendar } from "lucide-react"
 import { format } from "date-fns"
 
-import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { useToast } from "@/components/ui/use-toast"
@@ -110,11 +108,23 @@ interface AnalyticsData {
 export default function AnalyticsPage() {
     const { toast } = useToast()
     const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-    const [contactAnalytics, setContactAnalytics] = useState<any | null>(null)
+    const [contactAnalytics, setContactAnalytics] = useState<
+        | null
+        | {
+              total: number
+              currentPeriod: { count: number; change: number; percentage: number }
+              statusBreakdown: { status: string; count: number }[]
+              dailyContacts: { date: string; count: number }[]
+          }
+    >(null)
     const [loading, setLoading] = useState(true)
     const [period, setPeriod] = useState("30")
     const [activeTab, setActiveTab] = useState("overview")
     const [activeEntityTab, setActiveEntityTab] = useState("all")
+
+    const currentPeriodCount = contactAnalytics?.currentPeriod?.count ?? 0
+    const currentPeriodChange = contactAnalytics?.currentPeriod?.change ?? 0
+    const currentPeriodPercentage = contactAnalytics?.currentPeriod?.percentage ?? 0
 
     useEffect(() => {
         async function fetchAnalytics() {
@@ -855,11 +865,10 @@ export default function AnalyticsPage() {
                                         <CardDescription>Last {period} days</CardDescription>
                                     </CardHeader>
                                     <CardContent>
-                                        <div className="text-3xl font-bold">{contactAnalytics?.currentPeriod?.count || 0}</div>
+                                        <div className="text-3xl font-bold">{currentPeriodCount}</div>
                                         <div className="text-sm text-muted-foreground">
-                                            {contactAnalytics?.currentPeriod?.change > 0 ? "+" : ""}
-                                            {contactAnalytics?.currentPeriod?.change || 0} ({contactAnalytics?.currentPeriod?.percentage || 0}
-                                            %)
+                                            {currentPeriodChange > 0 ? "+" : ""}
+                                            {currentPeriodChange} ({currentPeriodPercentage}%)
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -871,9 +880,7 @@ export default function AnalyticsPage() {
                                     </CardHeader>
                                     <CardContent>
                                         <div className="text-3xl font-bold">
-                                            {contactAnalytics?.currentPeriod?.count
-                                                ? (contactAnalytics.currentPeriod.count / Number(period)).toFixed(1)
-                                                : "0"}
+                                            {currentPeriodCount ? (currentPeriodCount / Number(period)).toFixed(1) : "0"}
                                         </div>
                                     </CardContent>
                                 </Card>
@@ -900,12 +907,12 @@ export default function AnalyticsPage() {
                                                         nameKey="status"
                                                         label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                                                     >
-                                                        {(contactAnalytics?.statusBreakdown || []).map((entry: any, index: number) => (
-                                                            <Cell
-                                                                key={`cell-${index}`}
-                                                                fill={getStatusColor(entry.status)}
-                                                                className="stroke-background dark:stroke-background"
-                                                                strokeWidth={2}
+                                                    {(contactAnalytics?.statusBreakdown || []).map((entry, index) => (
+                                                        <Cell
+                                                            key={`cell-${index}`}
+                                                            fill={getStatusColor(entry.status)}
+                                                            className="stroke-background dark:stroke-background"
+                                                            strokeWidth={2}
                                                             />
                                                         ))}
                                                     </Pie>
@@ -1058,7 +1065,7 @@ export default function AnalyticsPage() {
                                                     }}
                                                 />
                                                 <Bar dataKey="count">
-                                                    {(contactAnalytics?.statusBreakdown || []).map((entry: any, index: number) => (
+                                                    {(contactAnalytics?.statusBreakdown || []).map((entry, index) => (
                                                         <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
                                                     ))}
                                                 </Bar>

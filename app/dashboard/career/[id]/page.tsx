@@ -14,7 +14,6 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { DashboardShell } from "@/components/dashboard-shell"
 import { FileUpload } from "@/components/file-upload"
 
 interface EditCareerPageProps {
@@ -23,12 +22,23 @@ interface EditCareerPageProps {
   }
 }
 
+interface CareerEntry {
+  id: string
+  position: string
+  company: string
+  startDate: string
+  endDate: string
+  description: string
+  location?: string | null
+  logoUrl?: string | null
+}
+
 export default function EditCareerPage({ params }: EditCareerPageProps) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [careerEntry, setCareerEntry] = useState<any>(null)
+  const [careerEntry, setCareerEntry] = useState<CareerEntry | null>(null)
   const [isPresentPosition, setIsPresentPosition] = useState(false)
   const [logoUrl, setLogoUrl] = useState("")
 
@@ -42,7 +52,7 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
         }
 
         const data = await response.json()
-        setCareerEntry(data.career)
+        setCareerEntry(data.career as CareerEntry)
         setIsPresentPosition(data.career.endDate === "Present")
         setLogoUrl(data.career.logoUrl || "")
       } catch (error) {
@@ -78,15 +88,15 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          position,
-          company,
-          startDate,
-          endDate,
-          description,
-          location,
-          logoUrl,
-        }),
+          body: JSON.stringify({
+            position,
+            company,
+            startDate,
+            endDate,
+            description,
+            location,
+            logoUrl,
+          }),
       })
 
       if (!response.ok) {
