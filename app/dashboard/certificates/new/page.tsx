@@ -9,7 +9,14 @@ import { ArrowLeft, Upload, X } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
@@ -135,7 +142,10 @@ export default function NewCertificatePage() {
 
   return (
     <div>
-      <DashboardHeader heading="Add New Certificate" text="Add a new certification to your portfolio">
+      <DashboardHeader
+        heading="Add New Certificate"
+        text="Add a new certification to your portfolio"
+      >
         <Link href="/dashboard/certificates">
           <Button variant="outline" size="sm" className="gap-1">
             <ArrowLeft className="h-4 w-4" /> Back to Certificates
@@ -210,13 +220,19 @@ export default function NewCertificatePage() {
                     onChange={handleImageUpload}
                     disabled={uploadingImage}
                   />
-                  {uploadingImage && <p className="text-sm text-muted-foreground">Uploading image...</p>}
+                  {uploadingImage && (
+                    <p className="text-sm text-muted-foreground">Uploading image...</p>
+                  )}
                 </div>
               </div>
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSubmitting || uploadingImage} className="w-full md:w-auto">
+            <Button
+              type="submit"
+              disabled={isSubmitting || uploadingImage}
+              className="w-full md:w-auto"
+            >
               {isSubmitting ? "Creating..." : "Create Certificate"}
             </Button>
           </CardFooter>

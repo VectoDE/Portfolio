@@ -23,7 +23,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 
 interface ProjectTableEntry {
@@ -124,7 +131,9 @@ export function ProjectsTable() {
             <DialogHeader>
               <DialogTitle>{editingProject ? "Edit Project" : "Add Project"}</DialogTitle>
               <DialogDescription>
-                {editingProject ? "Update the project details below." : "Add a new project to your portfolio."}
+                {editingProject
+                  ? "Update the project details below."
+                  : "Add a new project to your portfolio."}
               </DialogDescription>
             </DialogHeader>
             <form action={editingProject ? handleEditProject : handleAddProject}>
@@ -245,4 +254,3 @@ export function ProjectsTable() {
     </div>
   )
 }
-

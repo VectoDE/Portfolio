@@ -10,10 +10,23 @@ import Image from "next/image"
 import * as LucideIcons from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -49,7 +62,9 @@ export default function NewSkillPage() {
 
   useEffect(() => {
     if (iconSearch) {
-      setFilteredIcons(iconNames.filter((name) => name.toLowerCase().includes(iconSearch.toLowerCase())))
+      setFilteredIcons(
+        iconNames.filter((name) => name.toLowerCase().includes(iconSearch.toLowerCase())),
+      )
     } else {
       setFilteredIcons(iconNames.slice(0, 100))
     }
@@ -219,7 +234,15 @@ export default function NewSkillPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="years">Years of Experience</Label>
-              <Input id="years" name="years" type="number" min="0" step="0.5" defaultValue="1" required />
+              <Input
+                id="years"
+                name="years"
+                type="number"
+                min="0"
+                step="0.5"
+                defaultValue="1"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label>Icon</Label>
@@ -255,7 +278,9 @@ export default function NewSkillPage() {
                               </SelectItem>
                             ))
                           ) : (
-                            <div className="p-2 text-center text-sm text-muted-foreground">No icons found</div>
+                            <div className="p-2 text-center text-sm text-muted-foreground">
+                              No icons found
+                            </div>
                           )}
                         </SelectContent>
                       </Select>
@@ -323,7 +348,9 @@ export default function NewSkillPage() {
                         onChange={handleIconUpload}
                         disabled={uploadingIcon}
                       />
-                      {uploadingIcon && <p className="text-sm text-muted-foreground">Uploading icon...</p>}
+                      {uploadingIcon && (
+                        <p className="text-sm text-muted-foreground">Uploading icon...</p>
+                      )}
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Upload a custom icon (PNG, SVG recommended). Square images work best.

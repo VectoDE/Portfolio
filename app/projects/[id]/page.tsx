@@ -67,7 +67,10 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
           <section className="w-full py-12 md:py-24 lg:py-12">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col space-y-8">
-                <Link href="/projects" className="flex items-center gap-2 text-primary hover:underline w-fit">
+                <Link
+                  href="/projects"
+                  className="flex items-center gap-2 text-primary hover:underline w-fit"
+                >
                   <ArrowLeft className="h-4 w-4" />
                   <span>Back to Projects</span>
                 </Link>
@@ -113,7 +116,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
                 <div className="space-y-4">
                   <h2 className="text-2xl font-bold">Project Overview</h2>
-                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed">{project.description}</p>
+                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                    {project.description}
+                  </p>
 
                   <div className="flex flex-wrap gap-4">
                     {project.link && (
@@ -155,23 +160,31 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                             ))}
                           </ul>
                         ) : (
-                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">No specific features listed for this project.</p>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">
+                            No specific features listed for this project.
+                          </p>
                         )}
                       </div>
 
                       {/* Technologies section */}
                       <div>
                         <h3 className="text-lg font-semibold">Technologies Used</h3>
-                        <p className="mt-2 text-gray-500 dark:text-gray-400">{project.technologies}</p>
+                        <p className="mt-2 text-gray-500 dark:text-gray-400">
+                          {project.technologies}
+                        </p>
                       </div>
 
                       {/* Development Process section */}
                       <div>
                         <h3 className="text-lg font-semibold">Development Process</h3>
                         {project.developmentProcess ? (
-                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.developmentProcess}</p>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">
+                            {project.developmentProcess}
+                          </p>
                         ) : (
-                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">No development process information provided.</p>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400 italic">
+                            No development process information provided.
+                          </p>
                         )}
                       </div>
 
@@ -179,7 +192,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       {project.challengesFaced && (
                         <div>
                           <h3 className="text-lg font-semibold">Challenges Faced</h3>
-                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.challengesFaced}</p>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">
+                            {project.challengesFaced}
+                          </p>
                         </div>
                       )}
 
@@ -187,7 +202,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       {project.futurePlans && (
                         <div>
                           <h3 className="text-lg font-semibold">Future Plans</h3>
-                          <p className="mt-2 text-gray-500 dark:text-gray-400">{project.futurePlans}</p>
+                          <p className="mt-2 text-gray-500 dark:text-gray-400">
+                            {project.futurePlans}
+                          </p>
                         </div>
                       )}
 

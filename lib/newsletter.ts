@@ -2,74 +2,79 @@ import nodemailer from "nodemailer"
 import prisma from "@/lib/db"
 
 type SubscriberPreferences = {
-    projects: boolean
-    certificates: boolean
-    skills: boolean
-    careers: boolean
+  projects: boolean
+  certificates: boolean
+  skills: boolean
+  careers: boolean
 }
 
 type SubscriberRecord = {
-    id: string
-    email: string
-    name?: string | null
-    token: string
-    isConfirmed: boolean
-    preferences?: SubscriberPreferences | null
+  id: string
+  email: string
+  name?: string | null
+  token: string
+  isConfirmed: boolean
+  preferences?: SubscriberPreferences | null
 }
 
 // Create a transporter with settings from the database
 const createTransporter = async () => {
-    // Get email settings from database
-    const emailSettings = await prisma.emailSettings.findFirst()
+  // Get email settings from database
+  const emailSettings = await prisma.emailSettings.findFirst()
 
-    // For production, use SMTP settings from database
-    if (emailSettings?.smtpServer && emailSettings?.smtpPort && emailSettings?.smtpUser && emailSettings?.smtpPassword) {
-        return nodemailer.createTransport({
-            host: emailSettings.smtpServer,
-            port: Number(emailSettings.smtpPort),
-            secure: Number(emailSettings.smtpPort) === 465,
-            auth: {
-                user: emailSettings.smtpUser,
-                pass: emailSettings.smtpPassword,
-            },
-        })
-    }
-
-    // For development, use Ethereal (fake SMTP service)
+  // For production, use SMTP settings from database
+  if (
+    emailSettings?.smtpServer &&
+    emailSettings?.smtpPort &&
+    emailSettings?.smtpUser &&
+    emailSettings?.smtpPassword
+  ) {
     return nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        port: 587,
-        secure: false,
-        auth: {
-            user: process.env.ETHEREAL_EMAIL || "ethereal.user@ethereal.email",
-            pass: process.env.ETHEREAL_PASSWORD || "ethereal_password",
-        },
+      host: emailSettings.smtpServer,
+      port: Number(emailSettings.smtpPort),
+      secure: Number(emailSettings.smtpPort) === 465,
+      auth: {
+        user: emailSettings.smtpUser,
+        pass: emailSettings.smtpPassword,
+      },
     })
+  }
+
+  // For development, use Ethereal (fake SMTP service)
+  return nodemailer.createTransport({
+    host: "smtp.ethereal.email",
+    port: 587,
+    secure: false,
+    auth: {
+      user: process.env.ETHEREAL_EMAIL || "ethereal.user@ethereal.email",
+      pass: process.env.ETHEREAL_PASSWORD || "ethereal_password",
+    },
+  })
 }
 
 // Get email configuration from database
 const getEmailConfig = async () => {
-    const emailSettings = await prisma.emailSettings.findFirst()
-    return {
-        from: emailSettings?.emailFrom || process.env.EMAIL_FROM || "Tim Hauke <noreply@timhauke.com>",
-        adminEmail: emailSettings?.adminEmail || process.env.ADMIN_EMAIL || "admin@timhauke.com",
-    }
+  const emailSettings = await prisma.emailSettings.findFirst()
+  return {
+    from: emailSettings?.emailFrom || process.env.EMAIL_FROM || "Tim Hauke <noreply@timhauke.com>",
+    adminEmail: emailSettings?.adminEmail || process.env.ADMIN_EMAIL || "admin@timhauke.com",
+  }
 }
 
 // Send subscription confirmation email
 export async function sendSubscriptionConfirmation(email: string, name: string, token: string) {
-    try {
-        const transporter = await createTransporter()
-        const emailConfig = await getEmailConfig()
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        const confirmUrl = `${baseUrl}/api/newsletter/confirm?token=${token}`
+  try {
+    const transporter = await createTransporter()
+    const emailConfig = await getEmailConfig()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const confirmUrl = `${baseUrl}/api/newsletter/confirm?token=${token}`
 
-        // Create email content
-        const mailOptions = {
-            from: emailConfig.from,
-            to: email,
-            subject: "Confirm Your Newsletter Subscription",
-            html: `
+    // Create email content
+    const mailOptions = {
+      from: emailConfig.from,
+      to: email,
+      subject: "Confirm Your Newsletter Subscription",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Confirm Your Subscription</h2>
           
@@ -94,7 +99,7 @@ export async function sendSubscriptionConfirmation(email: string, name: string, 
           </div>
         </div>
       `,
-            text: `
+      text: `
         Confirm Your Subscription
         
         Hello ${name || "there"},
@@ -105,37 +110,37 @@ export async function sendSubscriptionConfirmation(email: string, name: string, 
         
         If you didn't request this subscription, you can safely ignore this email.
       `,
-        }
-
-        // Send the email
-        const info = await transporter.sendMail(mailOptions)
-
-        // For development with Ethereal, log the preview URL
-        if (process.env.NODE_ENV !== "production" && info.messageId) {
-            console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
-        }
-
-        return { success: true, messageId: info.messageId }
-    } catch (error) {
-        console.error("Error sending subscription confirmation:", error)
-        return { success: false, error }
     }
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    // For development with Ethereal, log the preview URL
+    if (process.env.NODE_ENV !== "production" && info.messageId) {
+      console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+
+    return { success: true, messageId: info.messageId }
+  } catch (error) {
+    console.error("Error sending subscription confirmation:", error)
+    return { success: false, error }
+  }
 }
 
 // Send welcome email after confirmation
 export async function sendWelcomeEmail(email: string, name: string) {
-    try {
-        const transporter = await createTransporter()
-        const emailConfig = await getEmailConfig()
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        const unsubscribeUrl = `${baseUrl}/unsubscribe`
+  try {
+    const transporter = await createTransporter()
+    const emailConfig = await getEmailConfig()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const unsubscribeUrl = `${baseUrl}/unsubscribe`
 
-        // Create email content
-        const mailOptions = {
-            from: emailConfig.from,
-            to: email,
-            subject: "Welcome to My Newsletter!",
-            html: `
+    // Create email content
+    const mailOptions = {
+      from: emailConfig.from,
+      to: email,
+      subject: "Welcome to My Newsletter!",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Welcome to My Newsletter!</h2>
           
@@ -161,7 +166,7 @@ export async function sendWelcomeEmail(email: string, name: string) {
           </div>
         </div>
       `,
-            text: `
+      text: `
         Welcome to My Newsletter!
         
         Hello ${name || "there"},
@@ -179,35 +184,35 @@ export async function sendWelcomeEmail(email: string, name: string) {
         Best regards,
         Tim Hauke
       `,
-        }
-
-        // Send the email
-        const info = await transporter.sendMail(mailOptions)
-
-        // For development with Ethereal, log the preview URL
-        if (process.env.NODE_ENV !== "production" && info.messageId) {
-            console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
-        }
-
-        return { success: true, messageId: info.messageId }
-    } catch (error) {
-        console.error("Error sending welcome email:", error)
-        return { success: false, error }
     }
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    // For development with Ethereal, log the preview URL
+    if (process.env.NODE_ENV !== "production" && info.messageId) {
+      console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+
+    return { success: true, messageId: info.messageId }
+  } catch (error) {
+    console.error("Error sending welcome email:", error)
+    return { success: false, error }
+  }
 }
 
 // Send unsubscribe confirmation
 export async function sendUnsubscribeConfirmation(email: string, name: string) {
-    try {
-        const transporter = await createTransporter()
-        const emailConfig = await getEmailConfig()
+  try {
+    const transporter = await createTransporter()
+    const emailConfig = await getEmailConfig()
 
-        // Create email content
-        const mailOptions = {
-            from: emailConfig.from,
-            to: email,
-            subject: "You've Been Unsubscribed",
-            html: `
+    // Create email content
+    const mailOptions = {
+      from: emailConfig.from,
+      to: email,
+      subject: "You've Been Unsubscribed",
+      html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
           <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Unsubscribe Confirmation</h2>
           
@@ -223,7 +228,7 @@ export async function sendUnsubscribeConfirmation(email: string, name: string) {
           </div>
         </div>
       `,
-            text: `
+      text: `
         Unsubscribe Confirmation
         
         Hello ${name || "there"},
@@ -235,82 +240,82 @@ export async function sendUnsubscribeConfirmation(email: string, name: string) {
         Best regards,
         Tim Hauke
       `,
-        }
-
-        // Send the email
-        const info = await transporter.sendMail(mailOptions)
-
-        // For development with Ethereal, log the preview URL
-        if (process.env.NODE_ENV !== "production" && info.messageId) {
-            console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
-        }
-
-        return { success: true, messageId: info.messageId }
-    } catch (error) {
-        console.error("Error sending unsubscribe confirmation:", error)
-        return { success: false, error }
     }
+
+    // Send the email
+    const info = await transporter.sendMail(mailOptions)
+
+    // For development with Ethereal, log the preview URL
+    if (process.env.NODE_ENV !== "production" && info.messageId) {
+      console.log("Email preview URL: %s", nodemailer.getTestMessageUrl(info))
+    }
+
+    return { success: true, messageId: info.messageId }
+  } catch (error) {
+    console.error("Error sending unsubscribe confirmation:", error)
+    return { success: false, error }
+  }
 }
 
 // Send newsletter to subscribers
 export async function sendNewsletter(newsletter: {
-    subject: string
-    content: string
-    type: string
-    projectId?: string | null
+  subject: string
+  content: string
+  type: string
+  projectId?: string | null
 }) {
-    try {
-        const transporter = await createTransporter()
-        const emailConfig = await getEmailConfig()
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+  try {
+    const transporter = await createTransporter()
+    const emailConfig = await getEmailConfig()
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
 
-        // Get all confirmed subscribers with their preferences
-        const subscribers = (await prisma.subscriber.findMany({
-            where: { isConfirmed: true },
-            include: { preferences: true },
-        })) as SubscriberRecord[]
+    // Get all confirmed subscribers with their preferences
+    const subscribers = (await prisma.subscriber.findMany({
+      where: { isConfirmed: true },
+      include: { preferences: true },
+    })) as SubscriberRecord[]
 
-        // Filter subscribers based on newsletter type and preferences
-        const filteredSubscribers = subscribers.filter((subscriber) => {
-            if (!subscriber.preferences) return true
+    // Filter subscribers based on newsletter type and preferences
+    const filteredSubscribers = subscribers.filter((subscriber) => {
+      if (!subscriber.preferences) return true
 
-            switch (newsletter.type) {
-                case "project":
-                    return subscriber.preferences.projects
-                case "certificate":
-                    return subscriber.preferences.certificates
-                case "skill":
-                    return subscriber.preferences.skills
-                case "career":
-                    return subscriber.preferences.careers
-                default:
-                    return true
-            }
-        })
+      switch (newsletter.type) {
+        case "project":
+          return subscriber.preferences.projects
+        case "certificate":
+          return subscriber.preferences.certificates
+        case "skill":
+          return subscriber.preferences.skills
+        case "career":
+          return subscriber.preferences.careers
+        default:
+          return true
+      }
+    })
 
-        // Create and save newsletter record
-        const savedNewsletter = await prisma.newsletter.create({
-            data: {
-                subject: newsletter.subject,
-                content: newsletter.content,
-                type: newsletter.type,
-                projectId: newsletter.projectId,
-                status: "sent",
-                sentAt: new Date(),
-            },
-        })
+    // Create and save newsletter record
+    const savedNewsletter = await prisma.newsletter.create({
+      data: {
+        subject: newsletter.subject,
+        content: newsletter.content,
+        type: newsletter.type,
+        projectId: newsletter.projectId,
+        status: "sent",
+        sentAt: new Date(),
+      },
+    })
 
-        // Send to each subscriber
-        const results = await Promise.all(
-            filteredSubscribers.map(async (subscriber: SubscriberRecord) => {
-                const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${subscriber.token}`
+    // Send to each subscriber
+    const results = await Promise.all(
+      filteredSubscribers.map(async (subscriber: SubscriberRecord) => {
+        const unsubscribeUrl = `${baseUrl}/unsubscribe?token=${subscriber.token}`
 
-                // Create email content
-                const mailOptions = {
-                    from: emailConfig.from,
-                    to: subscriber.email,
-                    subject: newsletter.subject,
-                    html: `
+        // Create email content
+        const mailOptions = {
+          from: emailConfig.from,
+          to: subscriber.email,
+          subject: newsletter.subject,
+          html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               ${newsletter.content}
               
@@ -320,61 +325,62 @@ export async function sendNewsletter(newsletter: {
               </div>
             </div>
           `,
-                    text: `
+          text: `
             ${newsletter.content.replace(/<[^>]*>/g, "")}
             
             You're receiving this email because you subscribed to my newsletter.
             To unsubscribe or manage your preferences, visit: ${unsubscribeUrl}
           `,
-                }
-
-                // Send the email
-                const info = await transporter.sendMail(mailOptions)
-                return { email: subscriber.email, messageId: info.messageId }
-            }),
-        )
-
-        return {
-            success: true,
-            newsletterId: savedNewsletter.id,
-            sentCount: results.length,
         }
-    } catch (error) {
-        console.error("Error sending newsletter:", error)
-        return { success: false, error }
+
+        // Send the email
+        const info = await transporter.sendMail(mailOptions)
+        return { email: subscriber.email, messageId: info.messageId }
+      }),
+    )
+
+    return {
+      success: true,
+      newsletterId: savedNewsletter.id,
+      sentCount: results.length,
     }
+  } catch (error) {
+    console.error("Error sending newsletter:", error)
+    return { success: false, error }
+  }
 }
 
 // Generate newsletter content for new project
 export async function generateProjectNewsletterContent(projectId: string) {
-    try {
-        const project = await prisma.project.findUnique({
-            where: { id: projectId },
-            include: { features: true },
-        })
+  try {
+    const project = await prisma.project.findUnique({
+      where: { id: projectId },
+      include: { features: true },
+    })
 
-        if (!project) {
-            throw new Error("Project not found")
-        }
+    if (!project) {
+      throw new Error("Project not found")
+    }
 
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-        const projectUrl = `${baseUrl}/projects/${project.id}`
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+    const projectUrl = `${baseUrl}/projects/${project.id}`
 
-        // Generate HTML content
-        const content = `
+    // Generate HTML content
+    const content = `
       <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Project: ${project.title}</h2>
       
       <div style="margin: 20px 0;">
         <p>I'm excited to share my latest project with you!</p>
         
-        ${project.imageUrl
-                ? `
+        ${
+          project.imageUrl
+            ? `
           <div style="text-align: center; margin: 20px 0;">
             <img src="${project.imageUrl}" alt="${project.title}" style="max-width: 100%; border-radius: 8px; max-height: 300px; object-fit: cover;">
           </div>
         `
-                : ""
-            }
+            : ""
+        }
         
         <h3 style="color: #444; margin-top: 20px;">About the Project</h3>
         <p>${project.description}</p>
@@ -383,23 +389,24 @@ export async function generateProjectNewsletterContent(projectId: string) {
           <strong>Technologies used:</strong> ${project.technologies}
         </div>
         
-        ${project.features && project.features.length > 0
-                ? `
+        ${
+          project.features && project.features.length > 0
+            ? `
           <h3 style="color: #444; margin-top: 20px;">Key Features</h3>
           <ul style="padding-left: 20px;">
             ${project.features
-                    .map(
-                        (feature: { name: string; description?: string | null }) => `
+              .map(
+                (feature: { name: string; description?: string | null }) => `
               <li style="margin-bottom: 8px;">
                 <strong>${feature.name}</strong>${feature.description ? `: ${feature.description}` : ""}
               </li>
             `,
-                    )
-                    .join("")}
+              )
+              .join("")}
           </ul>
         `
-                : ""
-            }
+            : ""
+        }
       </div>
       
       <div style="text-align: center; margin: 30px 0;">
@@ -409,52 +416,53 @@ export async function generateProjectNewsletterContent(projectId: string) {
       </div>
     `
 
-        return {
-            subject: `New Project: ${project.title}`,
-            content,
-            type: "project",
-            projectId: project.id,
-        }
-    } catch (error) {
-        console.error("Error generating project newsletter content:", error)
-        throw error
+    return {
+      subject: `New Project: ${project.title}`,
+      content,
+      type: "project",
+      projectId: project.id,
     }
+  } catch (error) {
+    console.error("Error generating project newsletter content:", error)
+    throw error
+  }
 }
 
 // Generate newsletter content for new certificate
 export async function generateCertificateNewsletterContent(certificateId: string) {
-    try {
-        const certificate = await prisma.certificate.findUnique({
-            where: { id: certificateId },
-        })
+  try {
+    const certificate = await prisma.certificate.findUnique({
+      where: { id: certificateId },
+    })
 
-        if (!certificate) {
-            throw new Error("Certificate not found")
-        }
+    if (!certificate) {
+      throw new Error("Certificate not found")
+    }
 
-        // Format date
-        const date = new Date(certificate.date)
-        const formattedDate = date.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-        })
+    // Format date
+    const date = new Date(certificate.date)
+    const formattedDate = date.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    })
 
-        // Generate HTML content
-        const content = `
+    // Generate HTML content
+    const content = `
       <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Certificate: ${certificate.name}</h2>
       
       <div style="margin: 20px 0;">
         <p>I'm pleased to share that I've earned a new certification!</p>
         
-        ${certificate.imageUrl
-                ? `
+        ${
+          certificate.imageUrl
+            ? `
           <div style="text-align: center; margin: 20px 0;">
             <img src="${certificate.imageUrl}" alt="${certificate.name}" style="max-width: 100%; border-radius: 8px; max-height: 300px; object-fit: cover;">
           </div>
         `
-                : ""
-            }
+            : ""
+        }
         
         <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin-top: 0;"><strong>Certificate:</strong> ${certificate.name}</p>
@@ -467,31 +475,31 @@ export async function generateCertificateNewsletterContent(certificateId: string
       </div>
     `
 
-        return {
-            subject: `New Certificate: ${certificate.name}`,
-            content,
-            type: "certificate",
-            projectId: null,
-        }
-    } catch (error) {
-        console.error("Error generating certificate newsletter content:", error)
-        throw error
+    return {
+      subject: `New Certificate: ${certificate.name}`,
+      content,
+      type: "certificate",
+      projectId: null,
     }
+  } catch (error) {
+    console.error("Error generating certificate newsletter content:", error)
+    throw error
+  }
 }
 
 // Generate newsletter content for new skill
 export async function generateSkillNewsletterContent(skillId: string) {
-    try {
-        const skill = await prisma.skill.findUnique({
-            where: { id: skillId },
-        })
+  try {
+    const skill = await prisma.skill.findUnique({
+      where: { id: skillId },
+    })
 
-        if (!skill) {
-            throw new Error("Skill not found")
-        }
+    if (!skill) {
+      throw new Error("Skill not found")
+    }
 
-        // Generate HTML content
-        const content = `
+    // Generate HTML content
+    const content = `
       <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">New Skill: ${skill.name}</h2>
       
       <div style="margin: 20px 0;">
@@ -508,51 +516,52 @@ export async function generateSkillNewsletterContent(skillId: string) {
       </div>
     `
 
-        return {
-            subject: `New Skill Added: ${skill.name}`,
-            content,
-            type: "skill",
-            projectId: null,
-        }
-    } catch (error) {
-        console.error("Error generating skill newsletter content:", error)
-        throw error
+    return {
+      subject: `New Skill Added: ${skill.name}`,
+      content,
+      type: "skill",
+      projectId: null,
     }
+  } catch (error) {
+    console.error("Error generating skill newsletter content:", error)
+    throw error
+  }
 }
 
 // Generate newsletter content for new career entry
 export async function generateCareerNewsletterContent(careerId: string) {
-    try {
-        const career = await prisma.career.findUnique({
-            where: { id: careerId },
-        })
+  try {
+    const career = await prisma.career.findUnique({
+      where: { id: careerId },
+    })
 
-        if (!career) {
-            throw new Error("Career entry not found")
-        }
+    if (!career) {
+      throw new Error("Career entry not found")
+    }
 
-        // Format date
-        const startDate = new Date(career.startDate)
-        const formattedStartDate = startDate.toLocaleDateString("en-US", {
-            year: "numeric",
-            month: "long",
-        })
+    // Format date
+    const startDate = new Date(career.startDate)
+    const formattedStartDate = startDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+    })
 
-        // Generate HTML content
-        const content = `
+    // Generate HTML content
+    const content = `
       <h2 style="color: #333; border-bottom: 1px solid #eee; padding-bottom: 10px;">Career Update: ${career.position} at ${career.company}</h2>
       
       <div style="margin: 20px 0;">
         <p>I'm excited to share a new update in my professional journey!</p>
         
-        ${career.logoUrl
-                ? `
+        ${
+          career.logoUrl
+            ? `
           <div style="text-align: center; margin: 20px 0;">
             <img src="${career.logoUrl}" alt="${career.company} logo" style="max-width: 200px; max-height: 100px; object-fit: contain;">
           </div>
         `
-                : ""
-            }
+            : ""
+        }
         
         <div style="background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin-top: 0;"><strong>Position:</strong> ${career.position}</p>
@@ -566,14 +575,14 @@ export async function generateCareerNewsletterContent(careerId: string) {
       </div>
     `
 
-        return {
-            subject: `Career Update: ${career.position} at ${career.company}`,
-            content,
-            type: "career",
-            projectId: null,
-        }
-    } catch (error) {
-        console.error("Error generating career newsletter content:", error)
-        throw error
+    return {
+      subject: `Career Update: ${career.position} at ${career.company}`,
+      content,
+      type: "career",
+      projectId: null,
     }
+  } catch (error) {
+    console.error("Error generating career newsletter content:", error)
+    throw error
+  }
 }

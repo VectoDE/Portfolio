@@ -23,7 +23,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 import { Textarea } from "@/components/ui/textarea"
 
 // Mock data for career
@@ -43,7 +50,8 @@ const initialCareer: CareerEntry[] = [
     company: "Tech Innovations Inc.",
     startDate: "2021-06-01",
     endDate: "Present",
-    description: "Leading the development of enterprise web applications using Next.js, React, and Node.js.",
+    description:
+      "Leading the development of enterprise web applications using Next.js, React, and Node.js.",
   },
   {
     id: "2",
@@ -51,7 +59,8 @@ const initialCareer: CareerEntry[] = [
     company: "Digital Solutions Ltd.",
     startDate: "2019-03-15",
     endDate: "2021-05-30",
-    description: "Developed and maintained multiple client projects using React, Express, and MongoDB.",
+    description:
+      "Developed and maintained multiple client projects using React, Express, and MongoDB.",
   },
   {
     id: "3",
@@ -59,7 +68,8 @@ const initialCareer: CareerEntry[] = [
     company: "WebCraft Agency",
     startDate: "2017-09-01",
     endDate: "2019-03-01",
-    description: "Created responsive web interfaces for various clients using HTML, CSS, and JavaScript.",
+    description:
+      "Created responsive web interfaces for various clients using HTML, CSS, and JavaScript.",
   },
 ]
 
@@ -124,7 +134,9 @@ export function CareerTable() {
             <DialogHeader>
               <DialogTitle>{editingCareer ? "Edit Career" : "Add Career"}</DialogTitle>
               <DialogDescription>
-                {editingCareer ? "Update the career details below." : "Add a new career entry to your portfolio."}
+                {editingCareer
+                  ? "Update the career details below."
+                  : "Add a new career entry to your portfolio."}
               </DialogDescription>
             </DialogHeader>
             <form action={editingCareer ? handleEditCareer : handleAddCareer}>
@@ -165,7 +177,9 @@ export function CareerTable() {
                     id="endDate"
                     name="endDate"
                     type="date"
-                    defaultValue={editingCareer?.endDate !== "Present" ? editingCareer?.endDate : ""}
+                    defaultValue={
+                      editingCareer?.endDate !== "Present" ? editingCareer?.endDate : ""
+                    }
                     placeholder="Leave empty for 'Present'"
                   />
                 </div>
@@ -204,7 +218,9 @@ export function CareerTable() {
                 <TableCell>{item.company}</TableCell>
                 <TableCell>
                   {new Date(item.startDate).toLocaleDateString()} -{" "}
-                  {item.endDate === "Present" ? "Present" : new Date(item.endDate).toLocaleDateString()}
+                  {item.endDate === "Present"
+                    ? "Present"
+                    : new Date(item.endDate).toLocaleDateString()}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -236,4 +252,3 @@ export function CareerTable() {
     </div>
   )
 }
-

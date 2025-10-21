@@ -111,4 +111,3 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Failed to delete certificate" }, { status: 500 })
   }
 }
-

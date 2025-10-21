@@ -9,7 +9,14 @@ import { signIn } from "next-auth/react"
 import { Code2, Eye, EyeOff, KeyRound, Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
@@ -118,7 +125,9 @@ export default function LoginPage() {
                   ) : (
                     <Eye className="h-5 w-5 text-muted-foreground" />
                   )}
-                  <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                  <span className="sr-only">
+                    {showPassword ? "Hide password" : "Show password"}
+                  </span>
                 </Button>
               </div>
             </div>
@@ -139,4 +148,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

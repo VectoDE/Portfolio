@@ -4,23 +4,23 @@ import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 
 type FeatureInput = {
-    name: string
-    description?: string | null
+  name: string
+  description?: string | null
 }
 
 type InsensitiveFilter = {
-    contains: string
-    mode?: "insensitive"
+  contains: string
+  mode?: "insensitive"
 }
 
 interface ProjectWhereInput {
-    userId: string
-    featured?: boolean
-    OR?: Array<{
-        title?: InsensitiveFilter
-        description?: InsensitiveFilter
-        technologies?: InsensitiveFilter
-    }>
+  userId: string
+  featured?: boolean
+  OR?: Array<{
+    title?: InsensitiveFilter
+    description?: InsensitiveFilter
+    technologies?: InsensitiveFilter
+  }>
 }
 
 // GET /api/projects - Get all projects
@@ -121,9 +121,7 @@ export async function POST(req: Request) {
       features = [],
     } = data
 
-    const featureList: FeatureInput[] = Array.isArray(features)
-      ? features
-      : []
+    const featureList: FeatureInput[] = Array.isArray(features) ? features : []
 
     // Validate required fields
     if (!title || !description || !technologies) {

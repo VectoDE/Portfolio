@@ -20,4 +20,3 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Failed to check users" }, { status: 500 })
   }
 }
-

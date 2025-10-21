@@ -69,7 +69,9 @@ async function SkillsContent() {
                     className="flex items-center gap-1 rounded-full bg-background px-3 py-1 text-sm border border-primary/20"
                     title={`${skill.level} - ${skill.years} years`}
                   >
-                    {SkillIconComponent && <SkillIconComponent className="h-3.5 w-3.5 mr-1 text-primary" />}
+                    {SkillIconComponent && (
+                      <SkillIconComponent className="h-3.5 w-3.5 mr-1 text-primary" />
+                    )}
                     <span>{skill.name}</span>
                     <span className="inline-flex items-center justify-center rounded-full bg-primary/10 text-primary text-xs w-5 h-5">
                       {skill.level.charAt(0)}
@@ -92,4 +94,3 @@ export function SkillsShowcase() {
     </Suspense>
   )
 }
-

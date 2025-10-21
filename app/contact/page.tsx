@@ -67,7 +67,10 @@ export default function ContactPage() {
       console.error("Error sending message:", error)
       toast({
         title: "Error",
-        description: error instanceof Error ? error.message : "Failed to send message. Please try again later.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "Failed to send message. Please try again later.",
         variant: "destructive",
       })
     } finally {

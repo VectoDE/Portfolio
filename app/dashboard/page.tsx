@@ -14,7 +14,14 @@ import {
 import { getServerSession } from "next-auth"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -164,7 +171,11 @@ async function calculateStatsWithChange(
 
   // Calculate percentage change
   const percentage =
-    countPrevious30Days === 0 ? (change > 0 ? 100 : 0) : Math.round((change / countPrevious30Days) * 100)
+    countPrevious30Days === 0
+      ? change > 0
+        ? 100
+        : 0
+      : Math.round((change / countPrevious30Days) * 100)
 
   return {
     count: totalCount,
@@ -432,7 +443,10 @@ export default async function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {featuredProjects.map((project: Project) => (
-                  <div key={project.id} className="flex items-start justify-between border-b pb-4 last:border-0">
+                  <div
+                    key={project.id}
+                    className="flex items-start justify-between border-b pb-4 last:border-0"
+                  >
                     <div className="flex gap-3">
                       {project.imageUrl && (
                         <div className="h-12 w-12 rounded-md overflow-hidden flex-shrink-0">
@@ -447,7 +461,9 @@ export default async function DashboardPage() {
                       )}
                       <div>
                         <h3 className="font-medium">{project.title}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">{project.description}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1">
+                          {project.description}
+                        </p>
                         <div className="flex flex-wrap gap-1 mt-1">
                           {project.technologies
                             .split(", ")
@@ -514,13 +530,19 @@ export default async function DashboardPage() {
                       : new Date(contact.createdAt)
 
                   return (
-                    <div key={contact.id} className="flex items-start justify-between border-b pb-4 last:border-0">
+                    <div
+                      key={contact.id}
+                      className="flex items-start justify-between border-b pb-4 last:border-0"
+                    >
                       <div>
                         <h3 className="font-medium">{contact.name}</h3>
                         <p className="text-sm text-muted-foreground">{contact.email}</p>
-                        <p className="text-sm text-muted-foreground line-clamp-1 mt-1">{contact.subject}</p>
+                        <p className="text-sm text-muted-foreground line-clamp-1 mt-1">
+                          {contact.subject}
+                        </p>
                         <p className="text-xs text-muted-foreground mt-1">
-                          Received {createdAt.toLocaleDateString()} at {createdAt.toLocaleTimeString()}
+                          Received {createdAt.toLocaleDateString()} at{" "}
+                          {createdAt.toLocaleTimeString()}
                         </p>
                         <div className="mt-1">
                           {contact.status === "unread" ? (
@@ -581,21 +603,23 @@ export default async function DashboardPage() {
                     (acc: number, curr: ContactStatusRow) => acc + Number(curr.count),
                     0,
                   )
-                  const percentage = totalCount > 0 ? Math.round((Number(item.count) / totalCount) * 100) : 0
+                  const percentage =
+                    totalCount > 0 ? Math.round((Number(item.count) / totalCount) * 100) : 0
 
                   return (
                     <div key={item.status} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <div
-                            className={`h-3 w-3 rounded-full mr-2 ${item.status === "unread"
+                            className={`h-3 w-3 rounded-full mr-2 ${
+                              item.status === "unread"
                                 ? "bg-blue-500"
                                 : item.status === "read"
                                   ? "bg-gray-500"
                                   : item.status === "replied"
                                     ? "bg-green-500"
                                     : "bg-yellow-500"
-                              }`}
+                            }`}
                           />
                           <span className="capitalize">{item.status}</span>
                         </div>
@@ -606,14 +630,15 @@ export default async function DashboardPage() {
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${item.status === "unread"
+                          className={`h-full rounded-full ${
+                            item.status === "unread"
                               ? "bg-blue-500"
                               : item.status === "read"
                                 ? "bg-gray-500"
                                 : item.status === "replied"
                                   ? "bg-green-500"
                                   : "bg-yellow-500"
-                            }`}
+                          }`}
                           style={{
                             width: `${percentage}%`,
                           }}

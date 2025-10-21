@@ -26,7 +26,7 @@ export function FileUpload({
   onChange,
   accept = "image/*",
   maxSize = 5,
-  isImage = true
+  isImage = true,
 }: FileUploadProps) {
   const [preview, setPreview] = useState<string | null>(value || null)
   const [error, setError] = useState<string | null>(null)
@@ -47,7 +47,7 @@ export function FileUpload({
     setFileName(file.name)
 
     // For images, create a preview URL
-    if (isImage && file.type.startsWith('image/')) {
+    if (isImage && file.type.startsWith("image/")) {
       const objectUrl = URL.createObjectURL(file)
       setPreview(objectUrl)
     } else if (isImage) {
@@ -84,7 +84,13 @@ export function FileUpload({
       <div className="flex flex-col gap-3">
         {isImage && preview && (
           <div className="relative w-full max-w-[200px] h-[150px] rounded-md overflow-hidden border">
-            <Image src={preview || "/placeholder.svg"} alt="Preview" fill className="object-cover" sizes="200px" />
+            <Image
+              src={preview || "/placeholder.svg"}
+              alt="Preview"
+              fill
+              className="object-cover"
+              sizes="200px"
+            />
             <Button
               type="button"
               variant="destructive"
@@ -128,7 +134,7 @@ export function FileUpload({
               type="button"
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
-              className={`gap-2 ${!isImage ? 'w-auto' : 'h-32 w-full border-dashed'}`}
+              className={`gap-2 ${!isImage ? "w-auto" : "h-32 w-full border-dashed"}`}
             >
               <Upload className="h-4 w-4" />
               Upload {isImage ? "Image" : "File"}
@@ -138,7 +144,8 @@ export function FileUpload({
 
         {error && <p className="text-sm text-destructive">{error}</p>}
         <p className="text-xs text-muted-foreground">
-          Accepted formats: {accept.replace("image/*", "JPG, PNG, GIF, etc.")}. Max size: {maxSize}MB
+          Accepted formats: {accept.replace("image/*", "JPG, PNG, GIF, etc.")}. Max size: {maxSize}
+          MB
         </p>
       </div>
     </div>

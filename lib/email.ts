@@ -7,7 +7,12 @@ const createTransporter = async () => {
   const emailSettings = await prisma.emailSettings.findFirst()
 
   // For production, use SMTP settings from database
-  if (emailSettings?.smtpServer && emailSettings?.smtpPort && emailSettings?.smtpUser && emailSettings?.smtpPassword) {
+  if (
+    emailSettings?.smtpServer &&
+    emailSettings?.smtpPort &&
+    emailSettings?.smtpUser &&
+    emailSettings?.smtpPassword
+  ) {
     return nodemailer.createTransport({
       host: emailSettings.smtpServer,
       port: Number(emailSettings.smtpPort),
@@ -35,7 +40,10 @@ const createTransporter = async () => {
 const getEmailConfig = async () => {
   const emailSettings = await prisma.emailSettings.findFirst()
   return {
-    from: emailSettings?.emailFrom || process.env.EMAIL_FROM || "Your Portfolio <noreply@yourdomain.com>",
+    from:
+      emailSettings?.emailFrom ||
+      process.env.EMAIL_FROM ||
+      "Your Portfolio <noreply@yourdomain.com>",
     adminEmail: emailSettings?.adminEmail || process.env.ADMIN_EMAIL || "admin@yourdomain.com",
     sendAutoReply: emailSettings?.sendAutoReply || false,
   }
@@ -147,10 +155,7 @@ export async function sendContactNotification(contact: {
 }
 
 // Send auto-reply to the contact
-export async function sendContactAutoReply(contact: {
-  name: string
-  email: string
-}) {
+export async function sendContactAutoReply(contact: { name: string; email: string }) {
   try {
     const transporter = await createTransporter()
     const emailConfig = await getEmailConfig()

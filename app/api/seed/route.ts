@@ -132,7 +132,8 @@ export async function POST() {
           company: "Tech Innovations Inc.",
           startDate: new Date("2021-06-01"),
           endDate: "Present",
-          description: "Leading the development of enterprise web applications using Next.js, React, and Node.js.",
+          description:
+            "Leading the development of enterprise web applications using Next.js, React, and Node.js.",
           userId: user.id,
         },
         {
@@ -140,7 +141,8 @@ export async function POST() {
           company: "Digital Solutions Ltd.",
           startDate: new Date("2019-03-15"),
           endDate: "2021-05-30",
-          description: "Developed and maintained multiple client projects using React, Express, and MongoDB.",
+          description:
+            "Developed and maintained multiple client projects using React, Express, and MongoDB.",
           userId: user.id,
         },
         {
@@ -148,7 +150,8 @@ export async function POST() {
           company: "WebCraft Agency",
           startDate: new Date("2017-09-01"),
           endDate: "2019-03-01",
-          description: "Created responsive web interfaces for various clients using HTML, CSS, and JavaScript.",
+          description:
+            "Created responsive web interfaces for various clients using HTML, CSS, and JavaScript.",
           userId: user.id,
         },
       ],
@@ -160,4 +163,3 @@ export async function POST() {
     return NextResponse.json({ error: "Failed to seed database" }, { status: 500 })
   }
 }
-

@@ -8,7 +8,14 @@ import Link from "next/link"
 import { ArrowLeft, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -298,7 +305,13 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           <CardContent className="space-y-6">
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
-              <Input id="title" name="title" defaultValue={project.title} placeholder="Project title" required />
+              <Input
+                id="title"
+                name="title"
+                defaultValue={project.title}
+                placeholder="Project title"
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -427,7 +440,12 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                   </div>
                 )}
                 <div className="flex items-center gap-4">
-                  <Button type="button" variant="outline" onClick={triggerLogFileInput} disabled={uploadingLog}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={triggerLogFileInput}
+                    disabled={uploadingLog}
+                  >
                     <Upload className="mr-2 h-4 w-4" />
                     {logContent ? "Change Log File" : "Upload Log File"}
                   </Button>
@@ -440,7 +458,9 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                     onChange={handleLogFileUpload}
                     disabled={uploadingLog}
                   />
-                  {uploadingLog && <p className="text-sm text-muted-foreground">Loading log file...</p>}
+                  {uploadingLog && (
+                    <p className="text-sm text-muted-foreground">Loading log file...</p>
+                  )}
                 </div>
               </div>
             </div>

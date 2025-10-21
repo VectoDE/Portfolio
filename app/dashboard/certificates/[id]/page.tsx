@@ -8,7 +8,14 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
@@ -226,7 +233,13 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Certificate Name</Label>
-              <Input id="name" name="name" defaultValue={certificate.name} placeholder="Certificate name" required />
+              <Input
+                id="name"
+                name="name"
+                defaultValue={certificate.name}
+                placeholder="Certificate name"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="issuer">Issuer</Label>
@@ -240,7 +253,13 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
             </div>
             <div className="space-y-2">
               <Label htmlFor="date">Date</Label>
-              <Input id="date" name="date" type="date" defaultValue={formatDateForInput(certificate.date)} required />
+              <Input
+                id="date"
+                name="date"
+                type="date"
+                defaultValue={formatDateForInput(certificate.date)}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="link">Certificate Link</Label>
@@ -273,4 +292,3 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
     </div>
   )
 }
-

@@ -9,7 +9,8 @@ export default withAuth(
       secret: process.env.NEXTAUTH_SECRET,
     })
     const isAuth = !!token
-    const isAuthPage = req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/register")
+    const isAuthPage =
+      req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/register")
 
     // Check if registration is allowed
     if (req.nextUrl.pathname.startsWith("/register") && !isAuth) {
@@ -57,4 +58,3 @@ export default withAuth(
 export const config = {
   matcher: ["/dashboard/:path*", "/login", "/register"],
 }
-

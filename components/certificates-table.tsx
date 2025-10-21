@@ -23,7 +23,14 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface CertificateEntry {
   id: string
@@ -89,7 +96,9 @@ export function CertificatesTable() {
       link: formData.get("link") as string,
     }
 
-    setCertificates(certificates.map((c) => (c.id === editingCertificate.id ? updatedCertificate : c)))
+    setCertificates(
+      certificates.map((c) => (c.id === editingCertificate.id ? updatedCertificate : c)),
+    )
     setOpen(false)
     setEditingCertificate(null)
   }
@@ -115,7 +124,9 @@ export function CertificatesTable() {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editingCertificate ? "Edit Certificate" : "Add Certificate"}</DialogTitle>
+              <DialogTitle>
+                {editingCertificate ? "Edit Certificate" : "Add Certificate"}
+              </DialogTitle>
               <DialogDescription>
                 {editingCertificate
                   ? "Update the certificate details below."
@@ -146,7 +157,13 @@ export function CertificatesTable() {
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="date">Date</Label>
-                  <Input id="date" name="date" type="date" defaultValue={editingCertificate?.date || ""} required />
+                  <Input
+                    id="date"
+                    name="date"
+                    type="date"
+                    defaultValue={editingCertificate?.date || ""}
+                    required
+                  />
                 </div>
                 <div className="grid gap-2">
                   <Label htmlFor="link">Certificate Link</Label>
@@ -159,7 +176,9 @@ export function CertificatesTable() {
                 </div>
               </div>
               <DialogFooter>
-                <Button type="submit">{editingCertificate ? "Save Changes" : "Add Certificate"}</Button>
+                <Button type="submit">
+                  {editingCertificate ? "Save Changes" : "Add Certificate"}
+                </Button>
               </DialogFooter>
             </form>
           </DialogContent>
@@ -211,4 +230,3 @@ export function CertificatesTable() {
     </div>
   )
 }
-

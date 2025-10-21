@@ -60,8 +60,9 @@ export default function AboutPage() {
                       My Journey
                     </h2>
                     <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                      I'm a passionate Full Stack Developer with over 10 years of experience building web applications. I
-                      specialize in React, Next.js, Node.js, and modern web technologies.
+                      I'm a passionate Full Stack Developer with over 10 years of experience
+                      building web applications. I specialize in React, Next.js, Node.js, and modern
+                      web technologies.
                     </p>
                   </div>
                   <div className="space-y-2">
@@ -75,7 +76,9 @@ export default function AboutPage() {
                   <div className="space-y-2">
                     <h3 className="text-xl font-bold">Professional Experience</h3>
                     <p className="text-gray-500 dark:text-gray-400">
-                      I've worked with startups, clubs, and associations, helping them develop scalable and maintainable web applications. My focus is on creating exceptional user experiences with clean, efficient code.
+                      I've worked with startups, clubs, and associations, helping them develop
+                      scalable and maintainable web applications. My focus is on creating
+                      exceptional user experiences with clean, efficient code.
                     </p>
                   </div>
                 </div>
@@ -159,8 +162,8 @@ export default function AboutPage() {
                     Let's Connect
                   </h2>
                   <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                    I'm always open to discussing new projects, creative ideas, or opportunities to be part of your
-                    vision.
+                    I'm always open to discussing new projects, creative ideas, or opportunities to
+                    be part of your vision.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
@@ -188,4 +191,3 @@ export default function AboutPage() {
     </div>
   )
 }
-

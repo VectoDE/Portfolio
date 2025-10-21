@@ -38,7 +38,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { position, company, startDate, endDate, description, location, logoUrl } = await req.json()
+    const { position, company, startDate, endDate, description, location, logoUrl } =
+      await req.json()
 
     const career = await prisma.career.create({
       data: {
@@ -59,4 +60,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Failed to create career entry" }, { status: 500 })
   }
 }
-

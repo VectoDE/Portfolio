@@ -9,7 +9,14 @@ import { ArrowLeft, Upload, X } from "lucide-react"
 import Image from "next/image"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -141,7 +148,10 @@ export default function NewCareerPage() {
 
   return (
     <div>
-      <DashboardHeader heading="Add New Position" text="Add a new career position to your portfolio">
+      <DashboardHeader
+        heading="Add New Position"
+        text="Add a new career position to your portfolio"
+      >
         <Link href="/dashboard/career">
           <Button variant="outline" size="sm" className="gap-1">
             <ArrowLeft className="h-4 w-4" /> Back to Career
@@ -212,7 +222,9 @@ export default function NewCareerPage() {
                     disabled={uploadingLogo}
                   />
                   <p className="text-sm text-muted-foreground">
-                    {uploadingLogo ? "Uploading logo..." : "Upload a company logo (PNG, JPG, GIF up to 5MB)"}
+                    {uploadingLogo
+                      ? "Uploading logo..."
+                      : "Upload a company logo (PNG, JPG, GIF up to 5MB)"}
                   </p>
                 </div>
               </div>
@@ -251,7 +263,11 @@ export default function NewCareerPage() {
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSubmitting || uploadingLogo} className="w-full md:w-auto">
+            <Button
+              type="submit"
+              disabled={isSubmitting || uploadingLogo}
+              className="w-full md:w-auto"
+            >
               {isSubmitting ? "Creating..." : "Create Position"}
             </Button>
           </CardFooter>

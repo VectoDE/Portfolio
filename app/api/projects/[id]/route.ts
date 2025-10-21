@@ -77,9 +77,7 @@ export async function PUT(req: Request, { params }: RouteParams) {
       features = [],
     } = data
 
-    const featureList: FeatureInput[] = Array.isArray(features)
-      ? features
-      : []
+    const featureList: FeatureInput[] = Array.isArray(features) ? features : []
 
     // Validate required fields
     if (!title || !description || !technologies) {

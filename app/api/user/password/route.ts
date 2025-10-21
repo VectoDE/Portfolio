@@ -19,7 +19,10 @@ export async function PUT(req: Request) {
     const { currentPassword, newPassword } = data
 
     if (!currentPassword || !newPassword) {
-      return NextResponse.json({ error: "Current password and new password are required" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Current password and new password are required" },
+        { status: 400 },
+      )
     }
 
     const user = await prisma.user.findUnique({

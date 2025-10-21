@@ -41,7 +41,8 @@ export async function PUT(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const { position, company, startDate, endDate, description, location, logoUrl } = await req.json()
+    const { position, company, startDate, endDate, description, location, logoUrl } =
+      await req.json()
 
     const { id } = await params
 
@@ -113,4 +114,3 @@ export async function DELETE(req: Request, { params }: RouteParams) {
     return NextResponse.json({ error: "Failed to delete career entry" }, { status: 500 })
   }
 }
-

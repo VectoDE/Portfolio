@@ -9,59 +9,64 @@ type ContentType = "project" | "certificate" | "skill" | "career"
 
 // Mapping von ContentType zu Preferences-Feldnamen
 const preferenceMap: Record<ContentType, "projects" | "certificates" | "skills" | "careers"> = {
-    project: "projects",
-    certificate: "certificates",
-    skill: "skills",
-    career: "careers",
+  project: "projects",
+  certificate: "certificates",
+  skill: "skills",
+  career: "careers",
 }
 
 export async function POST(req: Request) {
-    try {
-        const session = await getServerSession(authOptions)
+  try {
+    const session = await getServerSession(authOptions)
 
-        if (!session || !session.user) {
-            return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-        }
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
 
-        const body = await req.json()
+    const body = await req.json()
 
-        const { type, contentId, title, description }: {
-            type: ContentType,
-            contentId: string,
-            title: string,
-            description?: string
-        } = body
+    const {
+      type,
+      contentId,
+      title,
+      description,
+    }: {
+      type: ContentType
+      contentId: string
+      title: string
+      description?: string
+    } = body
 
-        const validTypes: ContentType[] = ["project", "certificate", "skill", "career"]
-        if (!validTypes.includes(type)) {
-            return NextResponse.json({ error: "Invalid content type" }, { status: 400 })
-        }
+    const validTypes: ContentType[] = ["project", "certificate", "skill", "career"]
+    if (!validTypes.includes(type)) {
+      return NextResponse.json({ error: "Invalid content type" }, { status: 400 })
+    }
 
-        const preferenceField = preferenceMap[type]
+    const preferenceField = preferenceMap[type]
 
-        const subscribers = await prisma.subscriber.findMany({
-            where: {
-                isConfirmed: true,
-                preferences: {
-                    [preferenceField]: true,
-                },
-            },
-            include: {
-                preferences: true,
-            },
-        })
+    const subscribers = await prisma.subscriber.findMany({
+      where: {
+        isConfirmed: true,
+        preferences: {
+          [preferenceField]: true,
+        },
+      },
+      include: {
+        preferences: true,
+      },
+    })
 
-        if (subscribers.length === 0) {
-            return NextResponse.json({ message: "No eligible subscribers found", sent: false })
-        }
+    if (subscribers.length === 0) {
+      return NextResponse.json({ message: "No eligible subscribers found", sent: false })
+    }
 
-        let sentCount = 0
+    let sentCount = 0
 
-        for (const subscriber of subscribers) {
-            try {
-                const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe?token=${subscriber.token}`
+    for (const subscriber of subscribers) {
+      try {
+        const unsubscribeUrl = `${process.env.NEXT_PUBLIC_APP_URL}/unsubscribe?token=${subscriber.token}`
 
-                const emailContent = `
+        const emailContent = `
                     <h1>New ${type.charAt(0).toUpperCase() + type.slice(1)}: ${title}</h1>
                     ${description ? `<p>${description}</p>` : ""}
                     <p>View more details on our website.</p>
@@ -78,30 +83,29 @@ export async function POST(req: Request) {
                     </p>
                 `
 
-                const result = await sendEmail({
-                    to: subscriber.email,
-                    subject: `New ${type.charAt(0).toUpperCase() + type.slice(1)}: ${title}`,
-                    html: emailContent,
-                })
-
-                if (result.success) {
-                    sentCount++
-                } else {
-                    console.error(`Failed to send email to ${subscriber.email}:`, result.error)
-                }
-            } catch (err) {
-                console.error(`Error sending email to ${subscriber.email}:`, err)
-            }
-        }
-
-        return NextResponse.json({
-            message: `Newsletter sent to ${sentCount} subscriber(s)`,
-            sent: true,
-            sentCount,
+        const result = await sendEmail({
+          to: subscriber.email,
+          subject: `New ${type.charAt(0).toUpperCase() + type.slice(1)}: ${title}`,
+          html: emailContent,
         })
 
-    } catch (error) {
-        console.error("Error sending newsletter:", error)
-        return NextResponse.json({ error: "Failed to send newsletter" }, { status: 500 })
+        if (result.success) {
+          sentCount++
+        } else {
+          console.error(`Failed to send email to ${subscriber.email}:`, result.error)
+        }
+      } catch (err) {
+        console.error(`Error sending email to ${subscriber.email}:`, err)
+      }
     }
+
+    return NextResponse.json({
+      message: `Newsletter sent to ${sentCount} subscriber(s)`,
+      sent: true,
+      sentCount,
+    })
+  } catch (error) {
+    console.error("Error sending newsletter:", error)
+    return NextResponse.json({ error: "Failed to send newsletter" }, { status: 500 })
+  }
 }

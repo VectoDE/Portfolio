@@ -8,7 +8,14 @@ import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -129,15 +136,15 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
         headers: {
           "Content-Type": "application/json",
         },
-          body: JSON.stringify({
-            position,
-            company,
-            startDate,
-            endDate,
-            description,
-            location,
-            logoUrl,
-          }),
+        body: JSON.stringify({
+          position,
+          company,
+          startDate,
+          endDate,
+          description,
+          location,
+          logoUrl,
+        }),
       })
 
       if (!response.ok) {
@@ -349,4 +356,3 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
     </div>
   )
 }
-

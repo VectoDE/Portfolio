@@ -8,7 +8,14 @@ import { useSession } from "next-auth/react"
 import { Eye, EyeOff, KeyRound, Mail, User, Bell, Save } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
@@ -111,7 +118,10 @@ export default function SettingsPage() {
 
         toast({
           title: "Error",
-          description: error instanceof Error ? error.message : "Failed to load newsletter announcement settings",
+          description:
+            error instanceof Error
+              ? error.message
+              : "Failed to load newsletter announcement settings",
           variant: "destructive",
         })
       }
@@ -303,15 +313,15 @@ export default function SettingsPage() {
   }
 
   async function handleAnnouncementSettingsSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsSubmitting(true);
+    event.preventDefault()
+    setIsSubmitting(true)
 
     try {
       // Sicherstellen, dass die Session existiert und ein Token vorhanden ist
       const adminToken = session?.user?.id
 
       if (!adminToken) {
-        throw new Error("No valid admin token found");
+        throw new Error("No valid admin token found")
       }
 
       const payload = {
@@ -322,7 +332,7 @@ export default function SettingsPage() {
           skills: announcements?.newSkills ?? false,
           careers: announcements?.newCareers ?? false,
         },
-      };
+      }
 
       const response = await fetch("/api/newsletter/preferences", {
         method: "POST",
@@ -330,19 +340,19 @@ export default function SettingsPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
-      });
+      })
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save newsletter preferences");
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to save newsletter preferences")
       }
 
-      const result = await response.json();
+      const result = await response.json()
 
       toast({
         title: "Settings saved",
         description: result.message || "Your newsletter announcement settings have been saved.",
-      });
+      })
     } catch (error) {
       console.error("Error saving settings:", error)
       toast({
@@ -384,7 +394,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Profile Information</CardTitle>
-                <CardDescription>Update your account profile information and email address.</CardDescription>
+                <CardDescription>
+                  Update your account profile information and email address.
+                </CardDescription>
               </CardHeader>
               <form onSubmit={handleProfileUpdate}>
                 <CardContent className="space-y-6">
@@ -434,12 +446,21 @@ export default function SettingsPage() {
                               setShowFileUpload(false)
                             }}
                           />
-                          <Button type="button" variant="outline" size="sm" onClick={() => setShowFileUpload(false)}>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => setShowFileUpload(false)}
+                          >
                             Cancel
                           </Button>
                         </div>
                       ) : (
-                        <Button type="button" variant="outline" onClick={() => setShowFileUpload(true)}>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => setShowFileUpload(true)}
+                        >
                           Upload Profile Image
                         </Button>
                       )}
@@ -485,7 +506,9 @@ export default function SettingsPage() {
                         ) : (
                           <Eye className="h-5 w-5 text-muted-foreground" />
                         )}
-                        <span className="sr-only">{showPassword ? "Hide password" : "Show password"}</span>
+                        <span className="sr-only">
+                          {showPassword ? "Hide password" : "Show password"}
+                        </span>
                       </Button>
                     </div>
                   </div>
@@ -512,7 +535,9 @@ export default function SettingsPage() {
                         ) : (
                           <Eye className="h-5 w-5 text-muted-foreground" />
                         )}
-                        <span className="sr-only">{showNewPassword ? "Hide password" : "Show password"}</span>
+                        <span className="sr-only">
+                          {showNewPassword ? "Hide password" : "Show password"}
+                        </span>
                       </Button>
                     </div>
                   </div>
@@ -543,7 +568,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Newsletter Announcements</CardTitle>
-                <CardDescription>Configure which announcements will be sent to newsletter subscribers.</CardDescription>
+                <CardDescription>
+                  Configure which announcements will be sent to newsletter subscribers.
+                </CardDescription>
               </CardHeader>
               <form onSubmit={handleAnnouncementSettingsSubmit}>
                 <CardContent className="space-y-4">
@@ -551,7 +578,9 @@ export default function SettingsPage() {
                     <Switch
                       id="newProjects"
                       checked={announcements.newProjects}
-                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newProjects: checked }))}
+                      onCheckedChange={(checked) =>
+                        setAnnouncements((prev) => ({ ...prev, newProjects: checked }))
+                      }
                     />
                     <Label htmlFor="newProjects">Send newsletter when new projects are added</Label>
                   </div>
@@ -559,15 +588,21 @@ export default function SettingsPage() {
                     <Switch
                       id="newCertificates"
                       checked={announcements.newCertificates}
-                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCertificates: checked }))}
+                      onCheckedChange={(checked) =>
+                        setAnnouncements((prev) => ({ ...prev, newCertificates: checked }))
+                      }
                     />
-                    <Label htmlFor="newCertificates">Send newsletter when new certificates are added</Label>
+                    <Label htmlFor="newCertificates">
+                      Send newsletter when new certificates are added
+                    </Label>
                   </div>
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="newSkills"
                       checked={announcements.newSkills}
-                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newSkills: checked }))}
+                      onCheckedChange={(checked) =>
+                        setAnnouncements((prev) => ({ ...prev, newSkills: checked }))
+                      }
                     />
                     <Label htmlFor="newSkills">Send newsletter when new skills are added</Label>
                   </div>
@@ -575,9 +610,13 @@ export default function SettingsPage() {
                     <Switch
                       id="newCareers"
                       checked={announcements.newCareers}
-                      onCheckedChange={(checked) => setAnnouncements((prev) => ({ ...prev, newCareers: checked }))}
+                      onCheckedChange={(checked) =>
+                        setAnnouncements((prev) => ({ ...prev, newCareers: checked }))
+                      }
                     />
-                    <Label htmlFor="newCareers">Send newsletter when career updates are added</Label>
+                    <Label htmlFor="newCareers">
+                      Send newsletter when career updates are added
+                    </Label>
                   </div>
                 </CardContent>
                 <CardFooter>
@@ -599,7 +638,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Email Notifications</CardTitle>
-                <CardDescription>Configure how you receive notifications for new contacts.</CardDescription>
+                <CardDescription>
+                  Configure how you receive notifications for new contacts.
+                </CardDescription>
               </CardHeader>
               <form onSubmit={handleEmailSettingsSubmit}>
                 <CardContent className="space-y-4">
@@ -644,7 +685,9 @@ export default function SettingsPage() {
                     <Switch
                       id="sendAutoReply"
                       checked={settings.sendAutoReply}
-                      onCheckedChange={(checked) => setSettings((prev) => ({ ...prev, sendAutoReply: checked }))}
+                      onCheckedChange={(checked) =>
+                        setSettings((prev) => ({ ...prev, sendAutoReply: checked }))
+                      }
                     />
                     <Label htmlFor="sendAutoReply">Send auto-reply to contacts</Label>
                   </div>
@@ -666,7 +709,9 @@ export default function SettingsPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Test Notification</CardTitle>
-                <CardDescription>Send a test email to verify your notification settings.</CardDescription>
+                <CardDescription>
+                  Send a test email to verify your notification settings.
+                </CardDescription>
               </CardHeader>
               <CardContent>
                 <Button variant="outline" onClick={handleSendTestEmail}>

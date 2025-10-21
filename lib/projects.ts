@@ -7,7 +7,7 @@ export async function getProjects() {
       console.error("Prisma client is not initialized")
       return []
     }
-    
+
     const projects = await prisma.project.findMany({
       orderBy: { createdAt: "desc" },
       include: {
@@ -93,4 +93,3 @@ export async function getFeaturedProjects(limit = 3): Promise<Project[]> {
     return []
   }
 }
-

@@ -78,24 +78,24 @@ export function BackgroundGradientAnimation({
           x: canvas.width * 0.3,
           y: canvas.height * 0.4,
           vx: Math.random() * 0.3 - 0.15,
-          vy: Math.random() * 0.3 - 0.15
+          vy: Math.random() * 0.3 - 0.15,
         },
         {
           x: canvas.width * 0.7,
           y: canvas.height * 0.5,
           vx: Math.random() * 0.3 - 0.15,
-          vy: Math.random() * 0.3 - 0.15
+          vy: Math.random() * 0.3 - 0.15,
         },
         {
           x: canvas.width * 0.5,
           y: canvas.height * 0.6,
           vx: Math.random() * 0.3 - 0.15,
-          vy: Math.random() * 0.3 - 0.15
-        }
+          vy: Math.random() * 0.3 - 0.15,
+        },
       ]
 
       // Store original positions
-      initialPoints.forEach(point => {
+      initialPoints.forEach((point) => {
         point.origX = point.x
         point.origY = point.y
       })
@@ -121,7 +121,7 @@ export function BackgroundGradientAnimation({
         const radius = Math.max(canvas.width, canvas.height) * 0.3
         const gradient = ctx.createRadialGradient(point.x, point.y, 0, point.x, point.y, radius)
         gradient.addColorStop(0, color)
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        gradient.addColorStop(1, "rgba(0, 0, 0, 0)")
         return gradient
       }
 
@@ -133,12 +133,12 @@ export function BackgroundGradientAnimation({
           0,
           pointerRef.current.x,
           pointerRef.current.y,
-          pointerRef.current.width
+          pointerRef.current.width,
         )
         pointerGradient.addColorStop(0, pointerColor)
-        pointerGradient.addColorStop(1, 'rgba(0, 0, 0, 0)')
+        pointerGradient.addColorStop(1, "rgba(0, 0, 0, 0)")
 
-        ctx.globalCompositeOperation = 'source-over'
+        ctx.globalCompositeOperation = "source-over"
         ctx.fillStyle = pointerGradient
         ctx.fillRect(0, 0, canvas.width, canvas.height)
       }
@@ -171,7 +171,7 @@ export function BackgroundGradientAnimation({
     }
 
     if (interactive) {
-      window.addEventListener('mousemove', handleMouseMove)
+      window.addEventListener("mousemove", handleMouseMove)
     }
 
     initializePoints()
@@ -179,7 +179,7 @@ export function BackgroundGradientAnimation({
 
     return () => {
       if (interactive) {
-        window.removeEventListener('mousemove', handleMouseMove)
+        window.removeEventListener("mousemove", handleMouseMove)
       }
       resizeObserver.disconnect()
     }

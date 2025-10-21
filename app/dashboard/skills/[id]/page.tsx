@@ -9,10 +9,23 @@ import { ArrowLeft } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import type { Skill } from "@/types/database"
@@ -234,7 +247,13 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Skill Name</Label>
-              <Input id="name" name="name" defaultValue={skill.name} placeholder="Skill name" required />
+              <Input
+                id="name"
+                name="name"
+                defaultValue={skill.name}
+                placeholder="Skill name"
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
@@ -268,7 +287,15 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
             </div>
             <div className="space-y-2">
               <Label htmlFor="years">Years of Experience</Label>
-              <Input id="years" name="years" type="number" min="0" step="0.5" defaultValue={skill.years} required />
+              <Input
+                id="years"
+                name="years"
+                type="number"
+                min="0"
+                step="0.5"
+                defaultValue={skill.years}
+                required
+              />
             </div>
             <div className="space-y-2">
               <Label htmlFor="iconName">Icon</Label>
@@ -304,4 +331,3 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
     </div>
   )
 }
-

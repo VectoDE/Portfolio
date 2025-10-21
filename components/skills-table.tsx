@@ -25,8 +25,21 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table"
 
 interface SkillTableEntry {
   id: string
@@ -140,7 +153,9 @@ export function SkillsTable() {
             <DialogHeader>
               <DialogTitle>{editingSkill ? "Edit Skill" : "Add Skill"}</DialogTitle>
               <DialogDescription>
-                {editingSkill ? "Update the skill details below." : "Add a new skill to your portfolio."}
+                {editingSkill
+                  ? "Update the skill details below."
+                  : "Add a new skill to your portfolio."}
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={editingSkill ? handleEditSkill : handleAddSkill}>
@@ -253,4 +268,3 @@ export function SkillsTable() {
     </div>
   )
 }
-

@@ -8,7 +8,14 @@ import Link from "next/link"
 import { ArrowLeft, Upload, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -157,12 +164,23 @@ export default function NewProjectPage() {
 
             <div className="space-y-2">
               <Label htmlFor="description">Description</Label>
-              <Textarea id="description" name="description" placeholder="Project description" rows={5} required />
+              <Textarea
+                id="description"
+                name="description"
+                placeholder="Project description"
+                rows={5}
+                required
+              />
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="technologies">Technologies</Label>
-              <Input id="technologies" name="technologies" placeholder="Next.js, TypeScript, Tailwind CSS" required />
+              <Input
+                id="technologies"
+                name="technologies"
+                placeholder="Next.js, TypeScript, Tailwind CSS"
+                required
+              />
               <p className="text-sm text-muted-foreground">Separate technologies with commas</p>
             </div>
 
@@ -174,7 +192,11 @@ export default function NewProjectPage() {
 
               <div className="space-y-2">
                 <Label htmlFor="githubUrl">GitHub Repository</Label>
-                <Input id="githubUrl" name="githubUrl" placeholder="https://github.com/username/repo" />
+                <Input
+                  id="githubUrl"
+                  name="githubUrl"
+                  placeholder="https://github.com/username/repo"
+                />
               </div>
             </div>
 
@@ -253,7 +275,12 @@ export default function NewProjectPage() {
                   </div>
                 )}
                 <div className="flex items-center gap-4">
-                  <Button type="button" variant="outline" onClick={triggerLogFileInput} disabled={uploadingLog}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={triggerLogFileInput}
+                    disabled={uploadingLog}
+                  >
                     <Upload className="mr-2 h-4 w-4" />
                     {logContent ? "Change Log File" : "Upload Log File"}
                   </Button>
@@ -266,18 +293,29 @@ export default function NewProjectPage() {
                     onChange={handleLogFileUpload}
                     disabled={uploadingLog}
                   />
-                  {uploadingLog && <p className="text-sm text-muted-foreground">Loading log file...</p>}
+                  {uploadingLog && (
+                    <p className="text-sm text-muted-foreground">Loading log file...</p>
+                  )}
                 </div>
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
-              <input id="featured" name="featured" type="checkbox" className="h-4 w-4 rounded border-gray-300" />
+              <input
+                id="featured"
+                name="featured"
+                type="checkbox"
+                className="h-4 w-4 rounded border-gray-300"
+              />
               <Label htmlFor="featured">Featured Project</Label>
             </div>
           </CardContent>
           <CardFooter>
-            <Button type="submit" disabled={isSubmitting || uploadingLog} className="w-full md:w-auto">
+            <Button
+              type="submit"
+              disabled={isSubmitting || uploadingLog}
+              className="w-full md:w-auto"
+            >
               {isSubmitting ? "Creating..." : "Create Project"}
             </Button>
           </CardFooter>

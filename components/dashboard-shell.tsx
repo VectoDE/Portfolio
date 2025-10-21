@@ -114,7 +114,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
                         {item.label}
                       </Button>
                     ))}
-                    <Button variant="ghost" className="justify-start gap-2 mt-4 text-red-500" onClick={handleLogout}>
+                    <Button
+                      variant="ghost"
+                      className="justify-start gap-2 mt-4 text-red-500"
+                      onClick={handleLogout}
+                    >
                       <LogOut className="h-4 w-4" />
                       Logout
                     </Button>
@@ -144,7 +148,11 @@ export function DashboardShell({ children }: DashboardShellProps) {
         <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b bg-background px-6">
           <div className="w-full flex-1">
             <nav className="flex items-center justify-end gap-4">
-              <Button variant="outline" size="icon" onClick={() => router.push("/dashboard/settings")}>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => router.push("/dashboard/settings")}
+              >
                 <User className="h-4 w-4" />
                 <span className="sr-only">User Settings</span>
               </Button>
@@ -205,4 +213,3 @@ export function DashboardShell({ children }: DashboardShellProps) {
     </SidebarProvider>
   )
 }
-
