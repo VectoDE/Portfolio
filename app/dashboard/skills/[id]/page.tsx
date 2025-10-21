@@ -23,9 +23,9 @@ const iconNames = Object.keys(LucideIcons).filter(
 )
 
 interface EditSkillPageProps {
-  params: Promise<{
-    id: string
-  }>
+  params: {
+    id?: string
+  }
 }
 
 export default function EditSkillPage({ params }: EditSkillPageProps) {
@@ -43,44 +43,18 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
     : null
 
   useEffect(() => {
-    let isMounted = true
-
-    params
-      .then((value) => {
-        if (!isMounted) {
-          return
-        }
-
-        if (!value?.id) {
-          console.error("Missing skill id in route params")
-          toast({
-            title: "Invalid route",
-            description: "The skill identifier is missing from the URL.",
-            variant: "destructive",
-          })
-          setIsLoading(false)
-          return
-        }
-
-        setSkillId(value.id)
+    if (!params?.id) {
+      console.error("Missing skill id in route params")
+      toast({
+        title: "Invalid route",
+        description: "The skill identifier is missing from the URL.",
+        variant: "destructive",
       })
-      .catch((error) => {
-        if (!isMounted) {
-          return
-        }
-
-        console.error("Failed to resolve skill route params:", error)
-        toast({
-          title: "Invalid route",
-          description: "We were unable to read the skill identifier from the URL.",
-          variant: "destructive",
-        })
-        setIsLoading(false)
-      })
-
-    return () => {
-      isMounted = false
+      setIsLoading(false)
+      return
     }
+
+    setSkillId(params.id)
   }, [params, toast])
 
   useEffect(() => {
