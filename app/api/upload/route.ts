@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { writeFile } from "fs/promises"
+import { mkdir, writeFile } from "fs/promises"
 import path from "path"
 import { v4 as uuidv4 } from "uuid"
 
@@ -18,33 +18,23 @@ export async function POST(req: Request) {
 
     const userId = session.user.id as string
     const formData = await req.formData()
-    const file = formData.get("file") as File
+    const file = formData.get("file") as File | null
 
     if (!file) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    if (!file.type.startsWith("image/")) {
-      return NextResponse.json({ error: "File must be an image" }, { status: 400 })
-    }
-
-    const maxSize = 5 * 1024 * 1024 // 5MB
+    const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
-      return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 })
+      return NextResponse.json({ error: "File size must be less than 10MB" }, { status: 400 })
     }
 
     const uploadsDir = path.join(process.cwd(), "public", "uploads")
-    try {
-      await writeFile(path.join(uploadsDir, "test.txt"), "test")
-    } catch {
-      const fs = require("fs")
-      if (!fs.existsSync(uploadsDir)) {
-        fs.mkdirSync(uploadsDir, { recursive: true })
-      }
-    }
+    await mkdir(uploadsDir, { recursive: true })
 
-    const fileExtension = file.name.split(".").pop()
-    const fileName = `${uuidv4()}.${fileExtension}`
+    const originalName = file.name || "upload"
+    const fileExtension = path.extname(originalName) || ""
+    const fileName = `${uuidv4()}${fileExtension}`
     const filePath = path.join(uploadsDir, fileName)
 
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -52,12 +42,18 @@ export async function POST(req: Request) {
 
     const imageUrl = `/uploads/${fileName}`
 
-    await prisma.user.update({
-      where: { id: userId },
-      data: { imageUrl },
+    const media = await prisma.media.create({
+      data: {
+        userId,
+        originalName,
+        fileName,
+        mimeType: file.type || null,
+        size: Number(file.size),
+        url: imageUrl,
+      },
     })
 
-    return NextResponse.json({ imageUrl })
+    return NextResponse.json({ imageUrl, mediaId: media.id, originalName: media.originalName })
   } catch (error) {
     console.error("Error uploading file:", error)
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })

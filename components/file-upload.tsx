@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import Image from "next/image"
 import { Upload, X, File } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -31,9 +31,20 @@ export function FileUpload({
   const [preview, setPreview] = useState<string | null>(value || null)
   const [error, setError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    setPreview(value || null)
+    if (value) {
+      const segments = value.split("/")
+      setFileName((current) => current ?? segments[segments.length - 1] || null)
+    } else {
+      setFileName(null)
+    }
+  }, [value])
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -44,30 +55,68 @@ export function FileUpload({
     }
 
     setError(null)
-    setFileName(file.name)
+    const previousPreview = preview
+    let temporaryPreview: string | null = null
 
-    // For images, create a preview URL
-    if (isImage && file.type.startsWith("image/")) {
-      const objectUrl = URL.createObjectURL(file)
-      setPreview(objectUrl)
-    } else if (isImage) {
-      setError("Selected file is not an image")
-      return
+    if (isImage) {
+      if (!file.type.startsWith("image/")) {
+        setError("Selected file is not an image")
+        return
+      }
+      temporaryPreview = URL.createObjectURL(file)
+      setPreview(temporaryPreview)
     } else {
-      // For non-image files, we don't need a visual preview
       setPreview(null)
     }
 
-    // Convert to base64 for storage
-    const reader = new FileReader()
-    reader.onload = () => {
-      const base64String = reader.result as string
-      onChange(base64String)
+    try {
+      setIsUploading(true)
+      setFileName(file.name)
+
+      const formData = new FormData()
+      formData.append("file", file)
+
+      const response = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: "Failed to upload file" }))
+        throw new Error(errorData.error || "Failed to upload file")
+      }
+
+      const data: { imageUrl?: string; originalName?: string } = await response.json()
+
+      if (!data.imageUrl) {
+        throw new Error("Upload response missing file URL")
+      }
+
+      onChange(data.imageUrl)
+      if (data.originalName) {
+        setFileName(data.originalName)
+      }
+      setPreview(isImage ? data.imageUrl : null)
+      if (temporaryPreview) {
+        URL.revokeObjectURL(temporaryPreview)
+      }
+    } catch (uploadError) {
+      console.error("File upload error:", uploadError)
+      setError(uploadError instanceof Error ? uploadError.message : "Failed to upload file")
+      setFileName(null)
+      setPreview(previousPreview)
+      if (temporaryPreview) {
+        URL.revokeObjectURL(temporaryPreview)
+      }
+    } finally {
+      setIsUploading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const clearFile = () => {
+    if (preview && preview.startsWith("blob:")) {
+      URL.revokeObjectURL(preview)
+    }
     setPreview(null)
     setFileName(null)
     onChange("")
@@ -135,14 +184,18 @@ export function FileUpload({
               variant="outline"
               onClick={() => fileInputRef.current?.click()}
               className={`gap-2 ${!isImage ? "w-auto" : "h-32 w-full border-dashed"}`}
+              disabled={isUploading}
             >
               <Upload className="h-4 w-4" />
-              Upload {isImage ? "Image" : "File"}
+              {isUploading ? "Uploading..." : `Upload ${isImage ? "Image" : "File"}`}
             </Button>
           </div>
         ) : null}
 
         {error && <p className="text-sm text-destructive">{error}</p>}
+        {isUploading && !error && (
+          <p className="text-xs text-muted-foreground">Uploading file, please wait...</p>
+        )}
         <p className="text-xs text-muted-foreground">
           Accepted formats: {accept.replace("image/*", "JPG, PNG, GIF, etc.")}. Max size: {maxSize}
           MB
