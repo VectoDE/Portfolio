@@ -49,7 +49,7 @@ export async function PUT(req: Request) {
 
     const userId = session.user.id as string
     const data = await req.json()
-    const { name, email, imageUrl } = data
+    const { name, email, imageUrl, username } = data
 
     if (!name || !email) {
       return NextResponse.json({ error: "Name and email are required" }, { status: 400 })
@@ -65,19 +65,66 @@ export async function PUT(req: Request) {
       }
     }
 
+    let normalizedUsername: string | null | undefined = undefined
+
+    if (typeof username === "string") {
+      const trimmed = username.trim()
+
+      if (trimmed.length === 0) {
+        normalizedUsername = null
+      } else {
+        const usernamePattern = /^[a-zA-Z0-9._-]{3,24}$/
+
+        if (!usernamePattern.test(trimmed)) {
+          return NextResponse.json(
+            {
+              error: "Usernames may only contain letters, numbers, dots, underscores, and hyphens (3-24 characters).",
+            },
+            { status: 400 },
+          )
+        }
+
+        const existingUsername = await prisma.user.findFirst({
+          where: {
+            username: trimmed,
+            NOT: { id: userId },
+          },
+          select: { id: true },
+        })
+
+        if (existingUsername) {
+          return NextResponse.json({ error: "This username is already taken" }, { status: 400 })
+        }
+
+        normalizedUsername = trimmed
+      }
+    }
+
+    const updateData: {
+      name: string
+      email: string
+      imageUrl: string | null
+      username?: string | null
+    } = {
+      name,
+      email,
+      imageUrl: imageUrl?.trim() ? imageUrl.trim() : null,
+    }
+
+    if (normalizedUsername !== undefined) {
+      updateData.username = normalizedUsername
+    }
+
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        name,
-        email,
-        ...(imageUrl && imageUrl !== session.user.image ? { imageUrl } : {}),
-      },
+      data: updateData,
     })
 
     return NextResponse.json({
       id: updatedUser.id,
       name: updatedUser.name,
       email: updatedUser.email,
+      username: updatedUser.username,
       imageUrl: updatedUser.imageUrl,
     })
   } catch (error) {

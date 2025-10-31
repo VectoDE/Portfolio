@@ -29,6 +29,8 @@ import { CertificatesShowcaseSkeleton } from "@/components/skeletons/certificate
 import { CommunityHighlights } from "@/components/community-highlights"
 import { SiteFAQ } from "@/components/site-faq"
 import { getEngagementHighlights } from "@/lib/engagement"
+import { AnimatedSection } from "@/components/animated-section"
+import { HeroVisualizationBlock } from "@/components/hero-visualization-block"
 
 export const metadata: Metadata = {
   title: "Full Stack Developer crafting modern web products",
@@ -48,6 +50,20 @@ export const metadata: Metadata = {
 
 export default async function Home() {
   const engagementHighlights = await getEngagementHighlights()
+  const heroStats = [
+    {
+      label: "Community builders",
+      value: engagementHighlights.memberCount,
+    },
+    {
+      label: "Project reactions",
+      value: engagementHighlights.totalReactions,
+    },
+    {
+      label: "Discussion threads",
+      value: engagementHighlights.totalComments,
+    },
+  ]
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -61,39 +77,60 @@ export default async function Home() {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <div className="space-y-2 animate-fade-in">
-                  <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600">
-                    Purposeful digital experiences by Tim Hauke
-                  </h1>
-                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
-                    I partner with clubs, associations, and ambitious founders to transform ideas into reliable web products
-                    that feel personal, perform at scale, and stay easy to maintain long after launch.
-                  </p>
+              <div className="grid gap-12 lg:grid-cols-[1.05fr_1fr] lg:items-center">
+                <div className="order-2 flex flex-col items-start space-y-8 lg:order-1">
+                  <div className="space-y-4 text-left">
+                    <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-primary">
+                      Purpose-built web products for ambitious teams
+                    </span>
+                    <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-purple-500 via-blue-500 to-cyan-400">
+                      Modern digital experiences crafted with intent
+                    </h1>
+                    <p className="max-w-2xl text-base text-muted-foreground md:text-lg">
+                      I partner with clubs, associations, and ambitious founders to transform ideas into reliable web products
+                      that feel personal, perform at scale, and stay easy to maintain long after launch.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-4">
+                    <Link href="/projects">
+                      <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
+                        View projects <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link href="/contact">
+                      <Button
+                        variant="outline"
+                        className="gap-2 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
+                      >
+                        Contact me <Mail className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                  <div className="grid w-full gap-4 sm:grid-cols-3">
+                    {heroStats.map((stat) => (
+                      <div
+                        key={stat.label}
+                        className="rounded-2xl border border-border/60 bg-background/40 p-4 shadow-sm backdrop-blur"
+                      >
+                        <p className="text-xs font-semibold uppercase tracking-wide text-primary/80">{stat.label}</p>
+                        <p className="mt-2 text-2xl font-semibold">
+                          {Intl.NumberFormat("en", { notation: "compact" }).format(stat.value)}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-4 animate-slide-in">
-                  <Link href="/projects">
-                    <Button className="gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
-                      View Projects <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/contact">
-                    <Button
-                      variant="outline"
-                      className="gap-1 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
-                    >
-                      Contact Me <Mail className="h-4 w-4" />
-                    </Button>
-                  </Link>
+                <div className="order-1 lg:order-2">
+                  <HeroVisualizationBlock />
                 </div>
               </div>
             </div>
-          </section>
+          </AnimatedSection>
 
           <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.06} className="container px-4 md:px-6">
               <div className="grid gap-12 lg:grid-cols-[1.35fr_1fr] lg:items-start">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -188,11 +225,11 @@ export default async function Home() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </AnimatedSection>
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.08} className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -205,11 +242,11 @@ export default async function Home() {
               </div>
 
               <SkillsShowcase />
-            </div>
+            </AnimatedSection>
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.1} className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -235,11 +272,11 @@ export default async function Home() {
                   </Button>
                 </Link>
               </div>
-            </div>
+            </AnimatedSection>
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.12} className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-10">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -265,11 +302,11 @@ export default async function Home() {
                   </Button>
                 </Link>
               </div>
-            </div>
+            </AnimatedSection>
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.14} className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -311,11 +348,11 @@ export default async function Home() {
                   </CardContent>
                 </Card>
               </div>
-            </div>
+            </AnimatedSection>
           </section>
 
           <section className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
+            <AnimatedSection delay={0.16} className="container px-4 md:px-6">
               <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 items-center">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -374,12 +411,16 @@ export default async function Home() {
                   </Card>
                 </div>
               </div>
-            </div>
+            </AnimatedSection>
           </section>
 
-          <CommunityHighlights highlights={engagementHighlights} />
+          <AnimatedSection delay={0.18}>
+            <CommunityHighlights highlights={engagementHighlights} />
+          </AnimatedSection>
 
-          <SiteFAQ />
+          <AnimatedSection delay={0.2}>
+            <SiteFAQ />
+          </AnimatedSection>
         </main>
 
         <SiteFooter />
