@@ -1,6 +1,6 @@
 import type { Metadata } from "next"
 import Link from "next/link"
-import { CheckCircle, Inbox, MailPlus, ShieldCheck } from "lucide-react"
+import { CheckCircle, Inbox, MailPlus, ShieldCheck, Sparkles, Users } from "lucide-react"
 
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
@@ -44,6 +44,11 @@ export default function NewsletterPage() {
                   <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
                     Choose what you receive, try new features early, and unsubscribe instantly—no buried links.
                   </p>
+                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-lg dark:text-gray-400">
+                    I share behind-the-scenes notes from client projects, reflections on community work in Itzehoe, and early
+                    prototypes you can test before public launches. You'll always know who's writing, why it matters, and how to
+                    respond.
+                  </p>
                 </div>
               </div>
               <div className="mt-12 grid gap-8 lg:grid-cols-[2fr_3fr]">
@@ -67,11 +72,11 @@ export default function NewsletterPage() {
                     <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-left text-sm text-muted-foreground">
                       <p className="font-medium text-primary">Already on the list?</p>
                       <p>
-                        Jump straight to the
-                        <Link href="/unsubscribe" className="font-medium text-primary underline-offset-4 hover:underline">
-                          subscription manager
+                        Every email includes your personal link to manage preferences. Need it again? Follow the steps in the
+                        <Link href="/#faq" className="font-medium text-primary underline-offset-4 hover:underline">
+                          newsletter FAQ
                         </Link>{" "}
-                        to update preferences or opt out.
+                        or visit the subscription manager directly when you have your token ready.
                       </p>
                     </div>
                   </CardContent>
@@ -112,6 +117,43 @@ export default function NewsletterPage() {
                     <h3 className="text-lg font-semibold">Feedback welcome</h3>
                     <p className="text-sm text-muted-foreground">
                       Reply to any email or use the contact form to shape future topics.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32">
+            <div className="container px-4 md:px-6">
+              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                    What subscribers receive
+                  </h2>
+                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
+                    My emails are intentional, occasional, and crafted to represent the collaborations I'm proud of.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-8 md:grid-cols-2">
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+                  <CardContent className="p-6 space-y-3 text-left">
+                    <Sparkles className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-semibold">In-depth breakdowns</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Discover the decisions behind recent launches, complete with architecture diagrams, accessibility notes,
+                      and performance insights.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+                  <CardContent className="p-6 space-y-3 text-left">
+                    <Users className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-semibold">Community invitations</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Join beta programmes, office hours, and collaborative sessions where we shape upcoming features together.
                     </p>
                   </CardContent>
                 </Card>

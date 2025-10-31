@@ -49,7 +49,6 @@ export function MainNav() {
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
     { href: "/newsletter", label: "Newsletter" },
-    { href: "/unsubscribe", label: "Unsubscribe" },
   ]
 
   const handleLogout = async () => {
