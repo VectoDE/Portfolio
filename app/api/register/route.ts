@@ -1,6 +1,8 @@
 import bcrypt from "bcryptjs"
 import { NextResponse } from "next/server"
 
+import { Prisma } from "@prisma/client"
+
 import prisma from "@/lib/db"
 
 export async function POST(req: Request) {
@@ -38,20 +40,25 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const existingUsers = await prisma.user.count()
-    const role = existingUsers === 0 ? "Admin" : "Member"
-
     // Create user
     const sanitizedName = typeof name === "string" ? name.trim() : null
 
-    const user = await prisma.user.create({
-      data: {
-        email: normalizedEmail,
-        password: hashedPassword,
-        name: sanitizedName,
-        role,
+    const user = await prisma.$transaction(
+      async (tx) => {
+        const existingUsers = await tx.user.count()
+        const role = existingUsers === 0 ? "Admin" : "Member"
+
+        return tx.user.create({
+          data: {
+            email: normalizedEmail,
+            password: hashedPassword,
+            name: sanitizedName,
+            role,
+          },
+        })
       },
-    })
+      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+    )
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
