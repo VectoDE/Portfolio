@@ -3,6 +3,10 @@
  * @param path The path to track
  */
 export async function trackPageView(path: string) {
+  if (typeof window === "undefined") {
+    return
+  }
+
   if (process.env.NEXT_PUBLIC_ENABLE_ANALYTICS !== "true") {
     return
   }
@@ -14,7 +18,7 @@ export async function trackPageView(path: string) {
     }
 
     const storedConsent = localStorage.getItem("cookieConsent")
-    let analyticsEnabled = true
+    let analyticsEnabled = false
     let consentStatus = "No consent stored"
 
     if (storedConsent) {
@@ -25,6 +29,10 @@ export async function trackPageView(path: string) {
       } catch (e) {
         console.error("Error parsing cookie consent:", e)
       }
+    }
+
+    if (!analyticsEnabled) {
+      return
     }
 
     console.log(`Tracking with consent status: ${consentStatus}`)
@@ -39,6 +47,7 @@ export async function trackPageView(path: string) {
         userAgent: navigator.userAgent,
         referrer: document.referrer,
         consentStatus,
+        consentGranted: analyticsEnabled,
       }),
     })
   } catch (error) {

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server"
+import { createHash } from "crypto"
+
 import prisma from "@/lib/db"
 
 type DateRangeFilter = {
@@ -14,16 +16,27 @@ interface PageViewWhereInput {
 export async function POST(req: Request) {
   try {
     const data = await req.json()
-    const { path, userAgent, referrer } = data
+    const { path, userAgent, referrer, consentGranted } = data
+
+    if (!consentGranted) {
+      return new NextResponse(null, { status: 204 })
+    }
+
+    if (!path || typeof path !== "string") {
+      return NextResponse.json({ error: "Invalid path" }, { status: 400 })
+    }
 
     const forwarded = req.headers.get("x-forwarded-for")
     const ip = forwarded ? forwarded.split(/, /)[0] : null
+    const ipHash = ip
+      ? createHash("sha256").update(`${process.env.IP_HASH_SALT ?? ""}${ip}`).digest("hex")
+      : null
 
     const pageView = await prisma.pageView.create({
       data: {
         path,
         userAgent,
-        ipAddress: ip,
+        ipAddress: ipHash,
         referrer,
       },
     })

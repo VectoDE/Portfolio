@@ -2,6 +2,7 @@
 
 import type React from "react"
 
+import Link from "next/link"
 import { useState } from "react"
 import { MapPin, Phone, Mail, User, Tag, MessageSquare } from "lucide-react"
 
@@ -10,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useToast } from "@/components/ui/use-toast"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
@@ -24,6 +26,7 @@ export default function ContactPage() {
     subject: "",
     message: "",
   })
+  const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -33,6 +36,16 @@ export default function ContactPage() {
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
     setIsSubmitting(true)
+
+    if (!privacyAccepted) {
+      toast({
+        title: "Consent required",
+        description: "Please confirm the privacy notice before submitting the form.",
+        variant: "destructive",
+      })
+      setIsSubmitting(false)
+      return
+    }
 
     try {
       const response = await fetch("/api/contacts", {
@@ -63,6 +76,7 @@ export default function ContactPage() {
         subject: "",
         message: "",
       })
+      setPrivacyAccepted(false)
     } catch (error) {
       console.error("Error sending message:", error)
       toast({
@@ -225,10 +239,28 @@ export default function ContactPage() {
                             onChange={handleChange}
                           />
                         </div>
+                        <div className="flex items-start gap-3 rounded-md border border-muted/60 bg-background/80 p-3">
+                          <Checkbox
+                            id="privacy"
+                            checked={privacyAccepted}
+                            onCheckedChange={(checked) => setPrivacyAccepted(checked === true)}
+                          />
+                          <Label htmlFor="privacy" className="text-sm text-muted-foreground">
+                            I agree that my details may be used to process and respond to my enquiry in
+                            accordance with the information provided in the{" "}
+                            <Link
+                              href="/privacy"
+                              className="font-medium text-primary underline-offset-4 hover:underline"
+                            >
+                              Privacy Policy
+                            </Link>
+                            .
+                          </Label>
+                        </div>
                         <Button
                           type="submit"
                           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
-                          disabled={isSubmitting}
+                          disabled={isSubmitting || !privacyAccepted}
                         >
                           {isSubmitting ? "Sending..." : "Send Message"}
                         </Button>
