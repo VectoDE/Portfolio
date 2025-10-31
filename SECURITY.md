@@ -1,67 +1,77 @@
 # Security Policy
 
+We are committed to protecting users of the Portfolio platform and appreciate responsible disclosures that help keep the project safe.
+
 ## Supported Versions
 
-Security fixes are applied to the latest commit on the `main` branch. Downstream forks or tagged releases should regularly merge from `main` to receive updates.
+Security fixes target the latest commit on the `main` branch. Downstream forks or tagged releases should regularly merge `main` to receive updates.
 
-| Version                          | Supported           |
-| -------------------------------- | ------------------- |
-| `main`                           | ✅                  |
-| Tagged releases prior to `1.0.0` | ⚠️ Best-effort only |
+| Version | Supported |
+| --- | --- |
+| `main` | ✅ |
+| Tagged releases prior to `1.0.0` | ⚠️ Best effort |
 
 ## Reporting a Vulnerability
 
-We take security vulnerabilities seriously. If you discover a vulnerability, please use one of the following private channels:
+Please report vulnerabilities through one of the following private channels:
 
-1. **GitHub Private Vulnerability Reporting** – Use the "Report a vulnerability" button on the repository's **Security** tab to open a confidential advisory.
-2. **Direct Contact** – If private vulnerability reporting is unavailable for you, reach out to the maintainers through the contact information listed on their GitHub profile. Please use the subject line "[Portfolio] Vulnerability Disclosure".
+1. **GitHub Private Vulnerability Reporting** – Use the “Report a vulnerability” button on the repository’s **Security** tab to open a confidential advisory.
+2. **Direct Contact** – If the GitHub channel is unavailable, contact the maintainers through the email address listed on their profile. Use the subject line `'[Portfolio] Vulnerability Disclosure'`.
 
-When reporting, please include:
+When reporting, include:
 
 - A concise description of the issue and potential impact.
 - Steps to reproduce or proof-of-concept code.
-- Any suggested mitigations.
-- Your availability for follow-up questions.
+- Affected routes, environment prerequisites, and any relevant logs.
+- Suggested mitigations or temporary workarounds.
+- Preferred contact information for follow-up.
 
-Please do **not** create public issues or pull requests that disclose the vulnerability before we have a fix in place.
+Do **not** open public issues or pull requests containing sensitive details before a fix is coordinated.
 
 ## What to Expect
 
-- **Acknowledgement**: We aim to acknowledge receipt within **3 business days**.
-- **Assessment**: Issues are triaged for severity and reproducibility. We may contact you for additional context or testing details.
-- **Remediation**: Once a fix is developed, we will coordinate disclosure timing with you. Critical vulnerabilities are addressed with the highest priority.
-- **Credit**: With your consent, we are happy to credit reporters in release notes or advisories after a fix has shipped.
+- **Acknowledgement** – We aim to acknowledge new reports within **3 business days**.
+- **Assessment** – Issues are triaged for severity and reproducibility. We may request additional context or testing details.
+- **Remediation** – Critical vulnerabilities are prioritised. When a fix is ready, we will coordinate a disclosure timeline with you.
+- **Credit** – With your permission, we are happy to credit reporters in release notes or advisories.
 
 ## Scope
 
 This policy covers the code and configurations maintained in this repository, including:
 
 - Next.js application code (`app`, `components`, `hooks`, `lib`, `types`).
-- API routes and server-side logic.
-- Database schema definitions under `prisma/`.
+- API routes, server actions, and background jobs.
+- Database schema and migrations under `prisma/`.
 - Build tooling and configuration files that ship with the project.
 
-Third-party services (e.g., hosting platforms, SMTP providers, analytics vendors) are out of scope; please contact those providers directly.
+Third-party services (hosting, SMTP providers, analytics vendors, etc.) are out of scope. Please report their issues directly to the relevant provider.
 
-## Security Best Practices
+## Data Handling & Privacy
 
-If you deploy or extend this project, consider the following hardening steps:
+- Visitor analytics (`PageView`, `Analytics`) hash IP addresses with `IP_HASH_SALT` before persistence to limit personal data exposure.
+- Contact form submissions store names, emails, and messages for follow-up. Administrators should purge or anonymise old messages according to their compliance obligations.
+- Uploaded media is stored on disk at `public/uploads/`. Restrict filesystem permissions in production and prefer object storage for long-term deployments.
+- Email settings and credentials are persisted in `EmailSettings`. Rotate secrets regularly and restrict database access.
 
-- Configure strong `NEXTAUTH_SECRET` and rotate credentials regularly.
-- Restrict database access with least-privilege accounts and TLS connections.
-- Limit dashboard access behind HTTPS and trusted identity providers.
-- Monitor dependency updates and run `pnpm update` / `pnpm audit` on a regular cadence.
-- Enable rate limiting and CAPTCHA on public forms if exposing the site to production traffic.
+## Hardening Checklist
 
-## Compliance with Industry Standards
+Before deploying to production, review the following safeguards:
 
-- **OWASP Top 10** – Security controls and testing procedures are aligned with the OWASP Top 10 categories to mitigate the most
-  prevalent web application risks.
-- **ISO/IEC 27001** – Operational processes are designed to integrate into an Information Security Management System (ISMS)
-  consistent with ISO/IEC 27001, including regular risk assessments, documented controls, and continuous improvement loops.
-- **BSI IT-Grundschutz** – Technical and organizational safeguards take guidance from the BSI IT-Grundschutz catalogs to
-  achieve an appropriate level of protection for confidentiality, integrity, and availability.
-- **NIS-2 / IT-Sicherheitsgesetz** – Incident response and notification processes meet the requirements of the German
-  IT-Sicherheitsgesetz and the EU NIS-2 directive for rapid detection, reporting, and remediation of significant events.
+- Generate strong values for `NEXTAUTH_SECRET`, `IP_HASH_SALT`, SMTP credentials, and database passwords. Store them securely.
+- Serve all traffic over HTTPS and configure trusted reverse proxies so `x-forwarded-for` headers are reliable.
+- Limit dashboard access to trusted operators. Consider additional identity providers or IP allowlists when possible.
+- Enable rate limiting and CAPTCHA or similar protections on the public contact form if exposed to untrusted traffic.
+- Regularly update dependencies (`pnpm update`, `pnpm audit`) and apply Prisma migrations promptly.
+- Monitor `logs/` for suspicious activity and forward logs to a central logging solution when available.
+
+## Compliance Alignment
+
+- **OWASP Top 10** – Input validation, authentication, and session handling follow OWASP recommendations.
+- **ISO/IEC 27001** – Development practices (change control, least privilege) are designed to slot into an ISMS aligned with ISO/IEC 27001.
+- **BSI IT-Grundschutz & NIS-2** – Incident response expectations and notification cadences align with European regulatory guidance, including Germany’s IT-Sicherheitsgesetz.
+
+## Responsible Disclosure Recognition
+
+We appreciate the time and effort required to investigate potential vulnerabilities. With your consent, we will acknowledge responsible reporters in release notes or a dedicated hall of fame once a fix is shipped.
 
 Thank you for helping us keep the Portfolio platform secure.
