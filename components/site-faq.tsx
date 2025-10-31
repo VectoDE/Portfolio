@@ -7,7 +7,7 @@ const faqItems = [
   {
     question: "Where can I manage or cancel the newsletter?",
     answer:
-      "The unsubscribe hub is linked in the main navigation and footer. You can instantly opt out or adjust topic preferences without logging in.",
+      "Every email contains your personal unsubscribe link pointing to the /unsubscribe hub, which is also linked in the main navigation and footer. Open the link to see your subscribed address, then either confirm the one-click unsubscribe or toggle individual topics and save—no login required.",
   },
   {
     question: "How quickly will you respond to new contact requests?",

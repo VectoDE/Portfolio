@@ -34,7 +34,7 @@ export async function GET(req: Request) {
     })
 
     // Send welcome email
-    await sendWelcomeEmail(subscriber.email, subscriber.name || "")
+    await sendWelcomeEmail(subscriber.email, subscriber.name || "", subscriber.token)
 
     return NextResponse.json({
       message: "Your subscription has been confirmed successfully",

@@ -18,7 +18,9 @@ import {
 export default function UnsubscribeClient() {
   const searchParams = useSearchParams()
   const token = searchParams.get("token")
-  const [status, setStatus] = useState<"loading" | "success" | "error" | "preferences">("loading")
+  const [status, setStatus] = useState<
+    "verifying" | "ready" | "processing" | "success" | "error" | "preferences"
+  >(token ? "verifying" : "error")
   const [message, setMessage] = useState("")
   const [subscriberEmail, setSubscriberEmail] = useState("")
   const [preferences, setPreferences] = useState({
@@ -28,6 +30,7 @@ export default function UnsubscribeClient() {
     careers: true,
   })
   const [isSaving, setIsSaving] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   useEffect(() => {
     if (!token) {
@@ -37,6 +40,7 @@ export default function UnsubscribeClient() {
     }
 
     async function verifyToken() {
+      setStatus("verifying")
       try {
         const response = await fetch(`/api/newsletter/verify?token=${token}`)
         const data = await response.json()
@@ -49,6 +53,10 @@ export default function UnsubscribeClient() {
         if (data.preferences) {
           setPreferences(data.preferences)
         }
+        setMessage(
+          "Choose to unsubscribe immediately or fine-tune the topics you still want to receive."
+        )
+        setStatus("ready")
       } catch (error) {
         console.error("Token verification error:", error)
         setStatus("error")
@@ -62,7 +70,8 @@ export default function UnsubscribeClient() {
   async function handleUnsubscribe() {
     if (!token) return
 
-    setStatus("loading")
+    setIsProcessing(true)
+    setStatus("processing")
     try {
       const response = await fetch(`/api/newsletter/unsubscribe`, {
         method: "POST",
@@ -84,6 +93,8 @@ export default function UnsubscribeClient() {
       console.error("Unsubscribe error:", error)
       setStatus("error")
       setMessage(error instanceof Error ? error.message : "Something went wrong")
+    } finally {
+      setIsProcessing(false)
     }
   }
 
@@ -128,10 +139,24 @@ export default function UnsubscribeClient() {
         {subscriberEmail && <CardDescription>Email: {subscriberEmail}</CardDescription>}
       </CardHeader>
       <CardContent>
-        {status === "loading" && (
+        {status === "verifying" && (
           <div className="flex flex-col items-center justify-center py-8">
             <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
             <p>Verifying your request...</p>
+          </div>
+        )}
+
+        {status === "ready" && (
+          <div className="space-y-3 py-4 text-center">
+            <CheckCircle className="mx-auto h-10 w-10 text-primary" />
+            <p className="text-sm text-muted-foreground">{message}</p>
+          </div>
+        )}
+
+        {status === "processing" && (
+          <div className="flex flex-col items-center justify-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
+            <p>Processing your request...</p>
           </div>
         )}
 
@@ -216,23 +241,11 @@ export default function UnsubscribeClient() {
       </CardContent>
 
       <CardFooter className="flex flex-col space-y-2">
-        {status !== "success" && status !== "error" && (
+        {(status === "ready" || status === "preferences") && (
           <>
-            {status === "loading" && (
-              <div className="flex space-x-2">
-                <Button variant="outline" onClick={handleUnsubscribe}>
-                  Unsubscribe
-                </Button>
-                <Button variant="outline" onClick={handleShowPreferences}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  Preferences
-                </Button>
-              </div>
-            )}
-
             {status === "preferences" && (
               <div className="flex space-x-2 w-full">
-                <Button variant="outline" onClick={() => setStatus("loading")} className="flex-1">
+                <Button variant="outline" onClick={() => setStatus("ready")} className="flex-1">
                   Cancel
                 </Button>
                 <Button onClick={handleSavePreferences} disabled={isSaving} className="flex-1">
@@ -244,6 +257,25 @@ export default function UnsubscribeClient() {
                   ) : (
                     "Save Preferences"
                   )}
+                </Button>
+              </div>
+            )}
+
+            {status === "ready" && (
+              <div className="flex space-x-2">
+                <Button variant="outline" onClick={handleUnsubscribe} disabled={isProcessing}>
+                  {isProcessing ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Removing...
+                    </>
+                  ) : (
+                    "Unsubscribe"
+                  )}
+                </Button>
+                <Button variant="outline" onClick={handleShowPreferences}>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Preferences
                 </Button>
               </div>
             )}
