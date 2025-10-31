@@ -128,12 +128,12 @@ export async function sendSubscriptionConfirmation(email: string, name: string, 
 }
 
 // Send welcome email after confirmation
-export async function sendWelcomeEmail(email: string, name: string) {
+export async function sendWelcomeEmail(email: string, name: string, token: string) {
   try {
     const transporter = await createTransporter()
     const emailConfig = await getEmailConfig()
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    const unsubscribeUrl = `${baseUrl}/unsubscribe`
+    const unsubscribeUrl = `${baseUrl}/unsubscribe${token ? `?token=${token}` : ""}`
 
     // Create email content
     const mailOptions = {
