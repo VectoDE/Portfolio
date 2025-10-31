@@ -11,12 +11,18 @@ export default withAuth(
     const isAuth = !!token
     const isAuthPage =
       req.nextUrl.pathname.startsWith("/login") || req.nextUrl.pathname.startsWith("/register")
+    const isAccountPage = req.nextUrl.pathname.startsWith("/account")
 
     if (isAuthPage) {
       if (isAuth) {
-        return NextResponse.redirect(new URL("/dashboard", req.url))
+        const destination = token?.role === "Admin" ? "/dashboard" : "/account"
+        return NextResponse.redirect(new URL(destination, req.url))
       }
       return null
+    }
+
+    if (isAccountPage && !isAuth) {
+      return NextResponse.redirect(new URL("/login", req.url))
     }
 
     if (req.nextUrl.pathname.startsWith("/dashboard")) {
@@ -39,5 +45,5 @@ export default withAuth(
 )
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/login", "/register"],
+  matcher: ["/dashboard/:path*", "/login", "/register", "/account"],
 }

@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { Code2, Menu, X, Moon, Sun, Settings, LayoutDashboard, LogOut } from "lucide-react"
+import { Code2, Menu, X, Moon, Sun, Settings, LayoutDashboard, LogOut, User } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { cn } from "@/lib/utils"
@@ -147,8 +147,13 @@ export function MainNav() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={() => router.push("/account")}>
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Account</span>
+                </DropdownMenuItem>
                 {isAdmin && (
                   <>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => router.push("/dashboard")}>
                       <LayoutDashboard className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
@@ -157,9 +162,9 @@ export function MainNav() {
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                   </>
                 )}
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
@@ -248,6 +253,14 @@ export function MainNav() {
                         <p className="text-sm text-muted-foreground">{session.user?.email}</p>
                       </div>
                     </div>
+                    <Link
+                      href="/account"
+                      className="text-lg font-medium flex items-center gap-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <User className="h-5 w-5" />
+                      Account
+                    </Link>
                     {isAdmin && (
                       <>
                         <Link
