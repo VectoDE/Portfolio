@@ -23,6 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import type { AnnouncementSettings, EmailSettings } from "@/types/database"
+import { FileUpload } from "@/components/file-upload"
 
 export default function SettingsPage() {
   const router = useRouter()
@@ -32,7 +33,7 @@ export default function SettingsPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showFileUpload, setShowFileUpload] = useState(false)
+  const [profileImageUrl, setProfileImageUrl] = useState<string>("")
   type EmailSettingsFormState = {
     adminEmail: string
     emailFrom: string
@@ -63,6 +64,16 @@ export default function SettingsPage() {
     newSkills: true,
     newCareers: true,
   })
+
+  useEffect(() => {
+    if (session?.user) {
+      const sessionImage =
+        (session.user as typeof session.user & { imageUrl?: string | null })?.imageUrl ??
+        (session.user as typeof session.user & { image?: string | null })?.image ??
+        ""
+      setProfileImageUrl((prev) => prev || sessionImage || "")
+    }
+  }, [session])
 
   useEffect(() => {
     // Fetch email settings from the API
@@ -127,8 +138,23 @@ export default function SettingsPage() {
       }
     }
 
+    async function fetchProfileImage() {
+      try {
+        const response = await fetch("/api/user/profile")
+        if (!response.ok) {
+          throw new Error("Failed to fetch profile")
+        }
+
+        const data: { imageUrl?: string | null } = await response.json()
+        setProfileImageUrl((prev) => data.imageUrl ?? prev)
+      } catch (error) {
+        console.error("Error fetching profile image:", error)
+      }
+    }
+
     fetchEmailSettings()
     fetchNewsletterPreferences()
+    fetchProfileImage()
   }, [toast])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
@@ -148,6 +174,7 @@ export default function SettingsPage() {
         body: JSON.stringify({
           name,
           email,
+          imageUrl: profileImageUrl || null,
         }),
       })
 
@@ -164,6 +191,8 @@ export default function SettingsPage() {
             ...session.user,
             name,
             email,
+            image: profileImageUrl || null,
+            imageUrl: profileImageUrl || null,
           },
         })
       }
@@ -429,43 +458,14 @@ export default function SettingsPage() {
                       />
                     </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="profileImage">Profile Image</Label>
-                    <div className="flex items-center space-x-4">
-                      {showFileUpload ? (
-                        <div className="space-y-2 w-full">
-                          <Input
-                            id="profileImage"
-                            name="profileImage"
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) => {
-                              // Handle file upload logic here
-                              console.log("File selected:", e.target.files?.[0])
-                              // After upload is complete:
-                              setShowFileUpload(false)
-                            }}
-                          />
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setShowFileUpload(false)}
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      ) : (
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => setShowFileUpload(true)}
-                        >
-                          Upload Profile Image
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  <FileUpload
+                    id="profileImage"
+                    label="Profile Image"
+                    value={profileImageUrl}
+                    onChange={setProfileImageUrl}
+                    accept="image/*"
+                    maxSize={5}
+                  />
                 </CardContent>
                 <CardFooter>
                   <Button type="submit" disabled={isLoading}>

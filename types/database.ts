@@ -178,3 +178,14 @@ export interface AnnouncementSettings {
   createdAt: Date | string
   updatedAt: Date | string
 }
+
+export interface Media {
+  id: string
+  userId: string
+  originalName: string
+  fileName: string
+  mimeType: string | null
+  size: number
+  url: string
+  createdAt: Date | string
+}
