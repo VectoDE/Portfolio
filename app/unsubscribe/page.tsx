@@ -1,8 +1,17 @@
+import type { Metadata } from "next"
 import { Suspense } from "react"
 import UnsubscribeClient from "@/components/unsubscribe-client"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+
+export const metadata: Metadata = {
+  title: "Manage newsletter settings",
+  description: "Unsubscribe from Tim Hauke updates or fine-tune the topics you want to receive.",
+  alternates: {
+    canonical: "/unsubscribe",
+  },
+}
 
 export default function UnsubscribePage() {
   return (

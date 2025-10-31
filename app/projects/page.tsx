@@ -10,6 +10,15 @@ import { Card, CardContent } from "@/components/ui/card"
 export const metadata = {
   title: "Projects | Tim Hauke",
   description: "Explore my portfolio of web development projects",
+  openGraph: {
+    title: "Projects | Tim Hauke",
+    description: "Explore my portfolio of web development projects",
+    url: "/projects",
+    type: "website",
+  },
+  alternates: {
+    canonical: "/projects",
+  },
 }
 
 export default function ProjectsPage() {

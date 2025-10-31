@@ -10,6 +10,8 @@ export interface User {
   role: string | null
   createdAt: Date
   updatedAt: Date
+  comments?: ProjectComment[]
+  reactions?: ProjectReaction[]
 }
 
 export interface Project {
@@ -30,6 +32,8 @@ export interface Project {
   updatedAt: Date | string
   userId: string
   features?: ProjectFeature[]
+  comments?: ProjectComment[]
+  reactions?: ProjectReaction[]
 }
 
 export interface ProjectFeature {
@@ -188,4 +192,56 @@ export interface Media {
   size: number
   url: string
   createdAt: Date | string
+}
+
+export type ReactionType = "LIKE" | "INSIGHTFUL" | "CELEBRATE"
+
+export interface ProjectComment {
+  id: string
+  projectId: string
+  userId: string
+  content: string
+  createdAt: Date | string
+  updatedAt: Date | string
+  user?: Pick<User, "id" | "name" | "imageUrl">
+}
+
+export interface ProjectReaction {
+  id: string
+  projectId: string
+  userId: string
+  type: ReactionType
+  createdAt: Date | string
+}
+
+export interface ReactionSummary {
+  counts: Record<ReactionType, number>
+  total: number
+  userReaction: ReactionType | null
+}
+
+export interface EngagementHighlightProject {
+  id: string
+  title: string
+  description: string
+  commentCount: number
+  reactionCount: number
+  updatedAt: string
+}
+
+export interface LatestCommunityComment {
+  id: string
+  projectId: string
+  projectTitle: string
+  content: string
+  createdAt: string
+  authorName: string | null
+}
+
+export interface EngagementHighlights {
+  totalComments: number
+  totalReactions: number
+  memberCount: number
+  topProjects: EngagementHighlightProject[]
+  latestComment?: LatestCommunityComment | null
 }

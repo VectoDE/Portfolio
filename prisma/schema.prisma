@@ -27,6 +27,8 @@ model User {
   careers       Career[]
   announcements AnnouncementSettings?
   media         Media[]
+  comments      ProjectComment[]
+  reactions     ProjectReaction[]
 }
 
 model Project {
@@ -49,6 +51,8 @@ model Project {
   user               User             @relation(fields: [userId], references: [id], onDelete: Cascade)
   features           ProjectFeature[]
   newsletters        Newsletter[]
+  comments           ProjectComment[]
+  reactions          ProjectReaction[]
 }
 
 model ProjectFeature {
@@ -206,4 +210,33 @@ model Media {
   size         Int
   url          String
   createdAt    DateTime @default(now())
+}
+
+enum ReactionType {
+  LIKE
+  INSIGHTFUL
+  CELEBRATE
+}
+
+model ProjectComment {
+  id        String   @id @default(cuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model ProjectReaction {
+  id        String       @id @default(cuid())
+  projectId String
+  project   Project      @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      ReactionType
+  createdAt DateTime     @default(now())
+
+  @@unique([projectId, userId])
 }

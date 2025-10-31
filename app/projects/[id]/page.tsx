@@ -9,8 +9,12 @@ import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { getProjectById } from "@/lib/projects"
+import { getProjectComments, getProjectReactionSummary } from "@/lib/engagement"
 import type { ProjectFeature } from "@/types/database"
 import { CodeBlock } from "@/components/code-block"
+import { ProjectFeedback } from "@/components/project-feedback"
+import { ShareProject } from "@/components/share-project"
+import { getSiteUrl, siteProfile } from "@/lib/site"
 
 interface ProjectPageProps {
   params: Promise<{
@@ -35,9 +39,40 @@ export async function generateMetadata({ params }: ProjectPageProps) {
     }
   }
 
+  const canonical = getSiteUrl(`/projects/${project.id}`)
+  const imageUrl = project.imageUrl || `${getSiteUrl()}/placeholder.jpg`
+
   return {
     title: `${project.title} | Tim Hauke`,
     description: project.description,
+    alternates: {
+      canonical,
+    },
+    keywords: [
+      project.title,
+      "Tim Hauke projects",
+      ...project.technologies.split(", ").map((tech) => tech.trim()),
+    ],
+    openGraph: {
+      type: "article",
+      url: canonical,
+      title: `${project.title} | Tim Hauke`,
+      description: project.description,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: `${project.title} preview image`,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${project.title} | Tim Hauke`,
+      description: project.description,
+      images: [imageUrl],
+    },
   }
 }
 
@@ -50,6 +85,49 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
 
   if (!project) {
     notFound()
+  }
+
+  const [initialComments, initialReactions] = await Promise.all([
+    getProjectComments(project.id),
+    getProjectReactionSummary(project.id),
+  ])
+
+  const projectUrl = getSiteUrl(`/projects/${project.id}`)
+  const imageUrl = project.imageUrl || `${getSiteUrl()}/placeholder.jpg`
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: project.title,
+    description: project.description,
+    url: projectUrl,
+    image: imageUrl,
+    isPartOf: {
+      "@type": "CreativeWorkSeries",
+      name: "Tim Hauke Portfolio Projects",
+      url: getSiteUrl("/projects"),
+    },
+    author: {
+      "@type": "Person",
+      name: siteProfile.name,
+      url: getSiteUrl(),
+    },
+    datePublished: new Date(project.createdAt).toISOString(),
+    dateModified: new Date(project.updatedAt).toISOString(),
+    inLanguage: "en",
+    keywords: project.technologies.split(", ").map((tech) => tech.trim()),
+    interactionStatistic: [
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/CommentAction",
+        userInteractionCount: initialComments.length,
+      },
+      {
+        "@type": "InteractionCounter",
+        interactionType: "https://schema.org/LikeAction",
+        userInteractionCount: initialReactions.total,
+      },
+    ],
+    discussionUrl: projectUrl,
   }
 
   return (
@@ -139,6 +217,8 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       </Link>
                     )}
                   </div>
+
+                  <ShareProject projectTitle={project.title} projectUrl={projectUrl} />
                 </div>
 
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
@@ -223,6 +303,13 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     </div>
                   </CardContent>
                 </Card>
+
+                <ProjectFeedback
+                  projectId={project.id}
+                  initialComments={initialComments}
+                  initialReactions={initialReactions}
+                />
+                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
               </div>
             </div>
           </section>

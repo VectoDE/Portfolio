@@ -47,12 +47,20 @@ export default function LoginPage() {
         throw new Error(result.error)
       }
 
+      const sessionResponse = await fetch("/api/auth/session")
+      const sessionData = sessionResponse.ok ? await sessionResponse.json() : null
+      const role = sessionData?.user?.role
+      const destination = role === "Admin" ? "/dashboard" : "/projects"
+
       toast({
         title: "Login successful",
-        description: "Welcome back!",
+        description:
+          role === "Admin"
+            ? "Welcome back! Redirecting to your dashboard."
+            : "You're now signed in—start exploring and join the discussions.",
       })
 
-      router.push("/dashboard")
+      router.push(destination)
       router.refresh()
     } catch (error) {
       console.error("Login error:", error)

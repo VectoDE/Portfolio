@@ -19,6 +19,15 @@ export function SiteFooter() {
             © {new Date().getFullYear()} Hauknetz. All rights reserved.
           </p>
           <nav className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <Link href="/newsletter" className="hover:text-primary hover:underline underline-offset-4">
+              Newsletter
+            </Link>
+            <Link href="/unsubscribe" className="hover:text-primary hover:underline underline-offset-4">
+              Manage Subscription
+            </Link>
+            <Link href="/register" className="hover:text-primary hover:underline underline-offset-4">
+              Join to Comment
+            </Link>
             <Link href="/privacy" className="hover:text-primary hover:underline underline-offset-4">
               Privacy Policy
             </Link>

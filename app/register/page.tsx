@@ -56,7 +56,7 @@ export default function RegisterPage() {
 
       toast({
         title: "Registration successful",
-        description: "You can now log in with your credentials",
+        description: "You can now log in to join project discussions and add reactions.",
       })
 
       router.push("/login")
@@ -84,10 +84,18 @@ export default function RegisterPage() {
       <Card className="w-full max-w-md relative z-10 bg-background/80 backdrop-blur-sm">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>Enter your information to create an account</CardDescription>
+          <CardDescription>
+            Create a free community profile to comment on projects, add reactions, and stay close to upcoming launches.
+          </CardDescription>
         </CardHeader>
         <form onSubmit={onSubmit}>
           <CardContent className="space-y-4">
+            <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-xs text-muted-foreground">
+              <p className="font-medium text-primary">Good to know</p>
+              <p>
+                Passwords must contain at least 8 characters. You can unsubscribe from emails and delete your account at any time.
+              </p>
+            </div>
             <div className="space-y-2">
               <Label htmlFor="name" className="flex items-center gap-2">
                 <User className="h-5 w-5 text-muted-foreground" />

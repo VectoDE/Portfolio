@@ -26,6 +26,7 @@ export function MainNav() {
   const router = useRouter()
   const { toast } = useToast()
   const { data: session, status } = useSession()
+  const isAdmin = session?.user?.role === "Admin"
   const { setTheme, theme } = useTheme()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isMounted, setIsMounted] = useState(false)
@@ -47,6 +48,8 @@ export function MainNav() {
     { href: "/projects", label: "Projects" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
+    { href: "/newsletter", label: "Newsletter" },
+    { href: "/unsubscribe", label: "Unsubscribe" },
   ]
 
   const handleLogout = async () => {
@@ -145,15 +148,19 @@ export function MainNav() {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => router.push("/dashboard")}>
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  <span>Dashboard</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
-                  <Settings className="mr-2 h-4 w-4" />
-                  <span>Settings</span>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                {isAdmin && (
+                  <>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard")}>
+                      <LayoutDashboard className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => router.push("/dashboard/settings")}>
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                  </>
+                )}
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
@@ -161,15 +168,25 @@ export function MainNav() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <Link href="/login">
-              <Button
-                variant="outline"
-                size="sm"
-                className="hidden md:inline-flex border-purple-600/50 hover:border-purple-600 transition-all duration-300"
-              >
-                Login
-              </Button>
-            </Link>
+            <div className="hidden md:flex items-center gap-2">
+              <Link href="/login">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-purple-600/50 hover:border-purple-600 transition-all duration-300"
+                >
+                  Login
+                </Button>
+              </Link>
+              <Link href="/register">
+                <Button
+                  size="sm"
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
+                >
+                  Register
+                </Button>
+              </Link>
+            </div>
           )}
 
           <Button
@@ -232,22 +249,26 @@ export function MainNav() {
                         <p className="text-sm text-muted-foreground">{session.user?.email}</p>
                       </div>
                     </div>
-                    <Link
-                      href="/dashboard"
-                      className="text-lg font-medium flex items-center gap-2"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <LayoutDashboard className="h-5 w-5" />
-                      Dashboard
-                    </Link>
-                    <Link
-                      href="/dashboard/settings"
-                      className="text-lg font-medium flex items-center gap-2"
-                      onClick={() => setIsMobileMenuOpen(false)}
-                    >
-                      <Settings className="h-5 w-5" />
-                      Settings
-                    </Link>
+                    {isAdmin && (
+                      <>
+                        <Link
+                          href="/dashboard"
+                          className="text-lg font-medium flex items-center gap-2"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <LayoutDashboard className="h-5 w-5" />
+                          Dashboard
+                        </Link>
+                        <Link
+                          href="/dashboard/settings"
+                          className="text-lg font-medium flex items-center gap-2"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <Settings className="h-5 w-5" />
+                          Settings
+                        </Link>
+                      </>
+                    )}
                     <button
                       className="text-lg font-medium flex items-center gap-2 text-red-500"
                       onClick={() => {
@@ -260,13 +281,22 @@ export function MainNav() {
                     </button>
                   </>
                 ) : (
-                  <Link
-                    href="/login"
-                    className="text-lg font-medium text-primary"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    Login
-                  </Link>
+                  <div className="flex flex-col gap-3 text-lg font-medium">
+                    <Link
+                      href="/login"
+                      className="text-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Login
+                    </Link>
+                    <Link
+                      href="/register"
+                      className="text-primary"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Jetzt registrieren
+                    </Link>
+                  </div>
                 )}
               </nav>
             </div>
