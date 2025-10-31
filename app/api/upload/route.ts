@@ -24,6 +24,22 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    const allowedMimeTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/avif",
+      "image/svg+xml",
+    ]
+
+    if (!file.type || !allowedMimeTypes.includes(file.type)) {
+      return NextResponse.json(
+        { error: "Only image uploads are allowed" },
+        { status: 415 }
+      )
+    }
+
     const maxSize = 10 * 1024 * 1024 // 10MB
     if (file.size > maxSize) {
       return NextResponse.json({ error: "File size must be less than 10MB" }, { status: 400 })
