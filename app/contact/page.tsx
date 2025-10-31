@@ -4,7 +4,18 @@ import type React from "react"
 
 import Link from "next/link"
 import { useState } from "react"
-import { MapPin, Phone, Mail, User, Tag, MessageSquare } from "lucide-react"
+import {
+  Clock,
+  HeartHandshake,
+  Lightbulb,
+  MapPin,
+  MessageSquare,
+  NotebookPen,
+  Phone,
+  Mail,
+  Tag,
+  User,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -170,6 +181,32 @@ export default function ContactPage() {
                       </CardContent>
                     </Card>
                   </div>
+                  <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+                    <CardContent className="p-6 space-y-4">
+                      <div className="flex items-center gap-3">
+                        <Clock className="h-6 w-6 text-primary" />
+                        <h3 className="text-xl font-semibold">What happens after you reach out</h3>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Every enquiry lands directly in my inbox. I review project details personally before we jump on a call so
+                        the conversation focuses on solutions, not introductions.
+                      </p>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <div className="flex items-start gap-2">
+                          <Lightbulb className="mt-0.5 h-4 w-4 text-primary" />
+                          <span>Share your mission, current challenges, and desired launch window—context helps me prepare.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <NotebookPen className="mt-0.5 h-4 w-4 text-primary" />
+                          <span>You'll receive a summary of our discussion with next steps, timelines, and responsibilities.</span>
+                        </div>
+                        <div className="flex items-start gap-2">
+                          <HeartHandshake className="mt-0.5 h-4 w-4 text-primary" />
+                          <span>We collaborate transparently—no hidden costs, and you keep full access to code and documentation.</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
                 <div>
                   <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
@@ -268,6 +305,49 @@ export default function ContactPage() {
                     </CardContent>
                   </Card>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+            <div className="container px-4 md:px-6">
+              <div className="grid gap-12 md:grid-cols-[1.2fr_1fr] md:items-center">
+                <div className="space-y-6">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                    Let's tell your story together
+                  </h2>
+                  <p className="text-gray-500 md:text-xl/relaxed dark:text-gray-400">
+                    I'm passionate about spotlighting the people behind every initiative. Whether you represent a sports club,
+                    an association, or an early-stage startup, we'll co-create digital touchpoints that reflect your culture and
+                    aspirations.
+                  </p>
+                  <p className="text-gray-500 md:text-lg/relaxed dark:text-gray-400">
+                    If you're unsure where to start, share your current stack or favourite toolset—I can audit your setup and
+                    suggest small but high-impact changes before we plan a full project.
+                  </p>
+                </div>
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl font-semibold">Helpful resources</h3>
+                    <p className="text-sm text-muted-foreground">
+                      These links offer a deeper look at how I work and what to expect.
+                    </p>
+                    <div className="grid gap-3">
+                      <Link
+                        href="/projects"
+                        className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                      >
+                        Explore detailed project breakdowns
+                      </Link>
+                      <Link href="/about" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+                        Learn more about my background
+                      </Link>
+                      <Link href="/#faq" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+                        Read common questions and support options
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </section>

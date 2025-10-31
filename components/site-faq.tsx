@@ -7,7 +7,7 @@ const faqItems = [
   {
     question: "Where can I manage or cancel the newsletter?",
     answer:
-      "Every email contains your personal unsubscribe link pointing to the /unsubscribe hub, which is also linked in the main navigation and footer. Open the link to see your subscribed address, then either confirm the one-click unsubscribe or toggle individual topics and save—no login required.",
+      "Every email contains your personal unsubscribe link pointing to the /unsubscribe hub. Whenever you need a reminder, come back to this FAQ: open the link in the message to see your subscribed address, then either confirm the one-click unsubscribe or toggle individual topics and save—no login required.",
   },
   {
     question: "How quickly will you respond to new contact requests?",
@@ -36,7 +36,7 @@ export function SiteFAQ() {
   }
 
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32">
+    <section id="faq" className="w-full py-12 md:py-24 lg:py-32">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="space-y-2">

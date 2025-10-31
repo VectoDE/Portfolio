@@ -1,7 +1,20 @@
 import type { Metadata } from "next"
 import { Suspense } from "react"
 import Link from "next/link"
-import { ArrowRight, Mail, MessageCircle, UserPlus } from "lucide-react"
+import {
+  ArrowRight,
+  Award,
+  Compass,
+  Globe,
+  Layers,
+  Mail,
+  MessageCircle,
+  Rocket,
+  Sparkles,
+  Target,
+  UserPlus,
+  Users,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { FeaturedProjects } from "@/components/featured-projects"
@@ -53,10 +66,11 @@ export default async function Home() {
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2 animate-fade-in">
                   <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-blue-600 to-cyan-600">
-                    Full Stack Developer
+                    Purposeful digital experiences by Tim Hauke
                   </h1>
-                  <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                    Building modern web applications with cutting-edge technologies
+                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
+                    I partner with clubs, associations, and ambitious founders to transform ideas into reliable web products
+                    that feel personal, perform at scale, and stay easy to maintain long after launch.
                   </p>
                 </div>
                 <div className="flex flex-wrap items-center justify-center gap-4 animate-slide-in">
@@ -74,6 +88,105 @@ export default async function Home() {
                     </Button>
                   </Link>
                 </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32">
+            <div className="container px-4 md:px-6">
+              <div className="grid gap-12 lg:grid-cols-[1.35fr_1fr] lg:items-start">
+                <div className="space-y-6">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                    Meet the builder behind the work
+                  </h2>
+                  <p className="text-gray-500 md:text-xl/relaxed dark:text-gray-400">
+                    I'm a full stack developer based in Itzehoe, Germany, with a passion for designing resilient systems and
+                    inviting communities into the process. From non-profits that rely on reliable infrastructure to companies
+                    shipping their first SaaS product, I translate complex requirements into friendly, future-proof software.
+                  </p>
+                  <p className="text-gray-500 md:text-lg/relaxed dark:text-gray-400">
+                    My work blends technical depth with storytelling. Every interface should highlight the humans behind a
+                    project—so I document decisions, surface impact metrics, and make sure clients can continue the story once a
+                    project is delivered.
+                  </p>
+                  <div className="grid gap-6 sm:grid-cols-2">
+                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <CardContent className="p-6 space-y-2">
+                        <Award className="h-8 w-8 text-primary" />
+                        <h3 className="text-xl font-semibold">Seasoned delivery</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Over a decade of iterating on web platforms, internal tools, and membership portals with measurable
+                          results.
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <CardContent className="p-6 space-y-2">
+                        <Globe className="h-8 w-8 text-primary" />
+                        <h3 className="text-xl font-semibold">European perspective</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Collaborating with organisations across Germany and neighbouring countries with multilingual, GDPR-ready
+                          experiences.
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <CardContent className="p-6 space-y-2">
+                        <Users className="h-8 w-8 text-primary" />
+                        <h3 className="text-xl font-semibold">Community driven</h3>
+                        <p className="text-sm text-muted-foreground">
+                          I design onboarding, feedback loops, and moderation workflows that help members feel seen and heard.
+                        </p>
+                      </CardContent>
+                    </Card>
+                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                      <CardContent className="p-6 space-y-2">
+                        <Sparkles className="h-8 w-8 text-primary" />
+                        <h3 className="text-xl font-semibold">Crafted details</h3>
+                        <p className="text-sm text-muted-foreground">
+                          From accessibility to microcopy, I sweat the small things so every release feels intentional and polished.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <Link href="/about">
+                      <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+                        Learn more about my story <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Link href="/projects">
+                      <Button
+                        variant="outline"
+                        className="gap-2 border-purple-600/50 hover:border-purple-600"
+                      >
+                        Explore client outcomes <ArrowRight className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+                  <CardContent className="p-6 space-y-4">
+                    <h3 className="text-xl font-semibold">What collaboration looks like</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Each engagement is transparent, structured, and shaped around your stakeholders.
+                    </p>
+                    <div className="space-y-3 text-sm text-muted-foreground">
+                      <div className="flex items-start gap-2">
+                        <Target className="mt-0.5 h-4 w-4 text-primary" />
+                        <span>Workshops to align on user value, success metrics, and long-term maintainability.</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Layers className="mt-0.5 h-4 w-4 text-primary" />
+                        <span>Composable architectures that keep future iterations predictable and well-tested.</span>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Sparkles className="mt-0.5 h-4 w-4 text-primary" />
+                        <span>Launch assets, changelog updates, and documentation that empower your team.</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </section>
@@ -157,6 +270,52 @@ export default async function Home() {
 
           <section className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
+              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
+                <div className="space-y-2">
+                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                    How I turn requirements into results
+                  </h2>
+                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
+                    Clear communication, focused experiments, and measurable outcomes keep every collaboration moving forward.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid gap-6 md:grid-cols-3">
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6 space-y-3 text-left">
+                    <Compass className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-semibold">Discover the story</h3>
+                    <p className="text-sm text-muted-foreground">
+                      I start by mapping stakeholders, constraints, and existing systems to uncover the narrative behind your
+                      product.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6 space-y-3 text-left">
+                    <Layers className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-semibold">Design the architecture</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Wireframes, component systems, and APIs are aligned early so development flows smoothly across teams.
+                    </p>
+                  </CardContent>
+                </Card>
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
+                  <CardContent className="p-6 space-y-3 text-left">
+                    <Rocket className="h-8 w-8 text-primary" />
+                    <h3 className="text-xl font-semibold">Launch, learn, iterate</h3>
+                    <p className="text-sm text-muted-foreground">
+                      After launch I analyse engagement, document improvements, and plan the next release with your team.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </section>
+
+          <section className="w-full py-12 md:py-24 lg:py-32">
+            <div className="container px-4 md:px-6">
               <div className="grid gap-10 lg:grid-cols-2 lg:gap-16 items-center">
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -205,9 +364,9 @@ export default async function Home() {
                             <UserPlus className="h-4 w-4" /> Register to comment
                           </Button>
                         </Link>
-                        <Link href="/unsubscribe">
+                        <Link href="/#faq">
                           <Button variant="ghost" className="w-full gap-2 text-primary hover:text-primary">
-                            Manage newsletter settings
+                            Newsletter FAQ & unsubscribe help
                           </Button>
                         </Link>
                       </div>
