@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs"
 import { NextResponse } from "next/server"
 
-import { Prisma } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 
 import prisma from "@/lib/db"
 
@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     const sanitizedName = typeof name === "string" ? name.trim() : null
 
     const user = await prisma.$transaction(
-      async (tx) => {
+      async (tx: PrismaClient) => {
         const existingUsers = await tx.user.count()
         const role = existingUsers === 0 ? "Admin" : "Member"
 
@@ -57,7 +57,7 @@ export async function POST(req: Request) {
           },
         })
       },
-      { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      { isolationLevel: "Serializable" },
     )
 
     // Return user without password
