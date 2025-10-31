@@ -8,7 +8,7 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  url      = "mysql://root:r12KxTETSY24@localhost:3306/TH-Portfolio"
+  url      = env("DATABASE_URL")
 }
 
 model User {
