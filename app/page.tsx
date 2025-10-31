@@ -30,6 +30,7 @@ import { CommunityHighlights } from "@/components/community-highlights"
 import { SiteFAQ } from "@/components/site-faq"
 import { getEngagementHighlights } from "@/lib/engagement"
 import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 import { HeroVisualizationBlock } from "@/components/hero-visualization-block"
 
 export const metadata: Metadata = {
@@ -108,7 +109,7 @@ export default async function Home() {
                       </Button>
                     </Link>
                   </div>
-                  <div className="grid w-full gap-4 sm:grid-cols-3">
+                  <AnimatedList className="grid w-full gap-4 sm:grid-cols-3" initialDelay={0.1}>
                     {heroStats.map((stat) => (
                       <div
                         key={stat.label}
@@ -120,7 +121,7 @@ export default async function Home() {
                         </p>
                       </div>
                     ))}
-                  </div>
+                  </AnimatedList>
                 </div>
                 <div className="order-1 lg:order-2">
                   <HeroVisualizationBlock />
@@ -146,7 +147,7 @@ export default async function Home() {
                     project—so I document decisions, surface impact metrics, and make sure clients can continue the story once a
                     project is delivered.
                   </p>
-                  <div className="grid gap-6 sm:grid-cols-2">
+                  <AnimatedList className="grid gap-6 sm:grid-cols-2" initialDelay={0.12}>
                     <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
                       <CardContent className="p-6 space-y-2">
                         <Award className="h-8 w-8 text-primary" />
@@ -185,7 +186,7 @@ export default async function Home() {
                         </p>
                       </CardContent>
                     </Card>
-                  </div>
+                  </AnimatedList>
                   <div className="flex flex-wrap gap-3">
                     <Link href="/about">
                       <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
@@ -361,7 +362,7 @@ export default async function Home() {
                   <p className="text-gray-500 md:text-xl dark:text-gray-400">
                     Whether you want to collaborate on a new product, leave feedback on my case studies, or stay informed about future releases, you now have multiple ways to connect.
                   </p>
-                  <div className="grid gap-4">
+                  <AnimatedList className="grid gap-4" stagger={0.12}>
                     <div className="flex items-start gap-3">
                       <MessageCircle className="mt-1 h-5 w-5 text-primary" />
                       <div>
@@ -380,7 +381,7 @@ export default async function Home() {
                         </p>
                       </div>
                     </div>
-                  </div>
+                  </AnimatedList>
                 </div>
 
                 <div className="space-y-4">
@@ -390,7 +391,7 @@ export default async function Home() {
                       <p className="text-sm text-muted-foreground">
                         Pick the option that fits best—I'm making collaboration and feedback effortless.
                       </p>
-                      <div className="grid gap-3">
+                      <AnimatedList className="grid gap-3" stagger={0.1}>
                         <Link href="/contact">
                           <Button className="w-full gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
                             <Mail className="h-4 w-4" /> Contact Tim
@@ -406,7 +407,7 @@ export default async function Home() {
                             Newsletter FAQ & unsubscribe help
                           </Button>
                         </Link>
-                      </div>
+                      </AnimatedList>
                     </CardContent>
                   </Card>
                 </div>

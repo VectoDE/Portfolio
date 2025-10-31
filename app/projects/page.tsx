@@ -8,6 +8,8 @@ import { ProjectsGrid } from "@/components/projects-grid"
 import { ProjectsSkeleton } from "@/components/skeletons/projects-skeleton"
 import { NewsletterForm } from "@/components/newsletter-form"
 import { Card, CardContent } from "@/components/ui/card"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export const metadata = {
   title: "Projects | Tim Hauke",
@@ -36,7 +38,7 @@ export default function ProjectsPage() {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -62,7 +64,7 @@ export default function ProjectsPage() {
                 </p>
               </div>
 
-              <div className="mt-12 grid gap-6 md:grid-cols-3">
+              <AnimatedList className="mt-12 grid gap-6 md:grid-cols-3" initialDelay={0.08}>
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6 space-y-3 text-left">
                     <Lightbulb className="h-8 w-8 text-primary" />
@@ -90,7 +92,7 @@ export default function ProjectsPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
 
               <Suspense fallback={<ProjectsSkeleton />}>
                 <ProjectsGrid />
@@ -107,19 +109,19 @@ export default function ProjectsPage() {
                 </p>
               </div>
 
-              <div className="mt-16 mb-12">
+              <AnimatedSection className="mt-16 mb-12">
                 <Card className="border border-purple-200 dark:border-purple-800 bg-background/60 backdrop-blur-sm">
                   <CardContent className="pt-6">
                     <NewsletterForm />
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedSection>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
-              <div className="grid gap-12 md:grid-cols-[1.2fr_1fr] md:items-start">
+              <AnimatedList className="grid gap-12 md:grid-cols-[1.2fr_1fr] md:items-start" stagger={0.16}>
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
                     Behind every showcase is a partnership
@@ -156,9 +158,9 @@ export default function ProjectsPage() {
                     </ul>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
         </main>
 
         <SiteFooter />

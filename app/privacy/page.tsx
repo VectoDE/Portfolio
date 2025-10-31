@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export const metadata: Metadata = {
   title: "Privacy Policy",
@@ -119,7 +121,7 @@ export default function PrivacyPolicyPage() {
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
         <main className="flex-1 py-16">
-          <section className="container space-y-10 px-4 md:px-6">
+          <AnimatedSection className="container space-y-10 px-4 md:px-6">
             <header className="space-y-4 text-center">
               <p className="text-sm uppercase tracking-wider text-primary">Rechtliche Hinweise</p>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Datenschutzerklärung</h1>
@@ -130,22 +132,22 @@ export default function PrivacyPolicyPage() {
               </p>
             </header>
 
-            <div className="space-y-12">
+            <AnimatedList className="space-y-12" initialDelay={0.08}>
               {sections.map((section) => (
                 <article
                   key={section.title}
                   className="space-y-4 rounded-xl border border-border/60 bg-background/80 p-6 shadow-sm backdrop-blur"
                 >
                   <h2 className="text-2xl font-semibold text-primary/90">{section.title}</h2>
-                  <div className="space-y-3 text-sm text-muted-foreground sm:text-base">
+                  <AnimatedList className="space-y-3 text-sm text-muted-foreground sm:text-base" stagger={0.1}>
                     {section.content.map((paragraph) => (
                       <p key={paragraph}>{paragraph}</p>
                     ))}
-                  </div>
+                  </AnimatedList>
                 </article>
               ))}
-            </div>
-          </section>
+            </AnimatedList>
+          </AnimatedSection>
         </main>
         <SiteFooter />
       </div>

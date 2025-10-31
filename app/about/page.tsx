@@ -8,6 +8,8 @@ import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { CareerTimeline } from "@/components/career-timeline"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export const metadata = {
   title: "About | Tim Hauke",
@@ -36,7 +38,7 @@ export default function AboutPage() {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -50,7 +52,7 @@ export default function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid gap-10 md:grid-cols-2 md:gap-16">
+              <AnimatedList className="grid gap-10 md:grid-cols-2 md:gap-16" stagger={0.14}>
                 <div>
                   <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
                     <div className="h-full w-full overflow-hidden rounded-lg">
@@ -99,7 +101,7 @@ export default function AboutPage() {
                       contribute to open-source initiatives that keep European tech communities thriving.
                     </p>
                   </div>
-                  <div className="grid gap-4 sm:grid-cols-2">
+                  <AnimatedList className="grid gap-4 sm:grid-cols-2" initialDelay={0.1}>
                     <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
                       <CardContent className="p-4 space-y-2">
                         <Users className="h-6 w-6 text-primary" />
@@ -118,13 +120,13 @@ export default function AboutPage() {
                         </p>
                       </CardContent>
                     </Card>
-                  </div>
+                  </AnimatedList>
                 </div>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -139,9 +141,9 @@ export default function AboutPage() {
 
               <CareerTimeline />
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -154,7 +156,7 @@ export default function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8">
+              <AnimatedList className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8" initialDelay={0.08}>
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6">
                     <div className="flex flex-col items-center space-y-2">
@@ -188,11 +190,11 @@ export default function AboutPage() {
                     </div>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -205,7 +207,7 @@ export default function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid gap-6 md:grid-cols-3">
+              <AnimatedList className="grid gap-6 md:grid-cols-3" initialDelay={0.08}>
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
                   <CardContent className="p-6 space-y-3">
                     <Target className="h-8 w-8 text-primary" />
@@ -236,11 +238,11 @@ export default function AboutPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -254,7 +256,7 @@ export default function AboutPage() {
                 </div>
               </div>
 
-              <div className="grid gap-8 md:grid-cols-3">
+              <AnimatedList className="grid gap-8 md:grid-cols-3" initialDelay={0.08}>
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
                   <CardContent className="p-6 space-y-2 text-left">
                     <Users className="h-8 w-8 text-primary" />
@@ -285,11 +287,11 @@ export default function AboutPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
@@ -301,7 +303,7 @@ export default function AboutPage() {
                     be part of your vision.
                   </p>
                 </div>
-                <div className="flex flex-wrap items-center justify-center gap-4 mt-8">
+                <AnimatedList className="flex flex-wrap items-center justify-center gap-4 mt-8" stagger={0.1}>
                   <Link href="/contact">
                     <Button className="gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
                       Contact Me <ArrowRight className="h-4 w-4" />
@@ -315,10 +317,10 @@ export default function AboutPage() {
                       View My Work <ArrowRight className="h-4 w-4" />
                     </Button>
                   </Link>
-                </div>
+                </AnimatedList>
               </div>
             </div>
-          </section>
+          </AnimatedSection>
         </main>
 
         <SiteFooter />
