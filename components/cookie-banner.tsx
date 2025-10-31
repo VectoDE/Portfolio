@@ -1,6 +1,7 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import Link from "next/link"
+import { useState, useEffect, useRef } from "react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Switch } from "@/components/ui/switch"
@@ -38,38 +39,72 @@ export function CookieBanner() {
   const [showDetails, setShowDetails] = useState(false)
   const [consent, setConsent] = useState<CookieConsent>(defaultConsent)
   const [activeTab, setActiveTab] = useState("cookie-policy")
+  const trackingInitializedRef = useRef(false)
 
   useEffect(() => {
     const storedConsent = localStorage.getItem("cookieConsent")
 
     if (storedConsent) {
-      const parsedConsent = JSON.parse(storedConsent) as CookieConsent
-      const isExpired = Date.now() - parsedConsent.timestamp > COOKIE_EXPIRATION_MS
+      try {
+        const parsedConsent = JSON.parse(storedConsent) as CookieConsent
+        const isExpired = Date.now() - parsedConsent.timestamp > COOKIE_EXPIRATION_MS
 
-      if (isExpired) {
+        if (isExpired) {
+          setShowBanner(true)
+        } else {
+          setConsent(parsedConsent)
+          setShowBanner(false)
+        }
+      } catch (error) {
+        console.error("Failed to parse stored cookie consent", error)
         setShowBanner(true)
-      } else {
-        setConsent(parsedConsent)
-        setShowBanner(false)
       }
     } else {
       setShowBanner(true)
     }
-  }, [])
 
-  const saveConsent = (newConsent: Partial<CookieConsent>) => {
-    const updatedConsent = {
-      ...consent,
-      ...newConsent,
-      timestamp: Date.now(),
+    const handleOpenCookieSettings = () => {
+      setShowDetails(true)
+      setShowBanner(false)
     }
 
+    window.addEventListener("open-cookie-settings", handleOpenCookieSettings)
+
+    return () => {
+      window.removeEventListener("open-cookie-settings", handleOpenCookieSettings)
+    }
+  }, [])
+
+  const persistConsent = (updatedConsent: CookieConsent) => {
     localStorage.setItem("cookieConsent", JSON.stringify(updatedConsent))
     setConsent(updatedConsent)
     setShowBanner(false)
     setShowDetails(false)
 
-    trackUserActivity()
+    if (!updatedConsent.analytics) {
+      trackingInitializedRef.current = false
+      return
+    }
+
+    if (trackingInitializedRef.current) {
+      return
+    }
+
+    trackingInitializedRef.current = true
+
+    import("@/lib/track-pageview").then(({ trackPageView }) => {
+      trackPageView(window.location.pathname)
+    })
+  }
+
+  const saveConsent = (newConsent: Partial<CookieConsent>) => {
+    const updatedConsent: CookieConsent = {
+      ...consent,
+      ...newConsent,
+      timestamp: Date.now(),
+    }
+
+    persistConsent(updatedConsent)
   }
 
   const acceptAll = () => {
@@ -92,26 +127,6 @@ export function CookieBanner() {
 
   const savePreferences = () => {
     saveConsent(consent)
-  }
-
-  const trackUserActivity = () => {
-    console.log("User activity tracking initialized regardless of consent")
-
-    const currentPath = window.location.pathname
-
-    import("@/lib/track-pageview").then(({ trackPageView }) => {
-      trackPageView(currentPath)
-
-      const originalPushState = history.pushState
-      history.pushState = function (state: unknown, title: string, url?: string | URL | null) {
-        originalPushState.call(this, state, title, url)
-        trackPageView(window.location.pathname)
-      }
-
-      window.addEventListener("popstate", () => {
-        trackPageView(window.location.pathname)
-      })
-    })
   }
 
   const toggleConsent = (type: keyof Omit<CookieConsent, "timestamp">) => {
@@ -221,6 +236,14 @@ export function CookieBanner() {
                     which you will be asked to confirm your choices again.
                   </p>
                 </div>
+
+                <p className="text-sm text-muted-foreground">
+                  Detailed information about how we process personal data can be found in our{" "}
+                  <Link href="/privacy" className="text-primary underline-offset-4 hover:underline">
+                    Privacy Policy
+                  </Link>
+                  .
+                </p>
               </div>
             </TabsContent>
 

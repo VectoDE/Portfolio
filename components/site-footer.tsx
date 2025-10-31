@@ -1,15 +1,40 @@
+"use client"
+
 import Link from "next/link"
 import { Github, Linkedin, Mail } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
 export function SiteFooter() {
+  const handleOpenCookieSettings = () => {
+    if (typeof window === "undefined") return
+    window.dispatchEvent(new Event("open-cookie-settings"))
+  }
+
   return (
     <footer className="w-full border-t py-6 bg-background/80 backdrop-blur-sm">
-      <div className="container flex flex-col md:flex-row items-center justify-between gap-4 px-4 md:px-6">
-        <p className="text-sm text-muted-foreground">
-          © {new Date().getFullYear()} Hauknetz. All rights reserved.
-        </p>
+      <div className="container flex flex-col gap-4 px-4 md:px-6">
+        <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <p className="text-sm text-muted-foreground">
+            © {new Date().getFullYear()} Hauknetz. All rights reserved.
+          </p>
+          <nav className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
+            <Link href="/privacy" className="hover:text-primary hover:underline underline-offset-4">
+              Privacy Policy
+            </Link>
+            <Link href="/impressum" className="hover:text-primary hover:underline underline-offset-4">
+              Impressum
+            </Link>
+            <button
+              type="button"
+              onClick={handleOpenCookieSettings}
+              className="text-left hover:text-primary hover:underline underline-offset-4"
+            >
+              Cookie-Einstellungen
+            </button>
+          </nav>
+        </div>
+
         <div className="flex items-center gap-4">
           <Link href="https://github.com/VectoDE" target="_blank" rel="noopener noreferrer">
             <Button

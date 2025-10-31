@@ -53,4 +53,15 @@ If you deploy or extend this project, consider the following hardening steps:
 - Monitor dependency updates and run `pnpm update` / `pnpm audit` on a regular cadence.
 - Enable rate limiting and CAPTCHA on public forms if exposing the site to production traffic.
 
+## Compliance with Industry Standards
+
+- **OWASP Top 10** – Security controls and testing procedures are aligned with the OWASP Top 10 categories to mitigate the most
+  prevalent web application risks.
+- **ISO/IEC 27001** – Operational processes are designed to integrate into an Information Security Management System (ISMS)
+  consistent with ISO/IEC 27001, including regular risk assessments, documented controls, and continuous improvement loops.
+- **BSI IT-Grundschutz** – Technical and organizational safeguards take guidance from the BSI IT-Grundschutz catalogs to
+  achieve an appropriate level of protection for confidentiality, integrity, and availability.
+- **NIS-2 / IT-Sicherheitsgesetz** – Incident response and notification processes meet the requirements of the German
+  IT-Sicherheitsgesetz and the EU NIS-2 directive for rapid detection, reporting, and remediation of significant events.
+
 Thank you for helping us keep the Portfolio platform secure.
