@@ -22,6 +22,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
 import type { Certificate } from "@/types/database"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 interface EditCertificatePageProps {
   params: {
@@ -186,26 +188,26 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
 
   if (isLoading) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Certificate" text="Loading certificate details..." />
         <div className="flex items-center justify-center h-32">
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   if (!certificate) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Certificate" text="Certificate not found" />
         <div className="flex flex-col items-center justify-center h-32 gap-4">
-          <p>The requested certificate could not be found.</p>
+          <p className="text-muted-foreground">The requested certificate could not be found.</p>
           <Link href="/dashboard/certificates">
             <Button>Back to Certificates</Button>
           </Link>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
@@ -216,7 +218,7 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
   }
 
   return (
-    <div>
+    <AnimatedSection className="space-y-6">
       <DashboardHeader heading="Edit Certificate" text="Update your certificate details">
         <Link href="/dashboard/certificates">
           <Button variant="outline" size="sm" className="gap-1">
@@ -230,65 +232,69 @@ export default function EditCertificatePage({ params }: EditCertificatePageProps
           <CardDescription>Update the details of your certificate.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Certificate Name</Label>
-              <Input
-                id="name"
-                name="name"
-                defaultValue={certificate.name}
-                placeholder="Certificate name"
-                required
+          <CardContent>
+            <AnimatedList className="space-y-4" initialDelay={0.1}>
+              <div className="space-y-2">
+                <Label htmlFor="name">Certificate Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={certificate.name}
+                  placeholder="Certificate name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="issuer">Issuer</Label>
+                <Input
+                  id="issuer"
+                  name="issuer"
+                  defaultValue={certificate.issuer}
+                  placeholder="Certificate issuer"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="date">Date</Label>
+                <Input
+                  id="date"
+                  name="date"
+                  type="date"
+                  defaultValue={formatDateForInput(certificate.date)}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="link">Certificate Link</Label>
+                <Input
+                  id="link"
+                  name="link"
+                  defaultValue={certificate.link || ""}
+                  placeholder="https://example.com/certificate"
+                />
+              </div>
+              <FileUpload
+                id="certificate-image"
+                label="Certificate Image"
+                value={imageUrl}
+                onChange={setImageUrl}
+                accept="image/*"
+                maxSize={2}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="issuer">Issuer</Label>
-              <Input
-                id="issuer"
-                name="issuer"
-                defaultValue={certificate.issuer}
-                placeholder="Certificate issuer"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="date">Date</Label>
-              <Input
-                id="date"
-                name="date"
-                type="date"
-                defaultValue={formatDateForInput(certificate.date)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="link">Certificate Link</Label>
-              <Input
-                id="link"
-                name="link"
-                defaultValue={certificate.link || ""}
-                placeholder="https://example.com/certificate"
-              />
-            </div>
-            <FileUpload
-              id="certificate-image"
-              label="Certificate Image"
-              value={imageUrl}
-              onChange={setImageUrl}
-              accept="image/*"
-              maxSize={2}
-            />
+            </AnimatedList>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete Certificate
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+          <CardFooter>
+            <AnimatedList className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between" stagger={0.12}>
+              <Button type="button" variant="destructive" onClick={handleDelete}>
+                Delete Certificate
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </AnimatedList>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AnimatedSection>
   )
 }

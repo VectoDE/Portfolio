@@ -6,6 +6,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Code2, Eye, EyeOff, KeyRound, Mail, User } from "lucide-react"
+import { motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -81,15 +82,22 @@ export default function RegisterPage() {
           <span>Tim Hauke</span>
         </Link>
       </div>
-      <Card className="w-full max-w-md relative z-10 bg-background/80 backdrop-blur-sm">
-        <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-          <CardDescription>
-            Create a free community profile to comment on projects, add reactions, and stay close to upcoming launches.
-          </CardDescription>
-        </CardHeader>
-        <form onSubmit={onSubmit}>
-          <CardContent className="space-y-4">
+      <motion.div
+        initial={{ opacity: 0, y: 32, scale: 0.94 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        whileHover={{ scale: 1.02 }}
+        className="w-full max-w-md relative z-10"
+      >
+        <Card className="bg-background/80 backdrop-blur-sm shadow-xl">
+          <CardHeader className="space-y-1">
+            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
+            <CardDescription>
+              Create a free community profile to comment on projects, add reactions, and stay close to upcoming launches.
+            </CardDescription>
+          </CardHeader>
+          <form onSubmit={onSubmit}>
+            <CardContent className="space-y-4">
             <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-primary">Good to know</p>
               <p>
@@ -156,19 +164,20 @@ export default function RegisterPage() {
               </div>
             </div>
           </CardContent>
-          <CardFooter className="flex flex-col space-y-4">
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading ? "Creating account..." : "Create account"}
-            </Button>
-            <div className="text-center text-sm">
-              Already have an account?{" "}
-              <Link href="/login" className="underline">
-                Login
-              </Link>
-            </div>
-          </CardFooter>
-        </form>
-      </Card>
+            <CardFooter className="flex flex-col space-y-4">
+              <Button className="w-full" type="submit" disabled={isLoading}>
+                {isLoading ? "Creating account..." : "Create account"}
+              </Button>
+              <div className="text-center text-sm">
+                Already have an account?{" "}
+                <Link href="/login" className="underline">
+                  Login
+                </Link>
+              </div>
+            </CardFooter>
+          </form>
+        </Card>
+      </motion.div>
     </div>
   )
 }

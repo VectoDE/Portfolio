@@ -4,6 +4,7 @@ import UnsubscribeClient from "@/components/unsubscribe-client"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { AnimatedSection } from "@/components/animated-section"
 
 export const metadata: Metadata = {
   title: "Manage newsletter settings",
@@ -26,13 +27,13 @@ export default function UnsubscribePage() {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6 max-w-md mx-auto">
               <Suspense fallback={<UnsubscribeLoading />}>
                 <UnsubscribeClient />
               </Suspense>
             </div>
-          </section>
+          </AnimatedSection>
         </main>
 
         <SiteFooter />

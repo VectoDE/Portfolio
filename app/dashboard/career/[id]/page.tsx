@@ -22,6 +22,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 interface EditCareerPageProps {
   params: {
@@ -214,26 +216,26 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
 
   if (isLoading) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Career Entry" text="Loading career entry details..." />
         <div className="flex items-center justify-center h-32">
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   if (!careerEntry) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Career Entry" text="Career entry not found" />
         <div className="flex flex-col items-center justify-center h-32 gap-4">
-          <p>The requested career entry could not be found.</p>
+          <p className="text-muted-foreground">The requested career entry could not be found.</p>
           <Link href="/dashboard/career">
             <Button>Back to Career</Button>
           </Link>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
@@ -245,7 +247,7 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
   }
 
   return (
-    <div>
+    <AnimatedSection className="space-y-6">
       <DashboardHeader heading="Edit Career Entry" text="Update your career position details">
         <Link href="/dashboard/career">
           <Button variant="outline" size="sm" className="gap-1">
@@ -259,100 +261,102 @@ export default function EditCareerPage({ params }: EditCareerPageProps) {
           <CardDescription>Update the details of your career position.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="position">Position</Label>
-              <Input
-                id="position"
-                name="position"
-                defaultValue={careerEntry.position}
-                placeholder="Job position"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="company">Company</Label>
-              <Input
-                id="company"
-                name="company"
-                defaultValue={careerEntry.company}
-                placeholder="Company name"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="location">Location</Label>
-              <Input
-                id="location"
-                name="location"
-                defaultValue={careerEntry.location || ""}
-                placeholder="City, Country"
-              />
-            </div>
-            <FileUpload
-              id="company-logo"
-              label="Company Logo"
-              value={logoUrl}
-              onChange={setLogoUrl}
-              accept="image/*"
-              maxSize={1}
-            />
-            <div className="space-y-2">
-              <Label htmlFor="startDate">Start Date</Label>
-              <Input
-                id="startDate"
-                name="startDate"
-                type="date"
-                defaultValue={formatDateForInput(careerEntry.startDate)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <div className="flex items-center space-x-2 pb-2">
-                <input
-                  id="currentPosition"
-                  type="checkbox"
-                  checked={isPresentPosition}
-                  onChange={(e) => setIsPresentPosition(e.target.checked)}
-                  className="h-4 w-4 rounded border-gray-300"
+          <CardContent>
+            <AnimatedList className="space-y-4" initialDelay={0.1}>
+              <div className="space-y-2">
+                <Label htmlFor="position">Position</Label>
+                <Input
+                  id="position"
+                  name="position"
+                  defaultValue={careerEntry.position}
+                  placeholder="Job position"
+                  required
                 />
-                <Label htmlFor="currentPosition">Current Position</Label>
               </div>
-              {!isPresentPosition && (
-                <>
-                  <Label htmlFor="endDate">End Date</Label>
-                  <Input
-                    id="endDate"
-                    name="endDate"
-                    type="date"
-                    defaultValue={formatDateForInput(careerEntry.endDate)}
-                    required={!isPresentPosition}
-                  />
-                </>
-              )}
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
-                name="description"
-                defaultValue={careerEntry.description}
-                placeholder="Job description and responsibilities"
-                rows={5}
-                required
+              <div className="space-y-2">
+                <Label htmlFor="company">Company</Label>
+                <Input
+                  id="company"
+                  name="company"
+                  defaultValue={careerEntry.company}
+                  placeholder="Company name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="location">Location</Label>
+                <Input
+                  id="location"
+                  name="location"
+                  defaultValue={careerEntry.location || ""}
+                  placeholder="City, Country"
+                />
+              </div>
+              <FileUpload
+                id="company-logo"
+                label="Company Logo"
+                value={logoUrl}
+                onChange={setLogoUrl}
+                accept="image/*"
+                maxSize={1}
               />
-            </div>
+              <AnimatedList className="grid grid-cols-1 gap-4 md:grid-cols-2" stagger={0.12}>
+                <div className="space-y-2">
+                  <Label htmlFor="startDate">Start Date</Label>
+                  <Input
+                    id="startDate"
+                    name="startDate"
+                    type="date"
+                    defaultValue={formatDateForInput(careerEntry.startDate)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="endDate">End Date</Label>
+                  <div className="flex items-center gap-3 rounded-lg border border-primary/10 bg-muted/20 p-3">
+                    <Input
+                      id="endDate"
+                      name="endDate"
+                      type="date"
+                      defaultValue={formatDateForInput(careerEntry.endDate)}
+                      disabled={isPresentPosition}
+                    />
+                    <label className="flex items-center gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        checked={isPresentPosition}
+                        onChange={(event) => setIsPresentPosition(event.target.checked)}
+                      />
+                      Present
+                    </label>
+                  </div>
+                </div>
+              </AnimatedList>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  name="description"
+                  defaultValue={careerEntry.description}
+                  placeholder="Job description and responsibilities"
+                  rows={5}
+                  required
+                />
+              </div>
+            </AnimatedList>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete Entry
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+          <CardFooter>
+            <AnimatedList className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between" stagger={0.12}>
+              <Button type="button" variant="destructive" onClick={handleDelete}>
+                Delete Entry
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </AnimatedList>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AnimatedSection>
   )
 }

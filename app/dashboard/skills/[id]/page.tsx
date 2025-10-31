@@ -29,6 +29,8 @@ import {
 import { useToast } from "@/components/ui/use-toast"
 import { DashboardHeader } from "@/components/dashboard-header"
 import type { Skill } from "@/types/database"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 // Get all available Lucide icons
 const iconNames = Object.keys(LucideIcons).filter(
@@ -206,31 +208,31 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
 
   if (isLoading) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Skill" text="Loading skill details..." />
         <div className="flex items-center justify-center h-32">
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   if (!skill) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Skill" text="Skill not found" />
         <div className="flex flex-col items-center justify-center h-32 gap-4">
-          <p>The requested skill could not be found.</p>
+          <p className="text-muted-foreground">The requested skill could not be found.</p>
           <Link href="/dashboard/skills">
             <Button>Back to Skills</Button>
           </Link>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   return (
-    <div>
+    <AnimatedSection className="space-y-6">
       <DashboardHeader heading="Edit Skill" text="Update your skill details">
         <Link href="/dashboard/skills">
           <Button variant="outline" size="sm" className="gap-1">
@@ -244,90 +246,100 @@ export default function EditSkillPage({ params }: EditSkillPageProps) {
           <CardDescription>Update the details of your skill.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="name">Skill Name</Label>
-              <Input
-                id="name"
-                name="name"
-                defaultValue={skill.name}
-                placeholder="Skill name"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="category">Category</Label>
-              <Select name="category" defaultValue={skill.category}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Frontend">Frontend</SelectItem>
-                  <SelectItem value="Backend">Backend</SelectItem>
-                  <SelectItem value="Database">Database</SelectItem>
-                  <SelectItem value="DevOps">DevOps</SelectItem>
-                  <SelectItem value="Language">Language</SelectItem>
-                  <SelectItem value="Other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="level">Level</Label>
-              <Select name="level" defaultValue={skill.level}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select level" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Beginner">Beginner</SelectItem>
-                  <SelectItem value="Intermediate">Intermediate</SelectItem>
-                  <SelectItem value="Advanced">Advanced</SelectItem>
-                  <SelectItem value="Expert">Expert</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="years">Years of Experience</Label>
-              <Input
-                id="years"
-                name="years"
-                type="number"
-                min="0"
-                step="0.5"
-                defaultValue={skill.years}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="iconName">Icon</Label>
-              <div className="flex items-center gap-4">
-                <div className="flex h-10 w-10 items-center justify-center rounded-md border bg-muted">
-                  {IconComponent && <IconComponent className="h-6 w-6" />}
-                </div>
-                <Select value={selectedIcon} onValueChange={setSelectedIcon}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select icon" />
+          <CardContent>
+            <AnimatedList className="space-y-4" initialDelay={0.1}>
+              <div className="space-y-2">
+                <Label htmlFor="name">Skill Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  defaultValue={skill.name}
+                  placeholder="Skill name"
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Select name="category" defaultValue={skill.category}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
-                  <SelectContent className="max-h-[300px]">
-                    {iconNames.map((iconName) => (
-                      <SelectItem key={iconName} value={iconName}>
-                        {iconName}
-                      </SelectItem>
-                    ))}
+                  <SelectContent>
+                    <SelectItem value="Frontend">Frontend</SelectItem>
+                    <SelectItem value="Backend">Backend</SelectItem>
+                    <SelectItem value="Database">Database</SelectItem>
+                    <SelectItem value="DevOps">DevOps</SelectItem>
+                    <SelectItem value="Language">Language</SelectItem>
+                    <SelectItem value="Other">Other</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-            </div>
+              <AnimatedList className="grid grid-cols-1 gap-4 md:grid-cols-2" stagger={0.12}>
+                <div className="space-y-2">
+                  <Label htmlFor="level">Level</Label>
+                  <Select name="level" defaultValue={skill.level}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select level" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Beginner">Beginner</SelectItem>
+                      <SelectItem value="Intermediate">Intermediate</SelectItem>
+                      <SelectItem value="Advanced">Advanced</SelectItem>
+                      <SelectItem value="Expert">Expert</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="years">Years of Experience</Label>
+                  <Input
+                    id="years"
+                    name="years"
+                    type="number"
+                    min="0"
+                    step="0.5"
+                    defaultValue={skill.years}
+                    required
+                  />
+                </div>
+              </AnimatedList>
+              <div className="space-y-2">
+                <Label htmlFor="iconName">Icon</Label>
+                <AnimatedList className="flex flex-col gap-4 md:flex-row" stagger={0.12} initialDelay={0.05}>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-md border border-primary/10 bg-muted/40">
+                    {IconComponent ? (
+                      <IconComponent className="h-6 w-6 text-primary" />
+                    ) : (
+                      <span className="text-xs text-muted-foreground">Preview</span>
+                    )}
+                  </div>
+                  <Select value={selectedIcon} onValueChange={setSelectedIcon}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Select icon" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-[300px]">
+                      {iconNames.map((iconName) => (
+                        <SelectItem key={iconName} value={iconName}>
+                          {iconName}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </AnimatedList>
+              </div>
+            </AnimatedList>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete Skill
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+          <CardFooter>
+            <AnimatedList className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between" stagger={0.12}>
+              <Button type="button" variant="destructive" onClick={handleDelete}>
+                Delete Skill
+              </Button>
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </AnimatedList>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AnimatedSection>
   )
 }

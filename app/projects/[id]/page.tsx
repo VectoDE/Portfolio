@@ -15,6 +15,8 @@ import { CodeBlock } from "@/components/code-block"
 import { ProjectFeedback } from "@/components/project-feedback"
 import { ShareProject } from "@/components/share-project"
 import { getSiteUrl, siteProfile } from "@/lib/site"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 interface ProjectPageProps {
   params: Promise<{
@@ -142,9 +144,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-12">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
-              <div className="flex flex-col space-y-8">
+              <AnimatedList className="flex flex-col space-y-12" initialDelay={0.1}>
                 <Link
                   href="/projects"
                   className="flex items-center gap-2 text-primary hover:underline w-fit"
@@ -153,9 +155,9 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   <span>Back to Projects</span>
                 </Link>
 
-                <div className="flex flex-col md:flex-row gap-6 items-start">
+                <AnimatedList className="flex flex-col md:flex-row gap-6 items-start" stagger={0.12}>
                   {project.logoUrl && (
-                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-white shadow-md flex-shrink-0">
+                    <div className="w-24 h-24 rounded-lg overflow-hidden bg-white/80 dark:bg-slate-900/60 shadow-xl ring-1 ring-primary/20 flex-shrink-0">
                       <Image
                         src={project.logoUrl || "/placeholder.svg"}
                         alt={`${project.title} logo`}
@@ -165,43 +167,50 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       />
                     </div>
                   )}
-                  <div className="space-y-2 flex-1">
-                    <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                      {project.title}
-                    </h1>
+                  <div className="space-y-4 flex-1">
+                    <div className="space-y-3">
+                      <p className="uppercase tracking-[0.3em] text-xs text-muted-foreground">Case Study</p>
+                      <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+                        {project.title}
+                      </h1>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.split(", ").map((tech: string) => (
                         <span
                           key={tech}
-                          className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary"
+                          className="inline-flex items-center rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary shadow-sm"
                         >
                           {tech}
                         </span>
                       ))}
                     </div>
                   </div>
-                </div>
+                </AnimatedList>
 
-                <div className="aspect-video relative bg-muted rounded-lg overflow-hidden shadow-xl">
+                <div className="relative aspect-video overflow-hidden rounded-2xl border border-primary/20 bg-muted/40 shadow-2xl">
                   <Image
                     src={project.imageUrl || "/placeholder.svg?height=600&width=600"}
                     alt={project.title}
                     width={1280}
                     height={720}
                     className="object-cover w-full h-full"
+                    priority
                   />
+                  <div className="absolute inset-0 bg-gradient-to-tr from-purple-600/10 via-transparent to-blue-600/10" />
                 </div>
 
-                <div className="space-y-4">
-                  <h2 className="text-2xl font-bold">Project Overview</h2>
-                  <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
-                    {project.description}
-                  </p>
+                <AnimatedList className="space-y-6" stagger={0.1}>
+                  <div className="space-y-4">
+                    <h2 className="text-2xl font-bold">Project Overview</h2>
+                    <p className="text-gray-500 dark:text-gray-400 leading-relaxed">
+                      {project.description}
+                    </p>
+                  </div>
 
                   <div className="flex flex-wrap gap-4">
                     {project.link && (
                       <Link href={project.link} target="_blank" rel="noopener noreferrer">
-                        <Button className="gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
+                        <Button className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300 shadow-lg">
                           Live Demo <ExternalLink className="h-4 w-4" />
                         </Button>
                       </Link>
@@ -210,7 +219,7 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                       <Link href={project.githubUrl} target="_blank" rel="noopener noreferrer">
                         <Button
                           variant="outline"
-                          className="gap-1 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
+                          className="gap-2 border-primary/40 hover:border-primary transition-colors duration-300 shadow-sm"
                         >
                           View Code <Github className="h-4 w-4" />
                         </Button>
@@ -219,26 +228,34 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                   </div>
 
                   <ShareProject projectTitle={project.title} projectUrl={projectUrl} />
-                </div>
+                </AnimatedList>
 
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                  <CardContent className="p-6 space-y-6">
+                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-2xl">
+                  <CardContent className="p-6 space-y-8">
                     <h2 className="text-2xl font-bold">Project Details</h2>
-                    <div className="space-y-6">
-                      {/* Features section */}
+                    <AnimatedList className="space-y-6" stagger={0.08}>
                       <div>
                         <h3 className="text-lg font-semibold">Features</h3>
                         {project.features && project.features.length > 0 ? (
-                          <ul className="list-disc pl-5 mt-2 space-y-1 text-gray-500 dark:text-gray-400">
+                          <AnimatedList
+                            className="mt-3 space-y-3"
+                            stagger={0.06}
+                            initialDelay={0.05}
+                          >
                             {project.features.map((feature: ProjectFeature) => (
-                              <li key={feature.id}>
+                              <div
+                                key={feature.id}
+                                className="rounded-lg border border-primary/10 bg-background/80 px-4 py-3 shadow-sm"
+                              >
                                 <span className="font-medium">{feature.name}</span>
                                 {feature.description && (
-                                  <span className="block text-sm ml-2">{feature.description}</span>
+                                  <span className="block text-sm text-muted-foreground mt-1">
+                                    {feature.description}
+                                  </span>
                                 )}
-                              </li>
+                              </div>
                             ))}
-                          </ul>
+                          </AnimatedList>
                         ) : (
                           <p className="mt-2 text-gray-500 dark:text-gray-400 italic">
                             No specific features listed for this project.
@@ -246,7 +263,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         )}
                       </div>
 
-                      {/* Technologies section */}
                       <div>
                         <h3 className="text-lg font-semibold">Technologies Used</h3>
                         <p className="mt-2 text-gray-500 dark:text-gray-400">
@@ -254,7 +270,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </p>
                       </div>
 
-                      {/* Development Process section */}
                       <div>
                         <h3 className="text-lg font-semibold">Development Process</h3>
                         {project.developmentProcess ? (
@@ -268,7 +283,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         )}
                       </div>
 
-                      {/* Challenges Faced section - only show if data exists */}
                       {project.challengesFaced && (
                         <div>
                           <h3 className="text-lg font-semibold">Challenges Faced</h3>
@@ -278,7 +292,6 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </div>
                       )}
 
-                      {/* Future Plans section - only show if data exists */}
                       {project.futurePlans && (
                         <div>
                           <h3 className="text-lg font-semibold">Future Plans</h3>
@@ -288,31 +301,32 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         </div>
                       )}
 
-                      {/* Project Logs section - only show if data exists */}
                       {project.logContent && (
                         <div>
                           <h3 className="text-lg font-semibold flex items-center gap-2">
                             <Terminal className="h-4 w-4" />
                             Project Logs
                           </h3>
-                          <div className="mt-2">
+                          <div className="mt-3 overflow-hidden rounded-lg border border-primary/10 bg-background/80">
                             <CodeBlock language="shell" code={project.logContent} />
                           </div>
                         </div>
                       )}
-                    </div>
+                    </AnimatedList>
                   </CardContent>
                 </Card>
 
-                <ProjectFeedback
-                  projectId={project.id}
-                  initialComments={initialComments}
-                  initialReactions={initialReactions}
-                />
-                <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-              </div>
+                <AnimatedSection delay={0.05} className="space-y-6">
+                  <ProjectFeedback
+                    projectId={project.id}
+                    initialComments={initialComments}
+                    initialReactions={initialReactions}
+                  />
+                </AnimatedSection>
+              </AnimatedList>
+              <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
             </div>
-          </section>
+          </AnimatedSection>
         </main>
 
         <SiteFooter />

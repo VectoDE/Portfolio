@@ -27,6 +27,8 @@ import { useToast } from "@/components/ui/use-toast"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export default function ContactPage() {
   const { toast } = useToast()
@@ -115,7 +117,7 @@ export default function ContactPage() {
         <MainNav />
 
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -128,7 +130,7 @@ export default function ContactPage() {
                 </div>
               </div>
 
-              <div className="grid gap-10 md:grid-cols-2 lg:gap-16">
+              <AnimatedList className="grid gap-10 md:grid-cols-2 lg:gap-16" stagger={0.18}>
                 <div className="space-y-6">
                   <div className="space-y-2">
                     <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
@@ -138,7 +140,7 @@ export default function ContactPage() {
                       Feel free to reach out through any of these channels
                     </p>
                   </div>
-                  <div className="grid gap-6">
+                  <AnimatedList className="grid gap-6" initialDelay={0.1}>
                     <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
                       <CardContent className="p-6 flex items-center gap-4">
                         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10">
@@ -180,7 +182,7 @@ export default function ContactPage() {
                         </div>
                       </CardContent>
                     </Card>
-                  </div>
+                  </AnimatedList>
                   <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
                     <CardContent className="p-6 space-y-4">
                       <div className="flex items-center gap-3">
@@ -191,7 +193,7 @@ export default function ContactPage() {
                         Every enquiry lands directly in my inbox. I review project details personally before we jump on a call so
                         the conversation focuses on solutions, not introductions.
                       </p>
-                      <div className="space-y-2 text-sm text-muted-foreground">
+                      <AnimatedList className="space-y-2 text-sm text-muted-foreground" stagger={0.12}>
                         <div className="flex items-start gap-2">
                           <Lightbulb className="mt-0.5 h-4 w-4 text-primary" />
                           <span>Share your mission, current challenges, and desired launch window—context helps me prepare.</span>
@@ -204,7 +206,7 @@ export default function ContactPage() {
                           <HeartHandshake className="mt-0.5 h-4 w-4 text-primary" />
                           <span>We collaborate transparently—no hidden costs, and you keep full access to code and documentation.</span>
                         </div>
-                      </div>
+                      </AnimatedList>
                     </CardContent>
                   </Card>
                 </div>
@@ -305,13 +307,13 @@ export default function ContactPage() {
                     </CardContent>
                   </Card>
                 </div>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
-              <div className="grid gap-12 md:grid-cols-[1.2fr_1fr] md:items-center">
+              <AnimatedList className="grid gap-12 md:grid-cols-[1.2fr_1fr] md:items-center" stagger={0.18}>
                 <div className="space-y-6">
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
                     Let's tell your story together
@@ -332,7 +334,7 @@ export default function ContactPage() {
                     <p className="text-sm text-muted-foreground">
                       These links offer a deeper look at how I work and what to expect.
                     </p>
-                    <div className="grid gap-3">
+                    <AnimatedList className="grid gap-3" stagger={0.1}>
                       <Link
                         href="/projects"
                         className="text-sm font-medium text-primary underline-offset-4 hover:underline"
@@ -345,12 +347,12 @@ export default function ContactPage() {
                       <Link href="/#faq" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
                         Read common questions and support options
                       </Link>
-                    </div>
+                    </AnimatedList>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
         </main>
 
         <SiteFooter />

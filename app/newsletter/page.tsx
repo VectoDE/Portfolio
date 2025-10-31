@@ -7,6 +7,8 @@ import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { NewsletterForm } from "@/components/newsletter-form"
 import { Card, CardContent } from "@/components/ui/card"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export const metadata: Metadata = {
   title: "Newsletter Hub",
@@ -34,7 +36,7 @@ export default function NewsletterPage() {
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
         <main className="flex-1">
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center">
                 <div className="space-y-2">
@@ -51,11 +53,11 @@ export default function NewsletterPage() {
                   </p>
                 </div>
               </div>
-              <div className="mt-12 grid gap-8 lg:grid-cols-[2fr_3fr]">
+              <AnimatedList className="mt-12 grid gap-8 lg:grid-cols-[2fr_3fr]" stagger={0.14}>
                 <Card className="border border-purple-200 dark:border-purple-800 bg-background/60 backdrop-blur-sm">
                   <CardContent className="p-6 space-y-4">
                     <h2 className="text-2xl font-semibold">Why subscribe?</h2>
-                    <div className="space-y-3 text-sm text-muted-foreground">
+                    <AnimatedList className="space-y-3 text-sm text-muted-foreground" stagger={0.12}>
                       <div className="flex items-start gap-2">
                         <CheckCircle className="mt-0.5 h-4 w-4 text-primary" />
                         <span>Be the first to review new product launches and detailed case studies.</span>
@@ -68,7 +70,7 @@ export default function NewsletterPage() {
                         <ShieldCheck className="mt-0.5 h-4 w-4 text-primary" />
                         <span>One-click unsubscribe and transparent data usage, compliant with GDPR.</span>
                       </div>
-                    </div>
+                    </AnimatedList>
                     <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-left text-sm text-muted-foreground">
                       <p className="font-medium text-primary">Already on the list?</p>
                       <p>
@@ -86,13 +88,13 @@ export default function NewsletterPage() {
                     <NewsletterForm />
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
             <div className="container px-4 md:px-6">
-              <div className="grid gap-8 md:grid-cols-3">
+              <AnimatedList className="grid gap-8 md:grid-cols-3" initialDelay={0.08}>
                 <Card className="bg-background/80 border border-purple-200 dark:border-purple-800">
                   <CardContent className="p-6 space-y-3">
                     <MailPlus className="h-6 w-6 text-primary" />
@@ -120,11 +122,11 @@ export default function NewsletterPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
 
-          <section className="w-full py-12 md:py-24 lg:py-32">
+          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
             <div className="container px-4 md:px-6">
               <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
                 <div className="space-y-2">
@@ -137,7 +139,7 @@ export default function NewsletterPage() {
                 </div>
               </div>
 
-              <div className="grid gap-8 md:grid-cols-2">
+              <AnimatedList className="grid gap-8 md:grid-cols-2" initialDelay={0.08}>
                 <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
                   <CardContent className="p-6 space-y-3 text-left">
                     <Sparkles className="h-8 w-8 text-primary" />
@@ -157,9 +159,9 @@ export default function NewsletterPage() {
                     </p>
                   </CardContent>
                 </Card>
-              </div>
+              </AnimatedList>
             </div>
-          </section>
+          </AnimatedSection>
         </main>
         <SiteFooter />
       </div>

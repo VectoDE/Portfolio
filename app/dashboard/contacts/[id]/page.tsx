@@ -21,6 +21,8 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Separator } from "@/components/ui/separator"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 interface Contact {
   id: string
@@ -269,7 +271,7 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
   }
 
   return (
-    <div className="space-y-6">
+    <AnimatedSection className="space-y-6">
       <DashboardHeader heading="Contact Details" text="View and manage contact message">
         <Link href="/dashboard/contacts">
           <Button variant="outline" size="sm" className="gap-1">
@@ -279,19 +281,21 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
       </DashboardHeader>
 
       {loading ? (
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-          <CardHeader>
-            <Skeleton className="h-8 w-1/3" />
-            <Skeleton className="h-4 w-1/4" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-full" />
-            <Skeleton className="h-4 w-3/4" />
-          </CardContent>
-        </Card>
+        <AnimatedSection className="space-y-4">
+          <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+            <CardHeader>
+              <Skeleton className="h-8 w-1/3" />
+              <Skeleton className="h-4 w-1/4" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-full" />
+              <Skeleton className="h-4 w-3/4" />
+            </CardContent>
+          </Card>
+        </AnimatedSection>
       ) : contact ? (
-        <div className="grid gap-6">
+        <AnimatedList className="grid gap-6" initialDelay={0.05}>
           <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -304,68 +308,74 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
                 <div>{getStatusBadge(contact.status)}</div>
               </div>
             </CardHeader>
-            <CardContent className="space-y-6">
-              <div className="flex flex-col gap-1 rounded-lg border p-4">
-                <div className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-muted-foreground" />
-                  <span className="font-medium">{contact.name}</span>
+            <CardContent>
+              <AnimatedList className="space-y-6" stagger={0.1}>
+                <div className="flex flex-col gap-1 rounded-lg border border-primary/10 bg-muted/20 p-4">
+                  <div className="flex items-center gap-2">
+                    <User className="h-5 w-5 text-muted-foreground" />
+                    <span className="font-medium">{contact.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Mail className="h-5 w-5 text-muted-foreground" />
+                    <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
+                      {contact.email}
+                    </a>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Mail className="h-5 w-5 text-muted-foreground" />
-                  <a href={`mailto:${contact.email}`} className="text-primary hover:underline">
-                    {contact.email}
-                  </a>
+
+                <div>
+                  <h3 className="mb-2 font-medium">Message</h3>
+                  <div className="rounded-lg border border-primary/10 bg-background/60 p-4 whitespace-pre-wrap shadow-sm">
+                    {contact.message}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <h3 className="mb-2 font-medium">Message</h3>
-                <div className="rounded-lg border p-4 whitespace-pre-wrap">{contact.message}</div>
-              </div>
+                <Separator />
 
-              <Separator />
-
-              <div>
-                <h3 className="mb-2 font-medium">Notes</h3>
-                <Textarea
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Add your notes here..."
-                  rows={4}
-                  className="resize-none"
-                />
-                <Button onClick={saveNotes} disabled={savingNotes} className="mt-2">
-                  {savingNotes ? "Saving..." : "Save Notes"}
-                </Button>
-              </div>
+                <div>
+                  <h3 className="mb-2 font-medium">Notes</h3>
+                  <Textarea
+                    value={notes}
+                    onChange={(e) => setNotes(e.target.value)}
+                    placeholder="Add your notes here..."
+                    rows={4}
+                    className="resize-none"
+                  />
+                  <Button onClick={saveNotes} disabled={savingNotes} className="mt-2">
+                    {savingNotes ? "Saving..." : "Save Notes"}
+                  </Button>
+                </div>
+              </AnimatedList>
             </CardContent>
-            <CardFooter className="flex justify-between border-t pt-6">
-              <div className="flex flex-wrap gap-2">
-                <Button
-                  variant="outline"
-                  onClick={() => handleStatusChange("read")}
-                  disabled={contact.status === "read"}
-                >
-                  <Eye className="mr-2 h-4 w-4" /> Mark as Read
+            <CardFooter>
+              <AnimatedList className="flex w-full flex-col gap-4 border-t border-primary/10 pt-6 sm:flex-row sm:items-center sm:justify-between" stagger={0.12}>
+                <div className="flex flex-wrap gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => handleStatusChange("read")}
+                    disabled={contact.status === "read"}
+                  >
+                    <Eye className="mr-2 h-4 w-4" /> Mark as Read
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleStatusChange("replied")}
+                    disabled={contact.status === "replied"}
+                  >
+                    <CheckCircle className="mr-2 h-4 w-4" /> Mark as Replied
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleStatusChange("archived")}
+                    disabled={contact.status === "archived"}
+                  >
+                    <Archive className="mr-2 h-4 w-4" /> Archive
+                  </Button>
+                </div>
+                <Button variant="destructive" onClick={handleDelete}>
+                  <Trash2 className="mr-2 h-4 w-4" /> Delete
                 </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleStatusChange("replied")}
-                  disabled={contact.status === "replied"}
-                >
-                  <CheckCircle className="mr-2 h-4 w-4" /> Mark as Replied
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => handleStatusChange("archived")}
-                  disabled={contact.status === "archived"}
-                >
-                  <Archive className="mr-2 h-4 w-4" /> Archive
-                </Button>
-              </div>
-              <Button variant="destructive" onClick={handleDelete}>
-                <Trash2 className="mr-2 h-4 w-4" /> Delete
-              </Button>
+              </AnimatedList>
             </CardFooter>
           </Card>
 
@@ -375,19 +385,21 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
               <CardDescription>Send an email response to this contact</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <AnimatedList className="space-y-4" stagger={0.1}>
+                <AnimatedList className="grid grid-cols-1 gap-4 md:grid-cols-2" stagger={0.1} initialDelay={0.05}>
                   <div>
                     <label className="text-sm font-medium">To</label>
-                    <div className="mt-1 rounded-md border p-2">{contact.email}</div>
+                    <div className="mt-1 rounded-md border border-primary/10 bg-background/60 p-2">
+                      {contact.email}
+                    </div>
                   </div>
                   <div>
                     <label className="text-sm font-medium">Subject</label>
-                    <div className="mt-1 rounded-md border p-2">
+                    <div className="mt-1 rounded-md border border-primary/10 bg-background/60 p-2">
                       Re: {contact.subject || "No Subject"}
                     </div>
                   </div>
-                </div>
+                </AnimatedList>
                 <div>
                   <label className="text-sm font-medium">Message</label>
                   <Textarea
@@ -397,7 +409,7 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
                     defaultValue={`Dear ${contact.name},\n\nThank you for your message. \n\n\n\nBest regards,\nYour Name`}
                   />
                 </div>
-              </div>
+              </AnimatedList>
             </CardContent>
             <CardFooter>
               <Button
@@ -413,20 +425,22 @@ export default function ContactDetailsPage({ params }: ContactDetailsPageProps) 
               </Button>
             </CardFooter>
           </Card>
-        </div>
+        </AnimatedList>
       ) : (
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-          <CardContent className="flex flex-col items-center justify-center py-10">
-            <h3 className="text-lg font-medium">Contact not found</h3>
-            <p className="text-muted-foreground">
-              The contact you're looking for doesn't exist or has been deleted.
-            </p>
-            <Button asChild className="mt-4">
-              <Link href="/dashboard/contacts">Back to Contacts</Link>
-            </Button>
-          </CardContent>
-        </Card>
+        <AnimatedSection>
+          <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
+            <CardContent className="flex flex-col items-center justify-center py-10 text-center space-y-2">
+              <h3 className="text-lg font-medium">Contact not found</h3>
+              <p className="text-muted-foreground">
+                The contact you're looking for doesn't exist or has been deleted.
+              </p>
+              <Button asChild className="mt-2">
+                <Link href="/dashboard/contacts">Back to Contacts</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </AnimatedSection>
       )}
-    </div>
+    </AnimatedSection>
   )
 }

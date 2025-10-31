@@ -3,6 +3,8 @@ import type { Metadata } from "next"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 export const metadata: Metadata = {
   title: "Impressum",
@@ -65,7 +67,7 @@ export default function ImprintPage() {
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
         <main className="flex-1 py-16">
-          <section className="container space-y-10 px-4 md:px-6">
+          <AnimatedSection className="container space-y-10 px-4 md:px-6">
             <header className="space-y-4 text-center">
               <p className="text-sm uppercase tracking-wider text-primary">Rechtliche Hinweise</p>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Impressum</h1>
@@ -74,7 +76,7 @@ export default function ImprintPage() {
               </p>
             </header>
 
-            <div className="space-y-12">
+            <AnimatedList className="space-y-12" initialDelay={0.08}>
               {sections.map((section) => (
                 <article
                   key={section.title}
@@ -95,8 +97,8 @@ export default function ImprintPage() {
                   )}
                 </article>
               ))}
-            </div>
-          </section>
+            </AnimatedList>
+          </AnimatedSection>
         </main>
         <SiteFooter />
       </div>

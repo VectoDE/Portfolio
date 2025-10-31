@@ -25,6 +25,8 @@ import { FileUpload } from "@/components/file-upload"
 import { FeatureInput } from "@/components/feature-input"
 import type { FeatureDraft } from "@/components/feature-input"
 import type { Project } from "@/types/database"
+import { AnimatedSection } from "@/components/animated-section"
+import { AnimatedList } from "@/components/animated-list"
 
 interface EditProjectPageProps {
   params: {
@@ -264,31 +266,31 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
 
   if (isLoading) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Project" text="Loading project details..." />
         <div className="flex items-center justify-center h-32">
-          <p>Loading...</p>
+          <p className="text-muted-foreground">Loading...</p>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   if (!project) {
     return (
-      <div>
+      <AnimatedSection className="space-y-6">
         <DashboardHeader heading="Edit Project" text="Project not found" />
         <div className="flex flex-col items-center justify-center h-32 gap-4">
-          <p>The requested project could not be found.</p>
+          <p className="text-muted-foreground">The requested project could not be found.</p>
           <Link href="/dashboard/projects">
             <Button>Back to Projects</Button>
           </Link>
         </div>
-      </div>
+      </AnimatedSection>
     )
   }
 
   return (
-    <div>
+    <AnimatedSection className="space-y-6">
       <DashboardHeader heading="Edit Project" text="Update your project details">
         <Link href="/dashboard/projects">
           <Button variant="outline" size="sm" className="gap-1">
@@ -302,90 +304,94 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           <CardDescription>Update the details of your project.</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
-          <CardContent className="space-y-6">
-            <div className="space-y-2">
-              <Label htmlFor="title">Title</Label>
-              <Input
-                id="title"
+          <CardContent>
+            <AnimatedList className="space-y-6" initialDelay={0.1}>
+              <div className="space-y-2">
+                <Label htmlFor="title">Title</Label>
+                <Input
+                  id="title"
                 name="title"
                 defaultValue={project.title}
                 placeholder="Project title"
                 required
               />
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="description">Description</Label>
-              <Textarea
-                id="description"
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
                 name="description"
                 defaultValue={project.description}
                 placeholder="Project description"
                 rows={5}
                 required
               />
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="technologies">Technologies</Label>
-              <Input
-                id="technologies"
+              <div className="space-y-2">
+                <Label htmlFor="technologies">Technologies</Label>
+                <Input
+                  id="technologies"
                 name="technologies"
                 defaultValue={project.technologies}
                 placeholder="Next.js, TypeScript, Tailwind CSS"
                 required
               />
-              <p className="text-sm text-muted-foreground">Separate technologies with commas</p>
-            </div>
+                <p className="text-sm text-muted-foreground">Separate technologies with commas</p>
+              </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="link">Project Link</Label>
-                <Input
-                  id="link"
-                  name="link"
-                  defaultValue={project.link || ""}
-                  placeholder="https://example.com/project"
+              <AnimatedList className="grid grid-cols-1 gap-6 md:grid-cols-2" stagger={0.12}>
+                <div className="space-y-2">
+                  <Label htmlFor="link">Project Link</Label>
+                  <Input
+                    id="link"
+                    name="link"
+                    defaultValue={project.link || ""}
+                    placeholder="https://example.com/project"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="githubUrl">GitHub Repository</Label>
+                  <Input
+                    id="githubUrl"
+                    name="githubUrl"
+                    defaultValue={project.githubUrl || ""}
+                    placeholder="https://github.com/username/repo"
+                  />
+                </div>
+              </AnimatedList>
+
+              <AnimatedList className="grid grid-cols-1 gap-6 md:grid-cols-2" stagger={0.12} initialDelay={0.08}>
+                <FileUpload
+                  id="project-image"
+                  label="Project Screenshot"
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  accept="image/*"
+                  maxSize={2}
                 />
+
+                <FileUpload
+                  id="project-logo"
+                  label="Project Logo"
+                  value={logoUrl}
+                  onChange={setLogoUrl}
+                  accept="image/*"
+                  maxSize={1}
+                />
+              </AnimatedList>
+
+              <div className="space-y-4">
+                <Label className="font-medium">Feature Highlights</Label>
+                <FeatureInput features={features} onChange={setFeatures} />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="githubUrl">GitHub Repository</Label>
-                <Input
-                  id="githubUrl"
-                  name="githubUrl"
-                  defaultValue={project.githubUrl || ""}
-                  placeholder="https://github.com/username/repo"
-                />
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <FileUpload
-                id="project-image"
-                label="Project Screenshot"
-                value={imageUrl}
-                onChange={setImageUrl}
-                accept="image/*"
-                maxSize={2}
-              />
-
-              <FileUpload
-                id="project-logo"
-                label="Project Logo"
-                value={logoUrl}
-                onChange={setLogoUrl}
-                accept="image/*"
-                maxSize={1}
-              />
-            </div>
-
-            <FeatureInput features={features} onChange={setFeatures} />
-
-            <div className="space-y-2">
-              <Label htmlFor="developmentProcess">Development Process</Label>
-              <Textarea
-                id="developmentProcess"
+                <Label htmlFor="developmentProcess">Development Process</Label>
+                <Textarea
+                  id="developmentProcess"
                 name="developmentProcess"
                 defaultValue={
                   project.developmentProcess ||
@@ -394,34 +400,34 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                 placeholder="Describe your development process, methodology, and approach"
                 rows={3}
               />
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="challengesFaced">Challenges Faced</Label>
-              <Textarea
-                id="challengesFaced"
+              <div className="space-y-2">
+                <Label htmlFor="challengesFaced">Challenges Faced</Label>
+                <Textarea
+                  id="challengesFaced"
                 name="challengesFaced"
                 defaultValue={project.challengesFaced || ""}
                 placeholder="Describe any challenges you faced during development and how you overcame them"
                 rows={3}
               />
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="futurePlans">Future Plans</Label>
-              <Textarea
-                id="futurePlans"
+              <div className="space-y-2">
+                <Label htmlFor="futurePlans">Future Plans</Label>
+                <Textarea
+                  id="futurePlans"
                 name="futurePlans"
                 defaultValue={project.futurePlans || ""}
                 placeholder="Describe any future plans or improvements for this project"
                 rows={3}
               />
-            </div>
+              </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="log-file">Project Log File</Label>
-              <div className="mt-2 flex flex-col gap-4">
-                {logContent && (
+              <div className="space-y-2">
+                <Label htmlFor="log-file">Project Log File</Label>
+                <div className="mt-2 flex flex-col gap-4">
+                  {logContent && (
                   <div className="relative overflow-hidden rounded-md border p-3 bg-gray-900 text-gray-200">
                     <pre className="text-xs overflow-auto max-h-40">
                       {logContent.slice(0, 500)}
@@ -462,30 +468,33 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                     <p className="text-sm text-muted-foreground">Loading log file...</p>
                   )}
                 </div>
+                </div>
               </div>
-            </div>
 
-            <div className="flex items-center space-x-2">
-              <input
-                id="featured"
-                name="featured"
-                type="checkbox"
-                defaultChecked={project.featured}
-                className="h-4 w-4 rounded border-gray-300"
-              />
-              <Label htmlFor="featured">Featured Project</Label>
-            </div>
+              <div className="flex items-center space-x-2 rounded-lg border border-primary/10 bg-muted/20 p-4">
+                <input
+                  id="featured"
+                  name="featured"
+                  type="checkbox"
+                  defaultChecked={project.featured}
+                  className="h-4 w-4 rounded border-gray-300"
+                />
+                <Label htmlFor="featured">Featured Project</Label>
+              </div>
+            </AnimatedList>
           </CardContent>
-          <CardFooter className="flex flex-col sm:flex-row justify-between gap-4">
-            <Button type="button" variant="destructive" onClick={handleDelete}>
-              Delete Project
-            </Button>
-            <Button type="submit" disabled={isSubmitting || uploadingLog}>
-              {isSubmitting ? "Saving..." : "Save Changes"}
-            </Button>
+          <CardFooter>
+            <AnimatedList className="flex w-full flex-col gap-4 sm:flex-row sm:justify-between" stagger={0.12}>
+              <Button type="button" variant="destructive" onClick={handleDelete}>
+                Delete Project
+              </Button>
+              <Button type="submit" disabled={isSubmitting || uploadingLog}>
+                {isSubmitting ? "Saving..." : "Save Changes"}
+              </Button>
+            </AnimatedList>
           </CardFooter>
         </form>
       </Card>
-    </div>
+    </AnimatedSection>
   )
 }
