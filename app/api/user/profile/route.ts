@@ -65,44 +65,59 @@ export async function PUT(req: Request) {
       }
     }
 
-    let normalizedUsername: string | null = null
+    let normalizedUsername: string | null | undefined = undefined
 
-    if (typeof username === "string" && username.trim().length > 0) {
+    if (typeof username === "string") {
       const trimmed = username.trim()
-      const usernamePattern = /^[a-zA-Z0-9._-]{3,24}$/
 
-      if (!usernamePattern.test(trimmed)) {
-        return NextResponse.json(
-          {
-            error: "Usernames may only contain letters, numbers, dots, underscores, and hyphens (3-24 characters).",
+      if (trimmed.length === 0) {
+        normalizedUsername = null
+      } else {
+        const usernamePattern = /^[a-zA-Z0-9._-]{3,24}$/
+
+        if (!usernamePattern.test(trimmed)) {
+          return NextResponse.json(
+            {
+              error: "Usernames may only contain letters, numbers, dots, underscores, and hyphens (3-24 characters).",
+            },
+            { status: 400 },
+          )
+        }
+
+        const existingUsername = await prisma.user.findFirst({
+          where: {
+            username: trimmed,
+            NOT: { id: userId },
           },
-          { status: 400 },
-        )
+          select: { id: true },
+        })
+
+        if (existingUsername) {
+          return NextResponse.json({ error: "This username is already taken" }, { status: 400 })
+        }
+
+        normalizedUsername = trimmed
       }
+    }
 
-      const existingUsername = await prisma.user.findFirst({
-        where: {
-          username: trimmed,
-          NOT: { id: userId },
-        },
-        select: { id: true },
-      })
+    const updateData: {
+      name: string
+      email: string
+      imageUrl: string | null
+      username?: string | null
+    } = {
+      name,
+      email,
+      imageUrl: imageUrl?.trim() ? imageUrl.trim() : null,
+    }
 
-      if (existingUsername) {
-        return NextResponse.json({ error: "This username is already taken" }, { status: 400 })
-      }
-
-      normalizedUsername = trimmed
+    if (normalizedUsername !== undefined) {
+      updateData.username = normalizedUsername
     }
 
     const updatedUser = await prisma.user.update({
       where: { id: userId },
-      data: {
-        name,
-        email,
-        username: normalizedUsername,
-        imageUrl: imageUrl?.trim() ? imageUrl.trim() : null,
-      },
+      data: updateData,
     })
 
     return NextResponse.json({
