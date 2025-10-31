@@ -12,6 +12,15 @@ import { CareerTimeline } from "@/components/career-timeline"
 export const metadata = {
   title: "About | Tim Hauke",
   description: "Learn more about Tim Hauke, Full Stack Developer",
+  openGraph: {
+    title: "About | Tim Hauke",
+    description: "Learn more about Tim Hauke, Full Stack Developer",
+    url: "/about",
+    type: "profile",
+  },
+  alternates: {
+    canonical: "/about",
+  },
 }
 
 export default function AboutPage() {

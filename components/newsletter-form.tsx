@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -115,6 +116,14 @@ export function NewsletterForm() {
           </Button>
         </form>
       </Form>
+
+      <p className="mt-3 text-center text-xs text-muted-foreground">
+        Prefer to opt out? Manage your inbox anytime on the{" "}
+        <Link href="/unsubscribe" className="text-primary underline-offset-4 hover:underline">
+          newsletter preferences page
+        </Link>
+        .
+      </p>
     </div>
   )
 }
