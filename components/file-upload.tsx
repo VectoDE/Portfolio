@@ -38,7 +38,8 @@ export function FileUpload({
     setPreview(value || null)
     if (value) {
       const segments = value.split("/")
-      setFileName((current) => current ?? segments[segments.length - 1] || null)
+      const derivedFileName = segments[segments.length - 1] ?? null
+      setFileName((current) => current ?? derivedFileName)
     } else {
       setFileName(null)
     }
