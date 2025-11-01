@@ -60,20 +60,22 @@ export async function GET(req: Request) {
         : Math.round((change / previousPeriodCount) * 100)
 
     // Get status breakdown
-    const statusBreakdownRaw = await prisma.$queryRaw<Array<{ status: string; count: bigint }>>`
-      SELECT status, COUNT(*) as count
-      FROM "Contact"
-      GROUP BY status
-      ORDER BY count DESC
-    `
-
-    // Convert BigInt to Number to avoid serialization issues
-    const statusBreakdown = statusBreakdownRaw.map(
-      ({ status, count }: { status: string; count: bigint }) => ({
-        status,
-        count: Number(count),
-      }),
-    )
+    const statusBreakdown = await prisma.contact
+      .groupBy({
+        by: ["status"],
+        _count: { _all: true },
+        orderBy: {
+          _count: {
+            _all: "desc",
+          },
+        },
+      })
+      .then((rows) =>
+        rows.map(({ status, _count }) => ({
+          status,
+          count: _count._all,
+        })),
+      )
 
     // Get daily contacts for the period
     const dailyContacts: { date: string; count: number }[] = []

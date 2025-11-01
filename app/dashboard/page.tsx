@@ -31,7 +31,7 @@ import type { Project, Contact } from "@/types/database"
 
 type ContactStatusRow = {
   status: string
-  count: number | string
+  count: number
 }
 
 interface StatsWithChange {
@@ -227,12 +227,22 @@ async function getStats() {
       orderBy: { createdAt: "desc" },
       take: 3,
     }) as Promise<Contact[]>,
-    prisma.$queryRaw`
-      SELECT status, COUNT(*) as count
-      FROM "Contact"
-      GROUP BY status
-      ORDER BY count DESC
-    ` as Promise<ContactStatusRow[]>,
+    prisma.contact
+      .groupBy({
+        by: ["status"],
+        _count: { _all: true },
+        orderBy: {
+          _count: {
+            _all: "desc",
+          },
+        },
+      })
+      .then((rows) =>
+        rows.map(({ status, _count }) => ({
+          status,
+          count: _count._all,
+        })),
+      ) as Promise<ContactStatusRow[]>,
   ])
 
   return {

@@ -71,21 +71,15 @@ export async function GET(req: Request) {
       where: whereClause,
     })
 
-    const uniqueVisitorsRaw = (await prisma.$queryRawUnsafe(
-      `
-            SELECT COUNT(DISTINCT "ipAddress") as count
-            FROM "PageView"
-            WHERE "createdAt" >= $1
-            AND "createdAt" <= $2
-            ${path ? `AND "path" = $3` : ""}
-        `,
-      periodStartDate,
-      periodEndDate,
-      path || undefined,
-    )) as Array<{ count: bigint }>
-
-    const uniqueVisitorsCount = uniqueVisitorsRaw[0]?.count
-    const uniqueVisitors = uniqueVisitorsCount ? Number(uniqueVisitorsCount) : 0
+    const uniqueVisitors = await prisma.pageView
+      .groupBy({
+        by: ["ipAddress"],
+        where: {
+          ...whereClause,
+          ipAddress: { not: null },
+        },
+      })
+      .then((rows) => rows.length)
 
     return NextResponse.json({
       totalViews,
