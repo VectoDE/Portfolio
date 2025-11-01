@@ -36,3 +36,6 @@ medium-private-key.pem
 prisma/migrations/*
 prisma/dev.db
 prisma/dev.db-journal
+
+#Ignore vscode AI rules
+.github\instructions\codacy.instructions.md
