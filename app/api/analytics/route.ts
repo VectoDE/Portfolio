@@ -284,37 +284,47 @@ async function getPageViewAnalytics(days = 30) {
   const dailyViews = await getDailyData("", "pageview", days)
 
   // Get top pages
-  const topPages = await prisma.$queryRaw<Array<{ path: string; count: bigint }>>`
-    SELECT path, COUNT(*) as count
-    FROM PageView
-    WHERE createdAt >= ${periodStartDate} AND createdAt <= ${periodEndDate}
-    GROUP BY path
-    ORDER BY count DESC
-    LIMIT 5
-  `
+  const topPagesRaw = await prisma.pageView.groupBy({
+    by: ["path"],
+    where: {
+      createdAt: {
+        gte: periodStartDate,
+        lte: periodEndDate,
+      },
+    },
+    _count: { _all: true },
+    orderBy: {
+      _count: {
+        _all: "desc",
+      },
+    },
+    take: 5,
+  })
 
-  // Convert BigInt to Number to avoid serialization issues
-  const formattedTopPages = topPages.map(({ path, count }: { path: string; count: bigint }) => ({
+  const formattedTopPages = topPagesRaw.map(({ path, _count }) => ({
     path,
-    count: Number(count),
+    count: _count._all,
   }))
 
   // Get unique visitors (approximated by unique IP addresses)
-  const uniqueVisitors = await prisma.$queryRaw<Array<{ count: bigint }>>`
-    SELECT COUNT(DISTINCT ipAddress) as count
-    FROM PageView
-    WHERE createdAt >= ${periodStartDate} AND createdAt <= ${periodEndDate}
-  `
-
-  // Convert BigInt to Number
-  const visitorCountValue = uniqueVisitors[0]?.count
-  const visitorCount = visitorCountValue ? Number(visitorCountValue) : 0
+  const uniqueVisitors = await prisma.pageView
+    .groupBy({
+      by: ["ipAddress"],
+      where: {
+        createdAt: {
+          gte: periodStartDate,
+          lte: periodEndDate,
+        },
+        ipAddress: { not: null },
+      },
+    })
+    .then((rows) => rows.length)
 
   return {
     totalViews,
     dailyViews,
     topPages: formattedTopPages,
-    uniqueVisitors: visitorCount,
+    uniqueVisitors,
   }
 }
 
