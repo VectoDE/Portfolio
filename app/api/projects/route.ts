@@ -8,12 +8,8 @@ import {
   normalizeBoolean,
   normalizeLongFormField,
   normalizeOptionalString,
+  sanitizeFeatureList,
 } from "@/lib/project-validation"
-
-type FeatureInput = {
-  name: string
-  description?: string | null
-}
 
 type InsensitiveFilter = {
   contains: string
@@ -137,20 +133,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
 
-    const sanitizedFeatureList: FeatureInput[] = (Array.isArray(features) ? features : [])
-      .map((feature) => {
-        const name = normalizeOptionalString(feature?.name)
-
-        if (!name) {
-          return null
-        }
-
-        return {
-          name,
-          description: normalizeLongFormField(feature?.description),
-        }
-      })
-      .filter((feature): feature is FeatureInput => feature !== null)
+    const sanitizedFeatureList = sanitizeFeatureList(features)
 
     // Create project with features
     const project = await prisma.project.create({

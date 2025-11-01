@@ -39,3 +39,37 @@ export function normalizeLongFormField(value: unknown): string | null {
 
   return normalized
 }
+
+export type FeatureInput = {
+  name: string
+  description?: string | null
+}
+
+type FeatureCandidate = {
+  name?: unknown
+  description?: unknown
+} | null | undefined
+
+export function sanitizeFeatureList(features: unknown): FeatureInput[] {
+  if (!Array.isArray(features)) {
+    return []
+  }
+
+  return features.flatMap((feature): FeatureInput[] => {
+    const candidate = feature as FeatureCandidate
+    const name = normalizeOptionalString(candidate?.name)
+
+    if (!name) {
+      return []
+    }
+
+    const description = normalizeLongFormField(candidate?.description)
+    const sanitized: FeatureInput = { name }
+
+    if (description !== null) {
+      sanitized.description = description
+    }
+
+    return [sanitized]
+  })
+}

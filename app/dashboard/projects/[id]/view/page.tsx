@@ -4,6 +4,12 @@ import { redirect, notFound } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { ArrowLeft, ExternalLink, Pencil } from "lucide-react"
 
+type ProjectFeatureItem = {
+  id: string
+  name: string
+  description: string | null
+}
+
 import { DashboardHeader } from "@/components/dashboard-header"
 import { Button } from "@/components/ui/button"
 import {
@@ -72,12 +78,20 @@ export default async function ProjectViewPage({
     notFound()
   }
 
-  const technologies = project.technologies
+  const technologies: string[] = project.technologies
     ? project.technologies
         .split(",")
-        .map((tech) => tech.trim())
-        .filter((tech) => tech.length > 0)
+        .map((tech: string) => tech.trim())
+        .filter((tech: string): tech is string => tech.length > 0)
     : []
+
+  const projectFeatures: ProjectFeatureItem[] = (project.features ?? []).map(
+    (feature: { id: string; name: string; description: string | null }) => ({
+      id: feature.id,
+      name: feature.name,
+      description: feature.description,
+    }),
+  )
 
   const longFormSections = [
     {
@@ -267,9 +281,9 @@ export default async function ProjectViewPage({
           <CardDescription>Individual value propositions for this project.</CardDescription>
         </CardHeader>
         <CardContent>
-          {project.features.length > 0 ? (
+          {projectFeatures.length > 0 ? (
             <ul className="space-y-4">
-              {project.features.map((feature) => (
+              {projectFeatures.map((feature) => (
                 <li key={feature.id} className="rounded-lg border border-primary/10 p-4">
                   <h4 className="text-base font-semibold">{feature.name}</h4>
                   {feature.description ? (
