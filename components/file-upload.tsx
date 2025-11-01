@@ -3,7 +3,6 @@
 import type React from "react"
 
 import { useState, useRef, useEffect } from "react"
-import Image from "next/image"
 import { Upload, X, File } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -133,13 +132,13 @@ export function FileUpload({
 
       <div className="flex flex-col gap-3">
         {isImage && preview && (
-          <div className="relative w-full max-w-[200px] h-[150px] rounded-md overflow-hidden border">
-            <Image
+          <div className="relative h-[150px] w-full max-w-[200px] overflow-hidden rounded-md border">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
               src={preview || "/placeholder.svg"}
               alt="Preview"
-              fill
-              className="object-cover"
-              sizes="200px"
+              className="h-full w-full object-cover"
+              loading="lazy"
             />
             <Button
               type="button"

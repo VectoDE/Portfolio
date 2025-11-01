@@ -64,7 +64,12 @@ export function AccountProfileForm({ user }: AccountProfileFormProps) {
         throw new Error(error.error ?? "Unable to save profile")
       }
 
-      const updatedUser = await response.json()
+      const updatedUser: {
+        id: string
+        name: string | null
+        email: string
+        imageUrl: string | null
+      } = await response.json()
 
       toast({
         title: "Profile updated",
@@ -78,6 +83,8 @@ export function AccountProfileForm({ user }: AccountProfileFormProps) {
             ...session.user,
             name: updatedUser.name,
             email: updatedUser.email,
+            image: updatedUser.imageUrl,
+            imageUrl: updatedUser.imageUrl,
           },
         })
       }
