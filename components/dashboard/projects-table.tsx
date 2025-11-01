@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Edit, Filter, MoreHorizontal, Trash } from "lucide-react"
+import { Edit, Eye, Filter, MoreHorizontal, Trash } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -241,6 +241,11 @@ export function DashboardProjectsTable() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => router.push(`/dashboard/projects/${project.id}/view`)}
+                          >
+                            <Eye className="mr-2 h-4 w-4" /> View
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() => router.push(`/dashboard/projects/${project.id}`)}
                           >
