@@ -284,7 +284,7 @@ async function getPageViewAnalytics(days = 30) {
   const dailyViews = await getDailyData("", "pageview", days)
 
   // Get top pages
-  const topPagesRaw: { path: string | null; _count: { _all: number } }[] = await prisma.pageView.groupBy({
+  const topPagesRaw: { path: string | null; _count: { _all: number; path: number } }[] = await prisma.pageView.groupBy({
     by: ["path"],
     where: {
       createdAt: {
@@ -292,10 +292,10 @@ async function getPageViewAnalytics(days = 30) {
         lte: periodEndDate,
       },
     },
-    _count: { _all: true },
+    _count: { _all: true, path: true },
     orderBy: {
       _count: {
-        _all: "desc",
+        path: "desc",
       },
     },
     take: 5,

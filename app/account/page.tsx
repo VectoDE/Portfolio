@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import prisma from "@/lib/db"
 import { authOptions } from "@/lib/auth"
+import { MainNav } from "@/components/main-nav"
+import { SiteFooter } from "@/components/site-footer"
 
 export const metadata: Metadata = {
   title: "Your account",
@@ -186,10 +188,12 @@ export default async function AccountPage() {
   return (
     <div className="relative min-h-screen overflow-hidden">
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(76,29,149,0.35),_transparent_55%)]" />
-      <div className="relative z-10">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
-          <AnimatedSection className="rounded-3xl border border-white/10 bg-background/70 p-8 shadow-xl backdrop-blur">
-            <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <MainNav />
+        <main className="flex-1">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-16 sm:px-6 lg:px-8">
+            <AnimatedSection className="rounded-3xl border border-white/10 bg-background/70 p-8 shadow-xl backdrop-blur">
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex items-center gap-6">
                 <Avatar className="h-20 w-20 border border-primary/40">
                   <AvatarImage src={user.imageUrl ?? undefined} alt={user.name ?? "Account avatar"} />
@@ -363,7 +367,9 @@ export default async function AccountPage() {
               </div>
             )}
           </AnimatedSection>
-        </div>
+          </div>
+        </main>
+        <SiteFooter />
       </div>
     </div>
   )
