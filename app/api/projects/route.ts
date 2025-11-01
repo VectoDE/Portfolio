@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
+import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -10,6 +11,7 @@ import {
   normalizeOptionalString,
   sanitizeFeatureList,
 } from "@/lib/project-validation"
+import { ensureProjectLongFormColumns } from "@/lib/project-longform"
 
 type InsensitiveFilter = {
   contains: string
@@ -135,6 +137,8 @@ export async function POST(req: Request) {
 
     const sanitizedFeatureList = sanitizeFeatureList(features)
 
+    await ensureProjectLongFormColumns()
+
     // Create project with features
     const project = await prisma.project.create({
       data: {
@@ -177,6 +181,21 @@ export async function POST(req: Request) {
     return NextResponse.json({ project })
   } catch (error) {
     console.error("Error creating project:", error)
+
+    if (error instanceof PrismaClientKnownRequestError && error.code === "P2000") {
+      const column = typeof error.meta?.column_name === "string" ? error.meta.column_name : "one of the fields"
+      return NextResponse.json(
+        {
+          error: `The provided value for ${column} is too long. Please reduce the content and try again.`,
+        },
+        { status: 400 },
+      )
+    }
+
+    if (error instanceof Error && error.message.includes("Failed to prepare the database")) {
+      return NextResponse.json({ error: error.message }, { status: 500 })
+    }
+
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
