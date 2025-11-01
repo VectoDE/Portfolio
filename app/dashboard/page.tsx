@@ -230,10 +230,10 @@ async function getStats() {
     prisma.contact
       .groupBy({
         by: ["status"],
-        _count: { _all: true },
+        _count: { _all: true, status: true },
         orderBy: {
           _count: {
-            _all: "desc",
+            status: "desc",
           },
         },
       })

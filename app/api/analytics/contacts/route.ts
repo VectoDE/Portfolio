@@ -60,12 +60,12 @@ export async function GET(req: Request) {
         : Math.round((change / previousPeriodCount) * 100)
 
     // Get status breakdown
-    const statusBreakdownRows: { status: string; _count: { _all: number } }[] = await prisma.contact.groupBy({
+    const statusBreakdownRows: { status: string; _count: { _all: number; status: number } }[] = await prisma.contact.groupBy({
       by: ["status"],
-      _count: { _all: true },
+      _count: { _all: true, status: true },
       orderBy: {
         _count: {
-          _all: "desc",
+          status: "desc",
         },
       },
     })

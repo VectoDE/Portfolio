@@ -10,6 +10,7 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
+import { FileUpload } from "@/components/file-upload"
 
 interface AccountProfileFormProps {
   user: {
@@ -143,8 +144,14 @@ export function AccountProfileForm({ user }: AccountProfileFormProps) {
               Usernames are optional but help others mention you in discussions.
             </p>
           </div>
+          <FileUpload
+            id="avatar"
+            label="Upload avatar image"
+            value={imageUrl}
+            onChange={(value) => setImageUrl(value)}
+          />
           <div className="grid gap-2">
-            <Label htmlFor="imageUrl">Avatar image URL</Label>
+            <Label htmlFor="imageUrl">Or use an external image URL</Label>
             <Input
               id="imageUrl"
               value={imageUrl}
