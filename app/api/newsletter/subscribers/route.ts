@@ -11,6 +11,30 @@ type SubscriberPreferences = {
   careers: boolean
 }
 
+const DEFAULT_PREFERENCES: SubscriberPreferences = {
+  projects: true,
+  certificates: true,
+  skills: true,
+  careers: true,
+}
+
+const PREFERENCE_FIELDS = Object.keys(
+  DEFAULT_PREFERENCES,
+) as (keyof SubscriberPreferences)[]
+
+function sanitizePreferences(
+  preferences?: Partial<SubscriberPreferences> | null,
+): SubscriberPreferences {
+  return PREFERENCE_FIELDS.reduce((acc, key) => {
+    const value = preferences?.[key]
+    if (typeof value === "boolean") {
+      acc[key] = value
+    }
+
+    return acc
+  }, { ...DEFAULT_PREFERENCES })
+}
+
 type SubscriberRecord = {
   id: string
   email: string
@@ -25,12 +49,7 @@ function formatSubscriber(sub: SubscriberRecord) {
     email: sub.email,
     confirmed: sub.isConfirmed,
     createdAt: sub.createdAt,
-    preferences: sub.preferences || {
-      projects: true,
-      certificates: true,
-      skills: true,
-      careers: true,
-    },
+    preferences: sanitizePreferences(sub.preferences ?? undefined),
   }
 }
 
@@ -105,14 +124,21 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: "Subscriber id is required" }, { status: 400 })
     }
 
-    const preferenceEntries = preferences
-      ? Object.entries(preferences).filter(([, value]) => value !== undefined)
-      : []
+    const preferenceUpdates = preferences
+      ? Object.entries(preferences).reduce<Partial<SubscriberPreferences>>(
+          (acc, [key, value]) => {
+            if (
+              PREFERENCE_FIELDS.includes(key as keyof SubscriberPreferences) &&
+              typeof value === "boolean"
+            ) {
+              acc[key as keyof SubscriberPreferences] = value
+            }
 
-    const preferenceUpdates =
-      preferenceEntries.length > 0
-        ? (Object.fromEntries(preferenceEntries) as Partial<SubscriberPreferences>)
-        : null
+            return acc
+          },
+          {},
+        )
+      : null
 
     const subscriber = await prisma.subscriber.update({
       where: { id },
@@ -123,12 +149,7 @@ export async function PATCH(req: Request) {
               preferences: {
                 upsert: {
                   update: preferenceUpdates,
-                  create: {
-                    projects: preferences?.projects ?? true,
-                    certificates: preferences?.certificates ?? true,
-                    skills: preferences?.skills ?? true,
-                    careers: preferences?.careers ?? true,
-                  },
+                  create: sanitizePreferences(preferences ?? undefined),
                 },
               },
             }
