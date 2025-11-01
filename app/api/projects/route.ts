@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server"
+import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
@@ -157,6 +158,11 @@ export async function POST(req: Request) {
         features: true,
       },
     })
+
+    revalidatePath("/projects")
+    revalidatePath("/")
+    revalidatePath("/dashboard")
+    revalidatePath("/dashboard/projects")
 
     return NextResponse.json({ project })
   } catch (error) {

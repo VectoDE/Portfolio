@@ -1,6 +1,5 @@
 import Link from "next/link"
 import Image from "next/image"
-import { cache } from "react"
 import { ExternalLink, Github } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -17,10 +16,8 @@ import { getFeaturedProjects } from "@/lib/projects"
 // Add proper type for projects
 import type { Project } from "@/types/database"
 
-const getCachedProjects = cache(getFeaturedProjects)
-
 export async function FeaturedProjects() {
-  const projects = await getCachedProjects(3)
+  const projects = await getFeaturedProjects(3)
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

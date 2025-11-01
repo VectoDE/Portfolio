@@ -11,6 +11,8 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
+export const dynamic = "force-dynamic"
+
 export const metadata = {
   title: "Projects | Tim Hauke",
   description: "Explore my portfolio of web development projects",
