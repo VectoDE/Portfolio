@@ -41,7 +41,7 @@ model Project {
   logoUrl            String?          @db.Text
   githubUrl          String?          @db.Text
   featured           Boolean          @default(false)
-  developmentProcess String?          @db.Text @default("This project was developed using an agile methodology, with regular iterations and feedback cycles.")
+  developmentProcess String?          @db.Text
   challengesFaced    String?          @db.Text
   futurePlans        String?          @db.Text
   logContent         String?          @db.Text
