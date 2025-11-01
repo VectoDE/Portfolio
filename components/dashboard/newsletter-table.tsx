@@ -4,7 +4,17 @@ import type React from "react"
 
 import { useState, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
-import { Mail, Send, Trash2, CheckCircle, XCircle, Filter, MoreHorizontal } from "lucide-react"
+import {
+  Mail,
+  Send,
+  Trash2,
+  CheckCircle,
+  XCircle,
+  Filter,
+  MoreHorizontal,
+  Loader2,
+  Settings2,
+} from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -34,6 +44,15 @@ import {
 } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 
 type Subscriber = {
   id: string
@@ -54,9 +73,17 @@ export function NewsletterTable() {
   const [isLoading, setIsLoading] = useState(true)
   const [subscribers, setSubscribers] = useState<Subscriber[]>([])
   const [selectedSubscribers, setSelectedSubscribers] = useState<string[]>([])
-  const [selectAll, setSelectAll] = useState(false)
   const [statusFilter, setStatusFilter] = useState<string>("all")
   const [searchQuery, setSearchQuery] = useState("")
+  const [isPreferencesDialogOpen, setIsPreferencesDialogOpen] = useState(false)
+  const [activeSubscriber, setActiveSubscriber] = useState<Subscriber | null>(null)
+  const [preferencesForm, setPreferencesForm] = useState({
+    projects: true,
+    certificates: true,
+    skills: true,
+    careers: true,
+  })
+  const [isUpdatingPreferences, setIsUpdatingPreferences] = useState(false)
 
   // Fetch subscribers
   const fetchSubscribers = useCallback(async () => {
@@ -86,10 +113,13 @@ export function NewsletterTable() {
     fetchSubscribers()
   }, [fetchSubscribers])
 
+  useEffect(() => {
+    setSelectedSubscribers((prev) => prev.filter((id) => subscribers.some((sub) => sub.id === id)))
+  }, [subscribers])
+
   function handleSelectAll(checked: boolean) {
-    setSelectAll(checked)
     if (checked) {
-      setSelectedSubscribers(subscribers.map((sub) => sub.id))
+      setSelectedSubscribers(filteredSubscribers.map((sub) => sub.id))
     } else {
       setSelectedSubscribers([])
     }
@@ -109,16 +139,26 @@ export function NewsletterTable() {
     }
 
     try {
-      // This is a placeholder - implement the actual delete API call
+      const response = await fetch("/api/newsletter/subscribers", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids: selectedSubscribers }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to delete subscribers")
+      }
+
       toast({
         title: "Subscribers deleted",
         description: `${selectedSubscribers.length} subscriber(s) have been deleted`,
       })
 
-      // Remove the subscribers from the local state
       setSubscribers((prev) => prev.filter((sub) => !selectedSubscribers.includes(sub.id)))
       setSelectedSubscribers([])
-      setSelectAll(false)
     } catch (error) {
       console.error("Error deleting subscribers:", error)
       toast({
@@ -126,6 +166,144 @@ export function NewsletterTable() {
         description: "Failed to delete subscribers",
         variant: "destructive",
       })
+    }
+  }
+
+  async function handleDeleteSubscriber(id: string) {
+    if (!confirm("Are you sure you want to delete this subscriber?")) {
+      return
+    }
+
+    try {
+      const response = await fetch("/api/newsletter/subscribers", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ ids: [id] }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to delete subscriber")
+      }
+
+      toast({
+        title: "Subscriber deleted",
+        description: "The subscriber has been removed successfully",
+      })
+
+      setSubscribers((prev) => prev.filter((sub) => sub.id !== id))
+      setSelectedSubscribers((prev) => prev.filter((subId) => subId !== id))
+    } catch (error) {
+      console.error("Error deleting subscriber:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete subscriber",
+        variant: "destructive",
+      })
+    }
+  }
+
+  async function handleToggleConfirmation(subscriber: Subscriber) {
+    try {
+      const response = await fetch("/api/newsletter/subscribers", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: subscriber.id,
+          isConfirmed: !subscriber.confirmed,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to update confirmation status")
+      }
+
+      const data = await response.json()
+
+      setSubscribers((prev) =>
+        prev.map((sub) =>
+          sub.id === subscriber.id
+            ? { ...sub, confirmed: data.subscriber.confirmed ?? !subscriber.confirmed }
+            : sub,
+        ),
+      )
+
+      toast({
+        title: subscriber.confirmed ? "Marked as pending" : "Subscriber confirmed",
+        description: subscriber.confirmed
+          ? `${subscriber.email} is now marked as pending confirmation`
+          : `${subscriber.email} has been marked as confirmed`,
+      })
+    } catch (error) {
+      console.error("Error updating confirmation status:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update confirmation status",
+        variant: "destructive",
+      })
+    }
+  }
+
+  function openPreferencesDialog(subscriber: Subscriber) {
+    setActiveSubscriber(subscriber)
+    setPreferencesForm(subscriber.preferences)
+    setIsPreferencesDialogOpen(true)
+  }
+
+  async function handleSavePreferences() {
+    if (!activeSubscriber) {
+      return
+    }
+
+    setIsUpdatingPreferences(true)
+    try {
+      const response = await fetch("/api/newsletter/subscribers", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: activeSubscriber.id,
+          preferences: preferencesForm,
+        }),
+      })
+
+      if (!response.ok) {
+        const error = await response.json()
+        throw new Error(error.error || "Failed to update preferences")
+      }
+
+      const data = await response.json()
+
+      setSubscribers((prev) =>
+        prev.map((sub) =>
+          sub.id === activeSubscriber.id
+            ? { ...sub, preferences: data.subscriber.preferences }
+            : sub,
+        ),
+      )
+
+      toast({
+        title: "Preferences updated",
+        description: `${activeSubscriber.email}'s preferences have been saved`,
+      })
+
+      setIsPreferencesDialogOpen(false)
+      setActiveSubscriber(null)
+    } catch (error) {
+      console.error("Error updating preferences:", error)
+      toast({
+        title: "Error",
+        description: "Failed to update preferences",
+        variant: "destructive",
+      })
+    } finally {
+      setIsUpdatingPreferences(false)
     }
   }
 
@@ -140,6 +318,12 @@ export function NewsletterTable() {
 
     return matchesStatus && matchesSearch
   })
+
+  const allSelected =
+    filteredSubscribers.length > 0 &&
+    filteredSubscribers.every((subscriber) =>
+      selectedSubscribers.includes(subscriber.id),
+    )
 
   // Add a function to navigate to the send newsletter page
   function handleSendNewsletter() {
@@ -182,7 +366,13 @@ export function NewsletterTable() {
               <TableRow>
                 <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={selectAll}
+                    checked={
+                      allSelected
+                        ? true
+                        : selectedSubscribers.length > 0
+                          ? "indeterminate"
+                          : false
+                    }
                     onCheckedChange={(checked) => handleSelectAll(checked === true)}
                   />
                 </TableHead>
@@ -286,6 +476,17 @@ export function NewsletterTable() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuSeparator />
+                          <DropdownMenuItem onClick={() => handleToggleConfirmation(subscriber)}>
+                            {subscriber.confirmed ? (
+                              <XCircle className="mr-2 h-4 w-4" />
+                            ) : (
+                              <CheckCircle className="mr-2 h-4 w-4" />
+                            )}
+                            {subscriber.confirmed ? "Mark as Pending" : "Mark as Confirmed"}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openPreferencesDialog(subscriber)}>
+                            <Settings2 className="mr-2 h-4 w-4" /> Manage Preferences
+                          </DropdownMenuItem>
                           <DropdownMenuItem
                             onClick={() =>
                               toast({
@@ -296,7 +497,7 @@ export function NewsletterTable() {
                           >
                             <Send className="mr-2 h-4 w-4" /> Send Email
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDeleteSubscriber(subscriber.id)}>
                             <Trash2 className="mr-2 h-4 w-4" /> Delete
                           </DropdownMenuItem>
                         </DropdownMenuContent>
@@ -322,6 +523,83 @@ export function NewsletterTable() {
           </Button>
         </div>
       )}
+
+      <Dialog
+        open={isPreferencesDialogOpen}
+        onOpenChange={(open) => {
+          setIsPreferencesDialogOpen(open)
+          if (!open) {
+            setActiveSubscriber(null)
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Manage subscriber preferences</DialogTitle>
+            <DialogDescription>
+              {activeSubscriber
+                ? `Control which updates ${activeSubscriber.email} will receive.`
+                : "Adjust the content preferences for this subscriber."}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4 py-4">
+            <div>
+              <h4 className="text-sm font-medium">Content categories</h4>
+              <p className="text-sm text-muted-foreground">
+                Toggle the categories that should be included in newsletter updates for this
+                subscriber.
+              </p>
+            </div>
+            <Separator />
+            <div className="space-y-3">
+              {(
+                [
+                  { key: "projects", label: "Projects" },
+                  { key: "certificates", label: "Certificates" },
+                  { key: "skills", label: "Skills" },
+                  { key: "careers", label: "Careers" },
+                ] as const
+              ).map(({ key, label }) => (
+                <label key={key} className="flex items-start gap-3">
+                  <Checkbox
+                    checked={preferencesForm[key]}
+                    onCheckedChange={(checked) =>
+                      setPreferencesForm((prev) => ({
+                        ...prev,
+                        [key]: checked === true,
+                      }))
+                    }
+                  />
+                  <span className="text-sm leading-snug">
+                    <span className="font-medium">{label}</span>
+                    <span className="block text-muted-foreground">
+                      Receive updates about new {label.toLowerCase()}.
+                    </span>
+                  </span>
+                </label>
+              ))}
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsPreferencesDialogOpen(false)
+                setActiveSubscriber(null)
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSavePreferences} disabled={isUpdatingPreferences}>
+              {isUpdatingPreferences && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Save preferences
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
