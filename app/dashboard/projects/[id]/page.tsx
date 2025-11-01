@@ -27,6 +27,7 @@ import type { FeatureDraft } from "@/components/feature-input"
 import type { Project } from "@/types/database"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
+import { PROJECT_LONGFORM_MAX_LENGTH } from "@/lib/project-validation"
 
 interface EditProjectPageProps {
   params: {
@@ -47,6 +48,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
   const logFileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingLog, setUploadingLog] = useState(false)
   const [projectId, setProjectId] = useState<string | null>(null)
+  const formattedLongFormLimit = new Intl.NumberFormat().format(PROJECT_LONGFORM_MAX_LENGTH)
 
   useEffect(() => {
     if (!params?.id) {
@@ -132,6 +134,10 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     const developmentProcess = formData.get("developmentProcess") as string
     const challengesFaced = formData.get("challengesFaced") as string
     const futurePlans = formData.get("futurePlans") as string
+    const safeLogContent =
+      logContent.length > PROJECT_LONGFORM_MAX_LENGTH
+        ? logContent.slice(0, PROJECT_LONGFORM_MAX_LENGTH)
+        : logContent
 
     try {
       const response = await fetch(`/api/projects/${projectId}`, {
@@ -151,7 +157,7 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
           developmentProcess,
           challengesFaced,
           futurePlans,
-          logContent,
+          logContent: safeLogContent,
           features: features
             .filter((feature) => feature.name.trim().length > 0)
             .map((feature) => ({
@@ -235,12 +241,19 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
     try {
       // Read file content
       const text = await file.text()
-      setLogContent(text)
-
-      toast({
-        title: "Log file loaded",
-        description: "Log file has been loaded successfully.",
-      })
+      if (text.length > PROJECT_LONGFORM_MAX_LENGTH) {
+        setLogContent(text.slice(0, PROJECT_LONGFORM_MAX_LENGTH))
+        toast({
+          title: "Log truncated",
+          description: `The uploaded log exceeded ${formattedLongFormLimit} characters and was truncated to fit the storage limit.`,
+        })
+      } else {
+        setLogContent(text)
+        toast({
+          title: "Log file loaded",
+          description: "Log file has been loaded successfully.",
+        })
+      }
     } catch (error) {
       console.error("Log file reading error:", error)
       toast({
@@ -392,36 +405,48 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                 <Label htmlFor="developmentProcess">Development Process</Label>
                 <Textarea
                   id="developmentProcess"
-                name="developmentProcess"
-                defaultValue={
-                  project.developmentProcess ||
-                  "This project was developed using an agile methodology, with regular iterations and feedback cycles. The development process included planning, design, implementation, testing, and deployment phases."
-                }
-                placeholder="Describe your development process, methodology, and approach"
-                rows={3}
-              />
+                  name="developmentProcess"
+                  placeholder="Describe your development process, methodology, and approach"
+                  rows={3}
+                  maxLength={PROJECT_LONGFORM_MAX_LENGTH}
+                  defaultValue={
+                    project.developmentProcess ||
+                    "This project was developed using an agile methodology, with regular iterations and feedback cycles. The development process included planning, design, implementation, testing, and deployment phases."
+                  }
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum {formattedLongFormLimit} characters. Longer entries will be trimmed automatically.
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="challengesFaced">Challenges Faced</Label>
                 <Textarea
                   id="challengesFaced"
-                name="challengesFaced"
-                defaultValue={project.challengesFaced || ""}
-                placeholder="Describe any challenges you faced during development and how you overcame them"
-                rows={3}
-              />
+                  name="challengesFaced"
+                  placeholder="Describe any challenges you faced during development and how you overcame them"
+                  rows={3}
+                  maxLength={PROJECT_LONGFORM_MAX_LENGTH}
+                  defaultValue={project.challengesFaced || ""}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum {formattedLongFormLimit} characters.
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label htmlFor="futurePlans">Future Plans</Label>
                 <Textarea
                   id="futurePlans"
-                name="futurePlans"
-                defaultValue={project.futurePlans || ""}
-                placeholder="Describe any future plans or improvements for this project"
-                rows={3}
-              />
+                  name="futurePlans"
+                  placeholder="Describe any future plans or improvements for this project"
+                  rows={3}
+                  maxLength={PROJECT_LONGFORM_MAX_LENGTH}
+                  defaultValue={project.futurePlans || ""}
+                />
+                <p className="text-xs text-muted-foreground">
+                  Maximum {formattedLongFormLimit} characters.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -468,8 +493,11 @@ export default function EditProjectPage({ params }: EditProjectPageProps) {
                     <p className="text-sm text-muted-foreground">Loading log file...</p>
                   )}
                 </div>
-                </div>
+                <p className="text-xs text-muted-foreground">
+                  Maximum {formattedLongFormLimit} characters of log content will be stored.
+                </p>
               </div>
+            </div>
 
               <div className="flex items-center space-x-2 rounded-lg border border-primary/10 bg-muted/20 p-4">
                 <input

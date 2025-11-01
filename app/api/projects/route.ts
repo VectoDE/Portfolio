@@ -1,8 +1,14 @@
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
 import { getServerSession } from "next-auth"
+
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
+import {
+  normalizeBoolean,
+  normalizeLongFormField,
+  normalizeOptionalString,
+} from "@/lib/project-validation"
 
 type FeatureInput = {
   name: string
@@ -122,40 +128,59 @@ export async function POST(req: Request) {
       features = [],
     } = data
 
-    const featureList: FeatureInput[] = Array.isArray(features) ? features : []
+    const sanitizedTitle = normalizeOptionalString(title)
+    const sanitizedDescription = normalizeOptionalString(description)
+    const sanitizedTechnologies = normalizeOptionalString(technologies)
 
     // Validate required fields
-    if (!title || !description || !technologies) {
+    if (!sanitizedTitle || !sanitizedDescription || !sanitizedTechnologies) {
       return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
     }
+
+    const sanitizedFeatureList: FeatureInput[] = (Array.isArray(features) ? features : [])
+      .map((feature) => {
+        const name = normalizeOptionalString(feature?.name)
+
+        if (!name) {
+          return null
+        }
+
+        return {
+          name,
+          description: normalizeLongFormField(feature?.description),
+        }
+      })
+      .filter((feature): feature is FeatureInput => feature !== null)
 
     // Create project with features
     const project = await prisma.project.create({
       data: {
-        title,
-        description,
-        technologies,
-        link,
-        githubUrl,
-        imageUrl,
-        logoUrl,
-        featured: Boolean(featured),
-        developmentProcess,
-        challengesFaced,
-        futurePlans,
-        logContent,
+        title: sanitizedTitle,
+        description: sanitizedDescription,
+        technologies: sanitizedTechnologies,
+        link: normalizeOptionalString(link),
+        githubUrl: normalizeOptionalString(githubUrl),
+        imageUrl: normalizeOptionalString(imageUrl),
+        logoUrl: normalizeOptionalString(logoUrl),
+        featured: normalizeBoolean(featured),
+        developmentProcess: normalizeLongFormField(developmentProcess),
+        challengesFaced: normalizeLongFormField(challengesFaced),
+        futurePlans: normalizeLongFormField(futurePlans),
+        logContent: normalizeLongFormField(logContent),
         userId,
         features: {
-          create: featureList
-            .filter((feature): feature is FeatureInput => Boolean(feature?.name))
-            .map((feature) => ({
-              name: feature.name,
-              description: feature.description ?? null,
-            })),
+          create: sanitizedFeatureList,
         },
       },
       include: {
         features: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+          },
+        },
       },
     })
 
@@ -163,6 +188,8 @@ export async function POST(req: Request) {
     revalidatePath("/")
     revalidatePath("/dashboard")
     revalidatePath("/dashboard/projects")
+    revalidatePath(`/dashboard/projects/${project.id}`)
+    revalidatePath(`/dashboard/projects/${project.id}/view`)
 
     return NextResponse.json({ project })
   } catch (error) {

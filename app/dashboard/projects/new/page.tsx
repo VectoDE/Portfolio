@@ -24,6 +24,7 @@ import { DashboardHeader } from "@/components/dashboard-header"
 import { FileUpload } from "@/components/file-upload"
 import { FeatureInput } from "@/components/feature-input"
 import type { FeatureDraft } from "@/components/feature-input"
+import { PROJECT_LONGFORM_MAX_LENGTH } from "@/lib/project-validation"
 
 export default function NewProjectPage() {
   const router = useRouter()
@@ -35,6 +36,7 @@ export default function NewProjectPage() {
   const [features, setFeatures] = useState<FeatureDraft[]>([])
   const logFileInputRef = useRef<HTMLInputElement>(null)
   const [uploadingLog, setUploadingLog] = useState(false)
+  const formattedLongFormLimit = new Intl.NumberFormat().format(PROJECT_LONGFORM_MAX_LENGTH)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -50,6 +52,10 @@ export default function NewProjectPage() {
     const developmentProcess = formData.get("developmentProcess") as string
     const challengesFaced = formData.get("challengesFaced") as string
     const futurePlans = formData.get("futurePlans") as string
+    const safeLogContent =
+      logContent.length > PROJECT_LONGFORM_MAX_LENGTH
+        ? logContent.slice(0, PROJECT_LONGFORM_MAX_LENGTH)
+        : logContent
 
     try {
       const response = await fetch("/api/projects", {
@@ -69,7 +75,7 @@ export default function NewProjectPage() {
           developmentProcess,
           challengesFaced,
           futurePlans,
-          logContent,
+          logContent: safeLogContent,
           features: features
             .filter((feature) => feature.name.trim().length > 0)
             .map((feature) => ({
@@ -112,12 +118,19 @@ export default function NewProjectPage() {
     try {
       // Read file content
       const text = await file.text()
-      setLogContent(text)
-
-      toast({
-        title: "Log file loaded",
-        description: "Log file has been loaded successfully.",
-      })
+      if (text.length > PROJECT_LONGFORM_MAX_LENGTH) {
+        setLogContent(text.slice(0, PROJECT_LONGFORM_MAX_LENGTH))
+        toast({
+          title: "Log truncated",
+          description: `The uploaded log exceeded ${formattedLongFormLimit} characters and was truncated to fit the storage limit.`,
+        })
+      } else {
+        setLogContent(text)
+        toast({
+          title: "Log file loaded",
+          description: "Log file has been loaded successfully.",
+        })
+      }
     } catch (error) {
       console.error("Log file reading error:", error)
       toast({
@@ -229,8 +242,12 @@ export default function NewProjectPage() {
                 name="developmentProcess"
                 placeholder="Describe your development process, methodology, and approach"
                 rows={3}
+                maxLength={PROJECT_LONGFORM_MAX_LENGTH}
                 defaultValue="This project was developed using an agile methodology, with regular iterations and feedback cycles. The development process included planning, design, implementation, testing, and deployment phases."
               />
+              <p className="text-xs text-muted-foreground">
+                Maximum {formattedLongFormLimit} characters. Longer entries will be trimmed automatically.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -240,7 +257,11 @@ export default function NewProjectPage() {
                 name="challengesFaced"
                 placeholder="Describe any challenges you faced during development and how you overcame them"
                 rows={3}
+                maxLength={PROJECT_LONGFORM_MAX_LENGTH}
               />
+              <p className="text-xs text-muted-foreground">
+                Maximum {formattedLongFormLimit} characters.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -250,7 +271,11 @@ export default function NewProjectPage() {
                 name="futurePlans"
                 placeholder="Describe any future plans or improvements for this project"
                 rows={3}
+                maxLength={PROJECT_LONGFORM_MAX_LENGTH}
               />
+              <p className="text-xs text-muted-foreground">
+                Maximum {formattedLongFormLimit} characters.
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -297,6 +322,9 @@ export default function NewProjectPage() {
                     <p className="text-sm text-muted-foreground">Loading log file...</p>
                   )}
                 </div>
+                <p className="text-xs text-muted-foreground">
+                  Maximum {formattedLongFormLimit} characters of log content will be stored.
+                </p>
               </div>
             </div>
 

@@ -31,6 +31,7 @@ export interface Project {
   createdAt: Date | string
   updatedAt: Date | string
   userId: string
+  user?: Pick<User, "id" | "name" | "email">
   features?: ProjectFeature[]
   comments?: ProjectComment[]
   reactions?: ProjectReaction[]
