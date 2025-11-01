@@ -39,12 +39,12 @@ function formatDate(value: Date | string): string {
   }).format(date)
 }
 
-export default async function ProjectViewPage({
-  params,
-}: {
-  params: { id: string }
-}) {
-  const { id } = params
+interface ProjectViewPageProps {
+  params: Promise<{ id: string }>
+}
+
+export default async function ProjectViewPage({ params }: ProjectViewPageProps) {
+  const { id } = await params
   const session = await getServerSession(authOptions)
 
   if (!session || !session.user?.id) {
