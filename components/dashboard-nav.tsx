@@ -93,13 +93,15 @@ export function DashboardNav() {
     }
   }
 
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return "U"
-    return name
-      .split(" ")
-      .map((n) => n[0])
+  const getInitials = (name: string | null | undefined, email?: string | null) => {
+    const source = name?.trim() || email?.trim() || "User"
+    return source
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((part) => part[0]?.toUpperCase() ?? "")
       .join("")
-      .toUpperCase()
+      .slice(0, 2)
+      .padEnd(1, "U")
   }
 
   return (
@@ -180,10 +182,12 @@ export function DashboardNav() {
                   >
                     <Avatar className="h-8 w-8">
                       <AvatarImage
-                        src={session.user.image || ""}
-                        alt={session.user.name || "User"}
+                        src={session.user.image || session.user.imageUrl || undefined}
+                        alt={session.user.name || session.user.email || "User"}
                       />
-                      <AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
+                      <AvatarFallback>
+                        {getInitials(session.user.name, session.user.email)}
+                      </AvatarFallback>
                     </Avatar>
                     {!isCollapsed && (
                       <div className="flex flex-col items-start text-left">
@@ -254,8 +258,13 @@ export function DashboardNav() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="rounded-full p-0">
                   <Avatar className="h-8 w-8">
-                    <AvatarImage src={session.user.image || ""} alt={session.user.name || "User"} />
-                    <AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
+                    <AvatarImage
+                      src={session.user.image || session.user.imageUrl || undefined}
+                      alt={session.user.name || session.user.email || "User"}
+                    />
+                    <AvatarFallback>
+                      {getInitials(session.user.name, session.user.email)}
+                    </AvatarFallback>
                   </Avatar>
                 </Button>
               </DropdownMenuTrigger>
@@ -299,8 +308,13 @@ export function DashboardNav() {
             {session?.user && (
               <div className="flex items-center gap-3 px-4 py-3 border-b">
                 <Avatar className="h-10 w-10">
-                  <AvatarImage src={session.user.image || ""} alt={session.user.name || "User"} />
-                  <AvatarFallback>{getInitials(session.user.name)}</AvatarFallback>
+                  <AvatarImage
+                    src={session.user.image || session.user.imageUrl || undefined}
+                    alt={session.user.name || session.user.email || "User"}
+                  />
+                  <AvatarFallback>
+                    {getInitials(session.user.name, session.user.email)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex-1">
                   <p className="font-medium">{session.user.name}</p>

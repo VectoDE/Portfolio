@@ -38,6 +38,8 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          image: user.imageUrl,
+          imageUrl: user.imageUrl,
         }
       },
     }),
@@ -50,12 +52,20 @@ export const authOptions: NextAuthOptions = {
   },
   callbacks: {
     session: ({ session, token }) => {
+      const imageFromToken = typeof token.image === "string" ? token.image : null
+      const imageUrlFromToken =
+        typeof token.imageUrl === "string"
+          ? token.imageUrl
+          : imageFromToken ?? (typeof session.user?.image === "string" ? session.user.image : null)
+
       return {
         ...session,
         user: {
           ...session.user,
           id: token.id,
           role: token.role,
+          image: imageFromToken,
+          imageUrl: imageUrlFromToken,
         },
       }
     },
@@ -65,6 +75,8 @@ export const authOptions: NextAuthOptions = {
           ...token,
           id: user.id,
           role: user.role,
+          image: (user as { image?: string | null }).image ?? null,
+          imageUrl: (user as { imageUrl?: string | null }).imageUrl ?? null,
         }
       }
       return token

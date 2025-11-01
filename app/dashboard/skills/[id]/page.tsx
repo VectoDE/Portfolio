@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, icons } from "lucide-react"
 import * as LucideIcons from "lucide-react"
 
 import { Button } from "@/components/ui/button"
@@ -33,9 +33,9 @@ import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
 // Get all available Lucide icons
-const iconNames = Object.keys(LucideIcons).filter(
-  (key) => typeof LucideIcons[key as keyof typeof LucideIcons] === "function" && key !== "default",
-)
+const iconNames = Object.keys(icons)
+  .filter((key) => key !== "default")
+  .sort((a, b) => a.localeCompare(b))
 
 interface EditSkillPageProps {
   params: {

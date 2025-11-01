@@ -5,9 +5,8 @@ import type React from "react"
 import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Search, Upload, X } from "lucide-react"
+import { ArrowLeft, Search, Upload, X, icons } from "lucide-react"
 import Image from "next/image"
-import * as LucideIcons from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -33,13 +32,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { IconRenderer } from "@/components/icon-renderer"
 
 // Get icon names but filter out non-component exports
-const iconNames = Object.keys(LucideIcons).filter(
-  (key) =>
-    typeof LucideIcons[key as keyof typeof LucideIcons] === "function" &&
-    key !== "default" &&
-    key !== "icons" &&
-    key !== "createLucideIcon",
-)
+const iconNames = Object.keys(icons)
+  .filter((key) => key !== "default")
+  .sort((a, b) => a.localeCompare(b))
 
 export default function NewSkillPage() {
   const router = useRouter()
