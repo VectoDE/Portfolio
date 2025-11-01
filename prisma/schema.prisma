@@ -41,10 +41,10 @@ model Project {
   logoUrl            String?          @db.Text
   githubUrl          String?          @db.Text
   featured           Boolean          @default(false)
-  developmentProcess String?          @db.Text
-  challengesFaced    String?          @db.Text
-  futurePlans        String?          @db.Text
-  logContent         String?          @db.Text
+  developmentProcess String?          @db.LongText
+  challengesFaced    String?          @db.LongText
+  futurePlans        String?          @db.LongText
+  logContent         String?          @db.LongText
   createdAt          DateTime         @default(now())
   updatedAt          DateTime         @updatedAt
   userId             String

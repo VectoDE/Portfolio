@@ -33,6 +33,8 @@ medium-private-key.pem
 /logs
 *.log
 
-prisma/migrations/*
+# Allow committed Prisma migrations
+!prisma/migrations/
+!prisma/migrations/**
 prisma/dev.db
 prisma/dev.db-journal
