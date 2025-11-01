@@ -1,29 +1,78 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 
+import { z } from "zod"
+
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
 import { sendContactNotification, sendContactAutoReply } from "@/lib/email"
 
+const sanitizeText = (value: string) => value.replace(/[<>]/g, "")
+
+const contactPayloadSchema = z.object({
+  name: z
+    .string({ required_error: "Name is required" })
+    .trim()
+    .min(2, "Name must be at least 2 characters")
+    .max(120, "Name must be 120 characters or fewer")
+    .transform(sanitizeText),
+  email: z
+    .string({ required_error: "Email is required" })
+    .trim()
+    .email("A valid email address is required")
+    .max(254)
+    .transform((value) => value.toLowerCase()),
+  subject: z
+    .preprocess(
+      (value) => {
+        if (typeof value !== "string") {
+          return undefined
+        }
+        const trimmed = value.trim()
+        if (!trimmed) {
+          return undefined
+        }
+        return sanitizeText(trimmed)
+      },
+      z
+        .string()
+        .min(2, "Subject must be at least 2 characters")
+        .max(160, "Subject must be 160 characters or fewer"),
+    )
+    .optional(),
+  message: z
+    .string({ required_error: "Message is required" })
+    .trim()
+    .min(10, "Message must be at least 10 characters")
+    .max(5000, "Message must be 5000 characters or fewer")
+    .transform(sanitizeText),
+})
+
+const allowedStatuses = new Set(["unread", "read", "replied", "archived"])
+
 // POST /api/contacts - Create a new contact message (public)
 export async function POST(req: Request) {
   try {
-    const { name, email, subject, message, status, createdAt } = await req.json()
+    const body = await req.json()
+    const parsedBody = contactPayloadSchema.safeParse(body)
 
-    // Validate required fields
-    if (!name || !email || !subject || !message) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
+    if (!parsedBody.success) {
+      return NextResponse.json(
+        { error: "Invalid request payload", details: parsedBody.error.flatten() },
+        { status: 400 },
+      )
     }
+
+    const { name, email, subject, message } = parsedBody.data
 
     // Create the contact message
     const contact = await prisma.contact.create({
       data: {
         name,
         email,
-        subject,
+        subject: subject ?? null,
         message,
-        status: status || "unread",
-        createdAt: createdAt || new Date(),
+        status: "unread",
       },
     })
 
@@ -66,9 +115,12 @@ export async function GET(req: Request) {
 
     // Get query parameters
     const { searchParams } = new URL(req.url)
-    const status = searchParams.get("status")
-    const page = Number.parseInt(searchParams.get("page") || "1")
-    const limit = Number.parseInt(searchParams.get("limit") || "10")
+    const requestedStatus = searchParams.get("status")
+    const status = requestedStatus && allowedStatuses.has(requestedStatus) ? requestedStatus : undefined
+    const parsedPage = Number.parseInt(searchParams.get("page") || "1", 10)
+    const parsedLimit = Number.parseInt(searchParams.get("limit") || "10", 10)
+    const page = Number.isFinite(parsedPage) && parsedPage > 0 ? parsedPage : 1
+    const limit = Number.isFinite(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 100) : 10
     const skip = (page - 1) * limit
 
     // Build the query

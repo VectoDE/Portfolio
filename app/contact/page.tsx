@@ -3,7 +3,7 @@
 import type React from "react"
 
 import Link from "next/link"
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   Clock,
   HeartHandshake,
@@ -41,6 +41,20 @@ export default function ContactPage() {
   })
   const [privacyAccepted, setPrivacyAccepted] = useState(false)
 
+  const isFormValid = useMemo(() => {
+    const trimmedName = formData.name.trim()
+    const trimmedEmail = formData.email.trim()
+    const trimmedMessage = formData.message.trim()
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    return (
+      trimmedName.length >= 2 &&
+      emailPattern.test(trimmedEmail) &&
+      trimmedMessage.length >= 10 &&
+      privacyAccepted
+    )
+  }, [formData, privacyAccepted])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
     setFormData((prev) => ({ ...prev, [name]: value }))
@@ -50,10 +64,35 @@ export default function ContactPage() {
     event.preventDefault()
     setIsSubmitting(true)
 
+    const trimmedData = {
+      name: formData.name.trim(),
+      email: formData.email.trim(),
+      subject: formData.subject.trim(),
+      message: formData.message.trim(),
+    }
+
+    const errors: string[] = []
+
+    if (trimmedData.name.length < 2) {
+      errors.push("Please enter your full name (at least 2 characters).")
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedData.email)) {
+      errors.push("Please provide a valid email address.")
+    }
+
+    if (trimmedData.message.length < 10) {
+      errors.push("Messages must be at least 10 characters so I can understand your request.")
+    }
+
     if (!privacyAccepted) {
+      errors.push("Please confirm that you accept the privacy notice.")
+    }
+
+    if (errors.length > 0) {
       toast({
-        title: "Consent required",
-        description: "Please confirm the privacy notice before submitting the form.",
+        title: "Update required",
+        description: errors.join(" "),
         variant: "destructive",
       })
       setIsSubmitting(false)
@@ -67,15 +106,20 @@ export default function ContactPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
-          status: "unread",
-          createdAt: new Date().toISOString(),
+          name: trimmedData.name,
+          email: trimmedData.email,
+          subject: trimmedData.subject || undefined,
+          message: trimmedData.message,
         }),
       })
 
       if (!response.ok) {
         const error = await response.json()
-        throw new Error(error.error || "Failed to send message")
+        const description =
+          Array.isArray(error?.details?.formErrors) && error.details.formErrors.length > 0
+            ? error.details.formErrors.join(" ")
+            : error?.error || "Failed to send message"
+        throw new Error(description)
       }
 
       toast({
@@ -258,10 +302,13 @@ export default function ContactPage() {
                             id="subject"
                             name="subject"
                             placeholder="Subject of your message"
-                            required
                             value={formData.subject}
                             onChange={handleChange}
+                            aria-describedby="subject-helper"
                           />
+                          <p id="subject-helper" className="text-xs text-muted-foreground">
+                            Optional – leave blank if you would like me to suggest a topic.
+                          </p>
                         </div>
                         <div className="space-y-2">
                           <Label htmlFor="message" className="flex items-center gap-2">
@@ -299,7 +346,8 @@ export default function ContactPage() {
                         <Button
                           type="submit"
                           className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300"
-                          disabled={isSubmitting || !privacyAccepted}
+                          disabled={isSubmitting || !isFormValid}
+                          aria-disabled={isSubmitting || !isFormValid}
                         >
                           {isSubmitting ? "Sending..." : "Send Message"}
                         </Button>
