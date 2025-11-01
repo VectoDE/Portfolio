@@ -284,7 +284,7 @@ async function getPageViewAnalytics(days = 30) {
   const dailyViews = await getDailyData("", "pageview", days)
 
   // Get top pages
-  const topPagesRaw = await prisma.pageView.groupBy({
+  const topPagesRaw: { path: string | null; _count: { _all: number } }[] = await prisma.pageView.groupBy({
     by: ["path"],
     where: {
       createdAt: {
@@ -303,22 +303,22 @@ async function getPageViewAnalytics(days = 30) {
 
   const formattedTopPages = topPagesRaw.map(({ path, _count }) => ({
     path,
-    count: _count._all,
+    count: _count?._all ?? 0,
   }))
 
   // Get unique visitors (approximated by unique IP addresses)
-  const uniqueVisitors = await prisma.pageView
-    .groupBy({
-      by: ["ipAddress"],
-      where: {
-        createdAt: {
-          gte: periodStartDate,
-          lte: periodEndDate,
-        },
-        ipAddress: { not: null },
+  const uniqueVisitorRows = await prisma.pageView.groupBy({
+    by: ["ipAddress"],
+    where: {
+      createdAt: {
+        gte: periodStartDate,
+        lte: periodEndDate,
       },
-    })
-    .then((rows) => rows.length)
+      ipAddress: { not: null },
+    },
+  })
+
+  const uniqueVisitors = uniqueVisitorRows.length
 
   return {
     totalViews,

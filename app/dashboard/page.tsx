@@ -237,12 +237,12 @@ async function getStats() {
           },
         },
       })
-      .then((rows) =>
+      .then((rows: { status: string; _count: { _all: number } }[]): ContactStatusRow[] =>
         rows.map(({ status, _count }) => ({
           status,
-          count: _count._all,
+          count: _count?._all ?? 0,
         })),
-      ) as Promise<ContactStatusRow[]>,
+      ),
   ])
 
   return {

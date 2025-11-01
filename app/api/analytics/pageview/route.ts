@@ -71,15 +71,15 @@ export async function GET(req: Request) {
       where: whereClause,
     })
 
-    const uniqueVisitors = await prisma.pageView
-      .groupBy({
-        by: ["ipAddress"],
-        where: {
-          ...whereClause,
-          ipAddress: { not: null },
-        },
-      })
-      .then((rows) => rows.length)
+    const uniqueVisitorRows = await prisma.pageView.groupBy({
+      by: ["ipAddress"],
+      where: {
+        ...whereClause,
+        ipAddress: { not: null },
+      },
+    })
+
+    const uniqueVisitors = uniqueVisitorRows.length
 
     return NextResponse.json({
       totalViews,
