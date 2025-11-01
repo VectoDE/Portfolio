@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Lint, typecheck, and build
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: mysql://user:password@localhost:3306/portfolio
+      NEXTAUTH_SECRET: test-secret
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
+      NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION: ""
+      NEXT_PUBLIC_BING_SITE_VERIFICATION: ""
+      EMAIL_SERVER: smtp.example.com
+      EMAIL_PORT: "587"
+      EMAIL_USER: apikey
+      EMAIL_PASSWORD: smtp-password
+      EMAIL_FROM: Portfolio <noreply@example.com>
+      ADMIN_EMAIL: admin@example.com
+      SEND_AUTO_REPLY: "false"
+      ETHEREAL_EMAIL: user@example.com
+      ETHEREAL_PASSWORD: password
+      IP_HASH_SALT: ci-test-salt
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.13.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        run: pnpm prisma:generate
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
+
+      - name: Build
+        run: pnpm build
