@@ -9,6 +9,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "PORT=3020 next start",
+    "start:local": "next start",
     "prod:start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
