@@ -1,5 +1,7 @@
 import type { PrismaClient as PrismaClientType } from "@prisma/client"
 
+import { registerPrismaRealtime } from "@/lib/realtime-events"
+
 type PrismaClientConstructor = new (...args: unknown[]) => PrismaClientType
 
 const globalForPrisma = globalThis as unknown as { prisma?: PrismaClientType }
@@ -107,6 +109,10 @@ const prisma =
         log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
       })
     : createStubClient())
+
+if (PrismaClientCtor) {
+  registerPrismaRealtime(prisma as PrismaClientType)
+}
 
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma

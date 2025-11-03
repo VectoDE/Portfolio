@@ -1,0 +1,55 @@
+import type { PrismaClient } from "@prisma/client"
+
+import { enqueueRealtimeEvent } from "@/lib/realtime-queue"
+
+const MUTATION_ACTIONS = new Set([
+  "create",
+  "createMany",
+  "update",
+  "updateMany",
+  "upsert",
+  "delete",
+  "deleteMany",
+])
+
+const globalForRealtime = globalThis as unknown as {
+  prismaRealtimeRegistered?: boolean
+}
+
+export function registerPrismaRealtime(prisma: PrismaClient) {
+  if (globalForRealtime.prismaRealtimeRegistered) {
+    return
+  }
+
+  prisma.$use(async (params, next) => {
+    const result = await next(params)
+
+    if (MUTATION_ACTIONS.has(params.action)) {
+      const model = params.model ?? "unknown"
+
+      try {
+        await enqueueRealtimeEvent(`prisma:${model}:${params.action}`, {
+          model,
+          action: params.action,
+          args: params.args,
+          result,
+          timestamp: Date.now(),
+        })
+      } catch (error) {
+        console.error("Failed to enqueue realtime Prisma event", error)
+      }
+    }
+
+    return result
+  })
+
+  globalForRealtime.prismaRealtimeRegistered = true
+}
+
+export async function broadcastRealtimeEvent(event: string, payload: unknown) {
+  try {
+    await enqueueRealtimeEvent(event, payload)
+  } catch (error) {
+    console.error("Failed to enqueue realtime event", error)
+  }
+}
