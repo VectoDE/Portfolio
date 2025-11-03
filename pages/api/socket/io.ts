@@ -1,5 +1,6 @@
 import type { NextApiRequest } from "next"
 import { Server as IOServer } from "socket.io"
+import type { DisconnectReason, Socket } from "socket.io"
 
 import type { NextApiResponseServerIO } from "@/types/next"
 import { getRealtimeIO, setRealtimeIO } from "@/lib/realtime"
@@ -24,14 +25,14 @@ export default function handler(req: NextApiRequest, res: NextApiResponseServerI
     setRealtimeIO(io)
     existingServer.io = io
 
-    io.on("connection", socket => {
+    io.on("connection", (socket: Socket) => {
       socket.emit("realtime:event", {
         event: "socket:connected",
         socketId: socket.id,
         timestamp: Date.now(),
       })
 
-      socket.on("disconnect", reason => {
+      socket.on("disconnect", (reason: DisconnectReason) => {
         socket.broadcast.emit("realtime:event", {
           event: "socket:disconnected",
           socketId: socket.id,
