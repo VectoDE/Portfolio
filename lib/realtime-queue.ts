@@ -1,5 +1,5 @@
 import { Queue, Worker } from "bullmq"
-import type { JobsOptions } from "bullmq"
+import type { Job, JobsOptions } from "bullmq"
 
 import { createRedisConnection, getRedisUrl } from "@/lib/redis"
 import { getRealtimeIO } from "@/lib/realtime"
@@ -47,7 +47,7 @@ function ensureWorker() {
   if (!globalForQueue.realtimeWorker) {
     globalForQueue.realtimeWorker = new Worker(
       queueName,
-      async job => {
+      async (job: Job) => {
         const io = getRealtimeIO()
 
         if (io) {
@@ -64,7 +64,7 @@ function ensureWorker() {
       { connection },
     )
 
-    globalForQueue.realtimeWorker.on("error", error => {
+    globalForQueue.realtimeWorker.on("error", (error: Error) => {
       console.error("Realtime worker error", error)
     })
   }

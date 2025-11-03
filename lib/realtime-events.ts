@@ -2,9 +2,19 @@ import type { PrismaClient } from "@prisma/client"
 
 import { enqueueRealtimeEvent } from "@/lib/realtime-queue"
 
-type PrismaMiddleware = Parameters<PrismaClient["$use"]>[0]
-type PrismaMiddlewareParams = Parameters<PrismaMiddleware>[0]
-type PrismaMiddlewareNext = Parameters<PrismaMiddleware>[1]
+type PrismaMiddlewareParams = {
+  action: string
+  model?: string | null
+  args?: unknown
+  [key: string]: unknown
+}
+
+type PrismaMiddlewareNext = (params: PrismaMiddlewareParams) => Promise<unknown>
+
+type PrismaMiddleware = (
+  params: PrismaMiddlewareParams,
+  next: PrismaMiddlewareNext,
+) => Promise<unknown>
 
 const MUTATION_ACTIONS = new Set([
   "create",
