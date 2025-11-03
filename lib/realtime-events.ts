@@ -1,6 +1,8 @@
-import type { Prisma, PrismaClient } from "@prisma/client"
+import type { PrismaClient } from "@prisma/client"
 
 import { enqueueRealtimeEvent } from "@/lib/realtime-queue"
+
+type PrismaMiddleware = Parameters<PrismaClient["$use"]>[0]
 
 const MUTATION_ACTIONS = new Set([
   "create",
@@ -31,7 +33,7 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
     return
   }
 
-  const realtimeMiddleware: Prisma.Middleware = async (params, next) => {
+  const realtimeMiddleware: PrismaMiddleware = async (params, next) => {
     const result = await next(params)
 
     if (MUTATION_ACTIONS.has(params.action)) {
