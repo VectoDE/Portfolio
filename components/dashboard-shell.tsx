@@ -37,6 +37,7 @@ interface DashboardShellProps {
 export function DashboardShell({ children }: DashboardShellProps) {
   const router = useRouter()
   const pathname = usePathname()
+  const currentPath = pathname ?? ""
   const [isMobile, setIsMobile] = useState(false)
   const [isOpen, setIsOpen] = useState(false)
 
@@ -58,10 +59,10 @@ export function DashboardShell({ children }: DashboardShellProps) {
 
   // Check if the menu item should be active
   const isActive = (path: string) => {
-    if (path === "/dashboard" && pathname === "/dashboard") {
+    if (path === "/dashboard" && currentPath === "/dashboard") {
       return true
     }
-    return path !== "/dashboard" && pathname.startsWith(path)
+    return path !== "/dashboard" && currentPath.startsWith(path)
   }
 
   const handleLogout = async () => {

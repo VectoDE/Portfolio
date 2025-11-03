@@ -38,6 +38,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 export function DashboardNav() {
   const pathname = usePathname()
+  const currentPath = pathname ?? ""
   const router = useRouter()
   const { toast } = useToast()
   const { setTheme, theme } = useTheme()
@@ -69,10 +70,10 @@ export function DashboardNav() {
   ]
 
   const isActive = (path: string) => {
-    if (path === "/dashboard" && pathname === "/dashboard") {
+    if (path === "/dashboard" && currentPath === "/dashboard") {
       return true
     }
-    return path !== "/dashboard" && pathname.startsWith(path)
+    return path !== "/dashboard" && currentPath.startsWith(path)
   }
 
   const handleLogout = async () => {

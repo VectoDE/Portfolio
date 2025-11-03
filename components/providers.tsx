@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 import { PageViewTracker } from "@/components/page-view-tracker"
 import { CookieBanner } from "@/components/cookie-banner"
 import { Logger } from "@/components/logger"
+import { RealtimeProvider } from "@/components/realtime-provider"
 import { Toaster } from "@/components/ui/toaster"
 
 interface ProvidersProps {
@@ -19,7 +20,7 @@ export function Providers({ children }: ProvidersProps) {
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <Logger />
         <PageViewTracker />
-        {children}
+        <RealtimeProvider>{children}</RealtimeProvider>
         <Toaster />
         <CookieBanner />
       </ThemeProvider>
