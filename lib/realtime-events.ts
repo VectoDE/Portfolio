@@ -1,4 +1,4 @@
-import type { PrismaClient } from "@prisma/client"
+import type { Prisma, PrismaClient } from "@prisma/client"
 
 import { enqueueRealtimeEvent } from "@/lib/realtime-queue"
 
@@ -31,7 +31,7 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
     return
   }
 
-  middlewareCapablePrisma.$use(async (params, next) => {
+  const realtimeMiddleware: Prisma.Middleware = async (params, next) => {
     const result = await next(params)
 
     if (MUTATION_ACTIONS.has(params.action)) {
@@ -55,7 +55,9 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
     }
 
     return result
-  })
+  }
+
+  middlewareCapablePrisma.$use(realtimeMiddleware)
 
   globalForRealtime.prismaRealtimeRegistered = true
 }

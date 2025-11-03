@@ -17,7 +17,7 @@ import {
 
 export default function UnsubscribeClient() {
   const searchParams = useSearchParams()
-  const token = searchParams.get("token")
+  const token = searchParams?.get("token") ?? null
   const [status, setStatus] = useState<
     "verifying" | "ready" | "processing" | "success" | "error" | "preferences"
   >(token ? "verifying" : "error")

@@ -13,22 +13,28 @@ const globalForQueue = globalThis as unknown as {
   realtimeWorkerConnection?: ReturnType<typeof createRedisConnection>
 }
 
-function ensureConnections() {
+function getQueueConnection() {
   if (!globalForQueue.realtimeQueueConnection) {
     globalForQueue.realtimeQueueConnection = createRedisConnection()
   }
 
+  return globalForQueue.realtimeQueueConnection
+}
+
+function getWorkerConnection() {
   if (!globalForQueue.realtimeWorkerConnection) {
     globalForQueue.realtimeWorkerConnection = createRedisConnection()
   }
+
+  return globalForQueue.realtimeWorkerConnection
 }
 
 export function getRealtimeQueue() {
-  ensureConnections()
+  const connection = getQueueConnection()
 
   if (!globalForQueue.realtimeQueue) {
     globalForQueue.realtimeQueue = new Queue(queueName, {
-      connection: globalForQueue.realtimeQueueConnection,
+      connection,
     })
   }
 
@@ -36,7 +42,7 @@ export function getRealtimeQueue() {
 }
 
 function ensureWorker() {
-  ensureConnections()
+  const connection = getWorkerConnection()
 
   if (!globalForQueue.realtimeWorker) {
     globalForQueue.realtimeWorker = new Worker(
@@ -55,7 +61,7 @@ function ensureWorker() {
           io.emit(job.name, job.data)
         }
       },
-      { connection: globalForQueue.realtimeWorkerConnection },
+      { connection },
     )
 
     globalForQueue.realtimeWorker.on("error", error => {
