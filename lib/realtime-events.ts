@@ -28,12 +28,14 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
       const model = params.model ?? "unknown"
 
       try {
-        await enqueueRealtimeEvent(`prisma:${model}:${params.action}`, {
+        void enqueueRealtimeEvent(`prisma:${model}:${params.action}`, {
           model,
           action: params.action,
           args: params.args,
           result,
           timestamp: Date.now(),
+        }).catch(error => {
+          console.error("Failed to enqueue realtime Prisma event", error)
         })
       } catch (error) {
         console.error("Failed to enqueue realtime Prisma event", error)
