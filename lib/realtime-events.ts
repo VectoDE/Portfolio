@@ -21,20 +21,32 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
     return
   }
 
-  prisma.$use(async (params, next) => {
+  const middlewareCapablePrisma = prisma as PrismaClient & {
+    $use?: PrismaClient["$use"]
+  }
+
+  if (typeof middlewareCapablePrisma.$use !== "function") {
+    console.warn("Prisma client does not support middleware; skipping realtime registration")
+    globalForRealtime.prismaRealtimeRegistered = true
+    return
+  }
+
+  middlewareCapablePrisma.$use(async (params, next) => {
     const result = await next(params)
 
     if (MUTATION_ACTIONS.has(params.action)) {
       const model = params.model ?? "unknown"
 
       try {
-        void enqueueRealtimeEvent(`prisma:${model}:${params.action}`, {
+        const enqueuePromise = enqueueRealtimeEvent(`prisma:${model}:${params.action}`, {
           model,
           action: params.action,
           args: params.args,
           result,
           timestamp: Date.now(),
-        }).catch(error => {
+        })
+
+        void enqueuePromise.catch(error => {
           console.error("Failed to enqueue realtime Prisma event", error)
         })
       } catch (error) {
