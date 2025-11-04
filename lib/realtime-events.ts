@@ -40,7 +40,7 @@ export function registerPrismaRealtime(prisma: PrismaClient) {
   }
 
   if (typeof middlewareCapablePrisma.$use !== "function") {
-    console.warn("Prisma client does not support middleware; skipping realtime registration")
+    // console.warn("Prisma client does not support middleware; skipping realtime registration")
     globalForRealtime.prismaRealtimeRegistered = true
     return
   }

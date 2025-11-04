@@ -6,6 +6,6 @@ declare module "@prisma/client" {
     $connect(): Promise<void>
     $disconnect(): Promise<void>
     $use(...args: unknown[]): void
-    [key: string]: any
+    [key: string]: unknown
   }
 }

@@ -4,6 +4,8 @@
 
 body {
   font-family: Arial, Helvetica, sans-serif;
+  max-width: 100%; /* Ensure content doesn't overflow horizontally */
+  margin: 0 auto; /* Center the content */
 }
 
 @layer utilities {

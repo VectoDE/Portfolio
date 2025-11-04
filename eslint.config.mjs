@@ -80,6 +80,7 @@ export default [
         "warn",
         {
           argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_", // Add this to ignore unused variables (including type parameters) starting with an underscore
           ignoreRestSiblings: true,
         },
       ],

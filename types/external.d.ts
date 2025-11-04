@@ -81,7 +81,7 @@ declare module "bullmq" {
     data: Data
   }
 
-  export class Queue<Data = unknown, Result = unknown, Name extends string = string> {
+  export class Queue<Data = unknown, _Result = unknown, Name extends string = string> {
     constructor(name: Name, opts?: QueueOptions)
     add(name: Name, data: Data, opts?: JobsOptions): Promise<Job<Data>>
   }

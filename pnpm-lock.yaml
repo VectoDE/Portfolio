@@ -21,7 +21,7 @@ importers:
         specifier: ^3.9.1
         version: 3.10.0(react-hook-form@7.65.0(react@18.3.1))
       '@prisma/client':
-        specifier: ^6.18.0
+        specifier: 6.18.0
         version: 6.18.0(prisma@6.18.0(typescript@5.9.3))(typescript@5.9.3)
       '@radix-ui/react-accordion':
         specifier: ^1.2.2
@@ -164,9 +164,6 @@ importers:
       nodemailer:
         specifier: ^7.0.7
         version: 7.0.7
-      prisma:
-        specifier: ^6.18.0
-        version: 6.18.0(typescript@5.9.3)
       react:
         specifier: ^18
         version: 18.3.1
@@ -273,6 +270,9 @@ importers:
       prettier:
         specifier: ^3.6.2
         version: 3.6.2
+      prisma:
+        specifier: 6.18.0
+        version: 6.18.0(typescript@5.9.3)
       tailwindcss:
         specifier: ^3.4.17
         version: 3.4.18
