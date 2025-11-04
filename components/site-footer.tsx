@@ -22,9 +22,6 @@ export function SiteFooter() {
             <Link href="/newsletter" className="hover:text-primary hover:underline underline-offset-4">
               Newsletter
             </Link>
-            <Link href="/#faq" className="hover:text-primary hover:underline underline-offset-4">
-              Newsletter FAQ
-            </Link>
             <Link href="/register" className="hover:text-primary hover:underline underline-offset-4">
               Join to Comment
             </Link>
