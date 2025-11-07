@@ -55,38 +55,38 @@ function createStubClient(): PrismaClientType {
     },
   }
 
-  const createModelProxy = () =>
-    new Proxy(
-      {},
-      {
-        get(_, property) {
-          if (typeof property !== "string") {
-            return asyncError
-          }
+  const createModelProxy = (): PrismaClientType[keyof PrismaClientType] =>
+    new Proxy({} as PrismaClientType[keyof PrismaClientType], {
+      get(_, property) {
+        if (typeof property !== "string") {
+          return asyncError
+        }
 
-          const fallback = readFallbacks[property]
-          return fallback ?? asyncError
-        },
+        const fallback = readFallbacks[property]
+        return fallback ?? asyncError
       },
-    )
+    })
 
-  const base = {
+  const proxyTarget = {
     $connect: asyncError,
     $disconnect: asyncError,
     $use: syncError,
     $on: syncError,
-    $transaction: asyncError,
-  } as Record<string, unknown>
+    $transaction: async (...args: unknown[]) => {
+      notifyStubUsage()
+      throw new Error(stubWarning)
+    },
+  } as PrismaClientType
 
-  return new Proxy(base, {
-    get(target, property) {
+  return new Proxy(proxyTarget, {
+    get(target, property, receiver) {
       if (property in target) {
-        return target[property as keyof typeof target]
+        return Reflect.get(target, property, receiver)
       }
 
       return createModelProxy()
     },
-  }) as PrismaClientType
+  })
 }
 
 let PrismaClientCtor: PrismaClientConstructor | undefined
@@ -105,8 +105,8 @@ try {
 const hasDatabaseUrl = Boolean(process.env.DATABASE_URL)
 const shouldUseStub = !PrismaClientCtor || !hasDatabaseUrl
 
-const prisma =
-  globalForPrisma.prisma ||
+const prisma: PrismaClientType =
+  globalForPrisma.prisma ??
   (shouldUseStub
     ? createStubClient()
     : new PrismaClientCtor!({
