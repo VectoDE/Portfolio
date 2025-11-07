@@ -102,15 +102,18 @@ try {
   }
 }
 
+const hasDatabaseUrl = Boolean(process.env.DATABASE_URL)
+const shouldUseStub = !PrismaClientCtor || !hasDatabaseUrl
+
 const prisma =
   globalForPrisma.prisma ||
-  (PrismaClientCtor
-    ? new PrismaClientCtor({
+  (shouldUseStub
+    ? createStubClient()
+    : new PrismaClientCtor!({
         log: process.env.NODE_ENV === "development" ? ["query", "error", "warn"] : ["error"],
-      })
-    : createStubClient())
+      }))
 
-if (PrismaClientCtor) {
+if (!shouldUseStub) {
   registerPrismaRealtime(prisma as PrismaClientType)
 }
 
