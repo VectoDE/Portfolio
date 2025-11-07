@@ -1,9 +1,7 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from "next"
 import Script from "next/script"
-import { Inter } from "next/font/google"
 
-import { cn } from "@/lib/utils"
 import { getSiteUrl, siteProfile } from "@/lib/site"
 import { Providers } from "@/components/providers"
 
@@ -13,8 +11,6 @@ const metadataBase = new URL(getSiteUrl())
 
 const siteName = siteProfile.name
 const siteDescription = siteProfile.defaultDescription
-
-const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
   metadataBase,
@@ -187,7 +183,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn(inter.className, "min-h-screen bg-background text-foreground antialiased")}>
+      <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <Providers>{children}</Providers>
         <Script id="structured-data" type="application/ld+json">
           {JSON.stringify(structuredData)}
