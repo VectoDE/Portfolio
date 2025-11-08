@@ -1,7 +1,10 @@
+import { unstable_noStore as noStore } from "next/cache"
+
 import prisma from "@/lib/db"
 import type { Skill } from "@/types/database"
 
 export async function getAllSkills(): Promise<Skill[]> {
+  noStore()
   try {
     const skills = await prisma.skill.findMany({
       orderBy: [{ category: "asc" }, { level: "desc" }, { name: "asc" }],
@@ -15,6 +18,7 @@ export async function getAllSkills(): Promise<Skill[]> {
 }
 
 export async function getSkillById(id: string): Promise<Skill | null> {
+  noStore()
   try {
     const skill = await prisma.skill.findUnique({
       where: {
@@ -30,6 +34,7 @@ export async function getSkillById(id: string): Promise<Skill | null> {
 }
 
 export async function getSkillsByCategory(category: string): Promise<Skill[]> {
+  noStore()
   try {
     // Get the first user (assuming it's the portfolio owner)
     const user = await prisma.user.findFirst()

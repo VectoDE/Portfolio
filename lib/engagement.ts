@@ -1,3 +1,5 @@
+import { unstable_noStore as noStore } from "next/cache"
+
 import prisma from "@/lib/db"
 import type {
   EngagementHighlightProject,
@@ -42,6 +44,7 @@ type RawProjectHighlight = {
 }
 
 export async function getProjectComments(projectId: string): Promise<ProjectComment[]> {
+  noStore()
   try {
     const comments = (await prisma.projectComment.findMany({
       where: { projectId },
@@ -80,6 +83,7 @@ export async function getProjectComments(projectId: string): Promise<ProjectComm
 }
 
 export async function getProjectReactionSummary(projectId: string): Promise<ReactionSummary> {
+  noStore()
   try {
     const counts = (await prisma.projectReaction.groupBy({
       by: ["type"],
@@ -120,6 +124,7 @@ export async function getProjectReactionSummary(projectId: string): Promise<Reac
 }
 
 export async function getEngagementHighlights(limit = 3): Promise<EngagementHighlights> {
+  noStore()
   try {
     const [totalComments, totalReactions, memberCount, topProjectsRaw, latestCommentRaw] =
       await Promise.all([

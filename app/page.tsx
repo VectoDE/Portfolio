@@ -49,6 +49,8 @@ export const metadata: Metadata = {
   },
 }
 
+export const revalidate = 0
+
 export default async function Home() {
   const engagementHighlights = await getEngagementHighlights()
   const heroStats = [
