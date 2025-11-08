@@ -24,6 +24,8 @@ interface ProjectPageProps {
   }>
 }
 
+export const revalidate = 0
+
 export async function generateMetadata({ params }: ProjectPageProps) {
   const { id } = await params
   if (!id) {

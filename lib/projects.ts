@@ -1,7 +1,10 @@
+import { unstable_noStore as noStore } from "next/cache"
+
 import prisma from "@/lib/db"
 import type { Project } from "@/types/database"
 
 export async function getProjects() {
+  noStore()
   try {
     if (!prisma) {
       console.error("Prisma client is not initialized")
@@ -22,6 +25,7 @@ export async function getProjects() {
 }
 
 export async function getAllProjects(): Promise<Project[]> {
+  noStore()
   try {
     if (!prisma) {
       console.error("Prisma client is not initialized")
@@ -45,6 +49,7 @@ export async function getAllProjects(): Promise<Project[]> {
 }
 
 export async function getProjectById(id: string): Promise<Project | null> {
+  noStore()
   try {
     if (!prisma) {
       console.error("Prisma client is not initialized")
@@ -68,6 +73,7 @@ export async function getProjectById(id: string): Promise<Project | null> {
 }
 
 export async function getFeaturedProjects(limit = 3): Promise<Project[]> {
+  noStore()
   try {
     if (!prisma) {
       console.error("Prisma client is not initialized")
