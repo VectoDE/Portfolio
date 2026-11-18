@@ -26,7 +26,7 @@ export function BackgroundGradientAnimation({
   className,
   interactive = true,
   containerClassName,
-}: {
+}: Readonly<{
   gradientBackgroundStart?: string
   gradientBackgroundEnd?: string
   firstColor?: string
@@ -39,7 +39,7 @@ export function BackgroundGradientAnimation({
   className?: string
   interactive?: boolean
   containerClassName?: string
-}) {
+}>) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const pointerRef = useRef<{ x: number; y: number; width: number }>({

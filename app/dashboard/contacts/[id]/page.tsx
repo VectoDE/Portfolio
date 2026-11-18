@@ -4,7 +4,7 @@ interface ContactDetailsPageProps {
   params: Promise<{ id?: string }>
 }
 
-export default async function ContactDetailsPage({ params }: ContactDetailsPageProps) {
+export default async function ContactDetailsPage({ params }: Readonly<ContactDetailsPageProps>) {
   const resolvedParams = await params
 
   return <ContactDetailsPageClient id={resolvedParams?.id} />

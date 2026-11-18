@@ -4,7 +4,7 @@ interface EditCareerPageProps {
   params: Promise<{ id?: string }>
 }
 
-export default async function EditCareerPage({ params }: EditCareerPageProps) {
+export default async function EditCareerPage({ params }: Readonly<EditCareerPageProps>) {
   const resolvedParams = await params
 
   return <EditCareerPageClient id={resolvedParams?.id} />

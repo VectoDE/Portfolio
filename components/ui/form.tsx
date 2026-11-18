@@ -4,13 +4,13 @@
 import * as React from "react"
 import type * as LabelPrimitive from "@radix-ui/react-label"
 import { Slot } from "@radix-ui/react-slot"
-import { Controller, FormProvider, useFormContext } from "react-hook-form"
+import { Controller, useFormContext } from "react-hook-form"
 import type { ControllerProps, FieldPath, FieldValues } from "react-hook-form"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
 
-export const Form = FormProvider
+export { FormProvider as Form } from "react-hook-form"
 
 type FormFieldContextValue<
   TFieldValues extends FieldValues = FieldValues,
@@ -27,8 +27,10 @@ const FormField = <
 >({
   ...props
 }: ControllerProps<TFieldValues, TName>) => {
+  const contextValue = React.useMemo(() => ({ name: props.name }), [props.name])
+
   return (
-    <FormFieldContext.Provider value={{ name: props.name }}>
+    <FormFieldContext.Provider value={contextValue}>
       <Controller {...props} />
     </FormFieldContext.Provider>
   )
@@ -66,9 +68,10 @@ const FormItemContext = React.createContext<FormItemContextValue>({} as FormItem
 const FormItem = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
   ({ className, ...props }, ref) => {
     const id = React.useId()
+    const contextValue = React.useMemo(() => ({ id }), [id])
 
     return (
-      <FormItemContext.Provider value={{ id }}>
+      <FormItemContext.Provider value={contextValue}>
         <div ref={ref} className={cn("space-y-2", className)} {...props} />
       </FormItemContext.Provider>
     )

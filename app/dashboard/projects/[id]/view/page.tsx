@@ -43,11 +43,11 @@ interface ProjectViewPageProps {
   params: Promise<{ id: string }>
 }
 
-export default async function ProjectViewPage({ params }: ProjectViewPageProps) {
+export default async function ProjectViewPage({ params }: Readonly<ProjectViewPageProps>) {
   const { id } = await params
   const session = await getServerSession(authOptions)
 
-  if (!session || !session.user?.id) {
+  if (!session?.user?.id) {
     redirect(`/login?callbackUrl=/dashboard/projects/${id}/view`)
   }
 

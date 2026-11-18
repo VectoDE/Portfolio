@@ -4,7 +4,7 @@ interface EditProjectPageProps {
   params: Promise<{ id?: string }>
 }
 
-export default async function EditProjectPage({ params }: EditProjectPageProps) {
+export default async function EditProjectPage({ params }: Readonly<EditProjectPageProps>) {
   const resolvedParams = await params
 
   return <EditProjectPageClient id={resolvedParams?.id} />
