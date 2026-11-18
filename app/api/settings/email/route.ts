@@ -10,7 +10,7 @@ export async function GET(_req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -57,10 +57,10 @@ export async function POST(req: Request) {
     const { adminEmail, emailFrom, smtpServer, smtpPort, smtpUser, smtpPassword, sendAutoReply } =
       data
 
-    let emailSettings = await prisma.emailSettings.findFirst()
+    const emailSettings = await prisma.emailSettings.findFirst()
 
     if (emailSettings) {
-      emailSettings = await prisma.emailSettings.update({
+      await prisma.emailSettings.update({
         where: { id: emailSettings.id },
         data: {
           adminEmail,
@@ -73,7 +73,7 @@ export async function POST(req: Request) {
         },
       })
     } else {
-      emailSettings = await prisma.emailSettings.create({
+      await prisma.emailSettings.create({
         data: {
           adminEmail,
           emailFrom,
@@ -113,7 +113,7 @@ export async function PUT(req: Request, { params }: TestRouteParams) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

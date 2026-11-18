@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
-import { mkdir, writeFile } from "fs/promises"
-import path from "path"
+import { mkdir, writeFile } from "node:fs/promises"
+import path from "node:path"
 import { v4 as uuidv4 } from "uuid"
 
 import { authOptions } from "@/lib/auth"
@@ -12,7 +12,7 @@ export async function POST(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

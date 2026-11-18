@@ -9,16 +9,14 @@ export function getRealtimeClient() {
     return null
   }
 
-  if (!socketInstance) {
-    socketInstance = io({
-      path: "/api/socket/io",
-      transports: ["websocket", "polling"],
-      autoConnect: true,
-      reconnection: true,
-      reconnectionDelay: 1000,
-      reconnectionDelayMax: 5000,
-    })
-  }
+  socketInstance ??= io({
+    path: "/api/socket/io",
+    transports: ["websocket", "polling"],
+    autoConnect: true,
+    reconnection: true,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+  })
 
   return socketInstance
 }

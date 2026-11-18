@@ -18,8 +18,9 @@ function isMySqlDatabase(): boolean {
 }
 
 async function fetchProjectColumnTypes() {
+  const quotedColumns = PROJECT_LONGFORM_COLUMNS.map((column) => `'${column}'`).join(",")
   const result = await prisma.$queryRawUnsafe(
-    `SHOW COLUMNS FROM \`Project\` WHERE Field IN (${PROJECT_LONGFORM_COLUMNS.map((column) => `'${column}'`).join(",")})`,
+    `SHOW COLUMNS FROM \`Project\` WHERE Field IN (${quotedColumns})`,
   )
 
   return result as Array<{ Field: string; Type: string }>
@@ -53,22 +54,20 @@ export async function ensureProjectLongFormColumns() {
     return
   }
 
-  if (!ensurePromise) {
-    ensurePromise = (async () => {
-      try {
-        const columns = await fetchProjectColumnTypes()
-        if (!Array.isArray(columns) || needsAlteration(columns)) {
-          await applyAlterations()
-        }
-        ensured = true
-        ensurePromise = null
-      } catch (error) {
-        console.error("Failed to ensure long-form project columns:", error)
-        ensurePromise = null
-        throw error
+  ensurePromise ??= (async () => {
+    try {
+      const columns = await fetchProjectColumnTypes()
+      if (!Array.isArray(columns) || needsAlteration(columns)) {
+        await applyAlterations()
       }
-    })()
-  }
+      ensured = true
+      ensurePromise = null
+    } catch (error) {
+      console.error("Failed to ensure long-form project columns:", error)
+      ensurePromise = null
+      throw error
+    }
+  })()
 
   try {
     await ensurePromise

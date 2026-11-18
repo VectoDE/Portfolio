@@ -9,7 +9,7 @@ export async function GET(_req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -38,12 +38,51 @@ export async function GET(_req: Request) {
   }
 }
 
+const USERNAME_PATTERN = /^[a-zA-Z0-9._-]{3,24}$/
+
+type UsernameResult =
+  | { error: string; value?: undefined }
+  | { error?: undefined; value: string | null | undefined }
+
+async function normalizeUsername(username: unknown, userId: string): Promise<UsernameResult> {
+  if (typeof username !== "string") {
+    return { value: undefined }
+  }
+
+  const trimmed = username.trim()
+
+  if (trimmed.length === 0) {
+    return { value: null }
+  }
+
+  if (!USERNAME_PATTERN.test(trimmed)) {
+    return {
+      error:
+        "Usernames may only contain letters, numbers, dots, underscores, and hyphens (3-24 characters).",
+    }
+  }
+
+  const existingUsername = await prisma.user.findFirst({
+    where: {
+      username: trimmed,
+      NOT: { id: userId },
+    },
+    select: { id: true },
+  })
+
+  if (existingUsername) {
+    return { error: "This username is already taken" }
+  }
+
+  return { value: trimmed }
+}
+
 // PUT /api/user/profile - Update user profile
 export async function PUT(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -65,40 +104,13 @@ export async function PUT(req: Request) {
       }
     }
 
-    let normalizedUsername: string | null | undefined = undefined
+    const usernameResult = await normalizeUsername(username, userId)
 
-    if (typeof username === "string") {
-      const trimmed = username.trim()
-
-      if (trimmed.length === 0) {
-        normalizedUsername = null
-      } else {
-        const usernamePattern = /^[a-zA-Z0-9._-]{3,24}$/
-
-        if (!usernamePattern.test(trimmed)) {
-          return NextResponse.json(
-            {
-              error: "Usernames may only contain letters, numbers, dots, underscores, and hyphens (3-24 characters).",
-            },
-            { status: 400 },
-          )
-        }
-
-        const existingUsername = await prisma.user.findFirst({
-          where: {
-            username: trimmed,
-            NOT: { id: userId },
-          },
-          select: { id: true },
-        })
-
-        if (existingUsername) {
-          return NextResponse.json({ error: "This username is already taken" }, { status: 400 })
-        }
-
-        normalizedUsername = trimmed
-      }
+    if (usernameResult.error) {
+      return NextResponse.json({ error: usernameResult.error }, { status: 400 })
     }
+
+    const normalizedUsername = usernameResult.value
 
     const updateData: {
       name: string

@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer"
 import prisma from "@/lib/db"
+import { stripHtmlTags } from "@/lib/strip-html"
 
 // Create a transporter with settings from the database
 const createTransporter = async () => {
@@ -71,7 +72,7 @@ export async function sendEmail({
       to,
       subject,
       html,
-      text: text || html.replace(/<[^>]*>/g, ""), // Strip HTML tags for plain text version if not provided
+      text: text || stripHtmlTags(html), // Strip HTML tags for plain text version if not provided
     }
 
     // Send the email
