@@ -166,12 +166,12 @@ async function calculateStatsWithChange(
   const change = currentPeriodCount - previousPeriodCount
 
   // Calculate percentage change
-  const percentage =
-    previousPeriodCount === 0
-      ? change > 0
-        ? 100
-        : 0
-      : Math.round((change / previousPeriodCount) * 100)
+  let percentage: number
+  if (previousPeriodCount !== 0) {
+    percentage = Math.round((change / previousPeriodCount) * 100)
+  } else {
+    percentage = change > 0 ? 100 : 0
+  }
 
   return {
     count: totalCount,
@@ -180,95 +180,47 @@ async function calculateStatsWithChange(
   }
 }
 
+type DailyDataModel = "project" | "certificate" | "skill" | "career" | "contact" | "pageview"
+
+// Count the records of a model within a time window
+function countInRange(userId: string, model: DailyDataModel, dayStart: Date, dayEnd: Date): Promise<number> {
+  const createdAt = { gte: dayStart, lte: dayEnd }
+
+  switch (model) {
+    case "project":
+      return prisma.project.count({ where: { userId, createdAt } })
+    case "certificate":
+      return prisma.certificate.count({ where: { userId, createdAt } })
+    case "skill":
+      return prisma.skill.count({ where: { userId, createdAt } })
+    case "career":
+      return prisma.career.count({ where: { userId, createdAt } })
+    case "contact":
+      return prisma.contact.count({ where: { createdAt } })
+    case "pageview":
+      return prisma.pageView.count({ where: { createdAt } })
+  }
+}
+
 // Function to get daily data for a specific model
 async function getDailyData(
   userId: string,
-  model: "project" | "certificate" | "skill" | "career" | "contact" | "pageview",
+  model: DailyDataModel,
   days = 30,
 ): Promise<{ date: string; count: number }[]> {
-  const result: { date: string; count: number }[] = []
+  const dayOffsets = Array.from({ length: days }, (_, index) => days - 1 - index)
 
-  for (let i = days - 1; i >= 0; i--) {
-    const date = subDays(new Date(), i)
-    const formattedDate = format(date, "yyyy-MM-dd")
-    const dayStart = startOfDay(date)
-    const dayEnd = endOfDay(date)
+  // The daily counts are independent of each other, so they can run in parallel
+  return Promise.all(
+    dayOffsets.map(async (offset) => {
+      const date = subDays(new Date(), offset)
 
-    let count = 0
-    switch (model) {
-      case "project":
-        count = await prisma.project.count({
-          where: {
-            userId,
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-      case "certificate":
-        count = await prisma.certificate.count({
-          where: {
-            userId,
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-      case "skill":
-        count = await prisma.skill.count({
-          where: {
-            userId,
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-      case "career":
-        count = await prisma.career.count({
-          where: {
-            userId,
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-      case "contact":
-        count = await prisma.contact.count({
-          where: {
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-      case "pageview":
-        count = await prisma.pageView.count({
-          where: {
-            createdAt: {
-              gte: dayStart,
-              lte: dayEnd,
-            },
-          },
-        })
-        break
-    }
-
-    result.push({
-      date: formattedDate,
-      count,
-    })
-  }
-
-  return result
+      return {
+        date: format(date, "yyyy-MM-dd"),
+        count: await countInRange(userId, model, startOfDay(date), endOfDay(date)),
+      }
+    }),
+  )
 }
 
 // Function to get page view analytics
@@ -333,7 +285,7 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 

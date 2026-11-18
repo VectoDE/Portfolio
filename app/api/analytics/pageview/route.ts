@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { createHash } from "crypto"
+import { createHash } from "node:crypto"
 
 import prisma from "@/lib/db"
 

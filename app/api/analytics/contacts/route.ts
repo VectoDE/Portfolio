@@ -10,7 +10,7 @@ export async function GET(req: Request) {
   try {
     const session = await getServerSession(authOptions)
 
-    if (!session || !session.user) {
+    if (!session?.user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -52,12 +52,12 @@ export async function GET(req: Request) {
 
     // Calculate change and percentage
     const change = currentPeriodCount - previousPeriodCount
-    const percentage =
-      previousPeriodCount === 0
-        ? change > 0
-          ? 100
-          : 0
-        : Math.round((change / previousPeriodCount) * 100)
+    let percentage: number
+    if (previousPeriodCount !== 0) {
+      percentage = Math.round((change / previousPeriodCount) * 100)
+    } else {
+      percentage = change > 0 ? 100 : 0
+    }
 
     // Get status breakdown
     const statusBreakdownRows: { status: string; _count: { _all: number; status: number } }[] = await prisma.contact.groupBy({
@@ -76,32 +76,30 @@ export async function GET(req: Request) {
     }))
 
     // Get daily contacts for the period
-    const dailyContacts: { date: string; count: number }[] = []
+    // Generate dates for the last N days; the daily counts are independent, so they run in parallel
+    const dayOffsets = Array.from({ length: Math.max(periodDays, 0) }, (_, index) => periodDays - 1 - index)
 
-    // Generate dates for the last N days
-    for (let i = periodDays - 1; i >= 0; i--) {
-      const date = subDays(new Date(), i)
-      const formattedDate = format(date, "yyyy-MM-dd")
+    const dailyContacts: { date: string; count: number }[] = await Promise.all(
+      dayOffsets.map(async (offset) => {
+        const formattedDate = format(subDays(new Date(), offset), "yyyy-MM-dd")
 
-      // Count contacts for this day
-      const startOfDay = new Date(formattedDate)
-      const endOfDay = new Date(formattedDate)
-      endOfDay.setHours(23, 59, 59, 999)
+        // Count contacts for this day
+        const startOfDay = new Date(formattedDate)
+        const endOfDay = new Date(formattedDate)
+        endOfDay.setHours(23, 59, 59, 999)
 
-      const count = await prisma.contact.count({
-        where: {
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
+        const count = await prisma.contact.count({
+          where: {
+            createdAt: {
+              gte: startOfDay,
+              lte: endOfDay,
+            },
           },
-        },
-      })
+        })
 
-      dailyContacts.push({
-        date: formattedDate,
-        count,
-      })
-    }
+        return { date: formattedDate, count }
+      }),
+    )
 
     return NextResponse.json({
       total,
