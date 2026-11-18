@@ -185,7 +185,7 @@ export function DashboardProjectsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>Loading...</TableCell>
@@ -195,7 +195,8 @@ export function DashboardProjectsTable() {
                     <TableCell>Loading...</TableCell>
                   </TableRow>
                 ))
-              ) : filteredProjects.length === 0 ? (
+              )}
+              {!loading && filteredProjects.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
                     <p>No projects found</p>
@@ -204,7 +205,8 @@ export function DashboardProjectsTable() {
                     </Link>
                   </TableCell>
                 </TableRow>
-              ) : (
+              )}
+              {!loading && filteredProjects.length > 0 && (
                 filteredProjects.map((project) => (
                   <TableRow key={project.id}>
                     <TableCell className="font-medium">{project.title}</TableCell>

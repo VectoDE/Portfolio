@@ -201,7 +201,7 @@ export function DashboardCertificatesTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>Loading...</TableCell>
@@ -210,7 +210,8 @@ export function DashboardCertificatesTable() {
                     <TableCell>Loading...</TableCell>
                   </TableRow>
                 ))
-              ) : filteredCertificates.length === 0 ? (
+              )}
+              {!loading && filteredCertificates.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                     <p>No certificates found</p>
@@ -219,7 +220,8 @@ export function DashboardCertificatesTable() {
                     </Link>
                   </TableCell>
                 </TableRow>
-              ) : (
+              )}
+              {!loading && filteredCertificates.length > 0 && (
                 filteredCertificates.map((certificate) => {
                   // Convert Date to string for display
                   const dateString =

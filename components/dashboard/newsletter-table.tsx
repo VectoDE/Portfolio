@@ -117,20 +117,20 @@ export function NewsletterTable() {
     setSelectedSubscribers((prev) => prev.filter((id) => subscribers.some((sub) => sub.id === id)))
   }, [subscribers])
 
-  function handleSelectAll(checked: boolean) {
-    if (checked) {
-      setSelectedSubscribers(filteredSubscribers.map((sub) => sub.id))
-    } else {
-      setSelectedSubscribers([])
-    }
+  function selectAllSubscribers() {
+    setSelectedSubscribers(filteredSubscribers.map((sub) => sub.id))
   }
 
-  function handleSelectSubscriber(id: string, checked: boolean) {
-    if (checked) {
-      setSelectedSubscribers((prev) => [...prev, id])
-    } else {
-      setSelectedSubscribers((prev) => prev.filter((subId) => subId !== id))
-    }
+  function clearSubscriberSelection() {
+    setSelectedSubscribers([])
+  }
+
+  function selectSubscriber(id: string) {
+    setSelectedSubscribers((prev) => [...prev, id])
+  }
+
+  function deselectSubscriber(id: string) {
+    setSelectedSubscribers((prev) => prev.filter((subId) => subId !== id))
   }
 
   async function handleDeleteSubscribers() {
@@ -325,6 +325,12 @@ export function NewsletterTable() {
       selectedSubscribers.includes(subscriber.id),
     )
 
+  function getSelectAllState(): boolean | "indeterminate" {
+    if (allSelected) return true
+    if (selectedSubscribers.length > 0) return "indeterminate"
+    return false
+  }
+
   // Add a function to navigate to the send newsletter page
   function handleSendNewsletter() {
     router.push("/dashboard/newsletter/send")
@@ -366,14 +372,10 @@ export function NewsletterTable() {
               <TableRow>
                 <TableHead className="w-[50px]">
                   <Checkbox
-                    checked={
-                      allSelected
-                        ? true
-                        : selectedSubscribers.length > 0
-                          ? "indeterminate"
-                          : false
+                    checked={getSelectAllState()}
+                    onCheckedChange={(checked) =>
+                      checked === true ? selectAllSubscribers() : clearSubscriberSelection()
                     }
-                    onCheckedChange={(checked) => handleSelectAll(checked === true)}
                   />
                 </TableHead>
                 <TableHead>Email</TableHead>
@@ -384,7 +386,7 @@ export function NewsletterTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {isLoading ? (
+              {isLoading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>
@@ -397,7 +399,8 @@ export function NewsletterTable() {
                     <TableCell>Loading...</TableCell>
                   </TableRow>
                 ))
-              ) : filteredSubscribers.length === 0 ? (
+              )}
+              {!isLoading && filteredSubscribers.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center text-muted-foreground py-6">
                     <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -411,14 +414,17 @@ export function NewsletterTable() {
                     </div>
                   </TableCell>
                 </TableRow>
-              ) : (
+              )}
+              {!isLoading && filteredSubscribers.length > 0 && (
                 filteredSubscribers.map((subscriber) => (
                   <TableRow key={subscriber.id}>
                     <TableCell>
                       <Checkbox
                         checked={selectedSubscribers.includes(subscriber.id)}
                         onCheckedChange={(checked) =>
-                          handleSelectSubscriber(subscriber.id, checked === true)
+                          checked === true
+                            ? selectSubscriber(subscriber.id)
+                            : deselectSubscriber(subscriber.id)
                         }
                       />
                     </TableCell>

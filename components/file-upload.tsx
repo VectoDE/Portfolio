@@ -18,6 +18,29 @@ interface FileUploadProps {
   isImage?: boolean
 }
 
+async function uploadFileToServer(file: File): Promise<{ imageUrl: string; originalName?: string }> {
+  const formData = new FormData()
+  formData.append("file", file)
+
+  const response = await fetch("/api/upload", {
+    method: "POST",
+    body: formData,
+  })
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: "Failed to upload file" }))
+    throw new Error(errorData.error || "Failed to upload file")
+  }
+
+  const data: { imageUrl?: string; originalName?: string } = await response.json()
+
+  if (!data.imageUrl) {
+    throw new Error("Upload response missing file URL")
+  }
+
+  return { imageUrl: data.imageUrl, originalName: data.originalName }
+}
+
 export function FileUpload({
   id,
   label,
@@ -26,7 +49,7 @@ export function FileUpload({
   accept = "image/*",
   maxSize = 5,
   isImage = true,
-}: FileUploadProps) {
+}: Readonly<FileUploadProps>) {
   const [preview, setPreview] = useState<string | null>(value || null)
   const [error, setError] = useState<string | null>(null)
   const [fileName, setFileName] = useState<string | null>(null)
@@ -37,32 +60,36 @@ export function FileUpload({
     setPreview(value || null)
     if (value) {
       const segments = value.split("/")
-      const derivedFileName = segments[segments.length - 1] ?? null
+      const derivedFileName = segments.at(-1) ?? null
       setFileName((current) => current ?? derivedFileName)
     } else {
       setFileName(null)
     }
   }, [value])
 
+  // Check file size (convert maxSize from MB to bytes) and type
+  const validateFile = (file: File): string | null => {
+    if (file.size > maxSize * 1024 * 1024) {
+      return `File size exceeds ${maxSize}MB limit`
+    }
+    if (isImage && !file.type.startsWith("image/")) {
+      return "Selected file is not an image"
+    }
+    return null
+  }
+
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    // Check file size (convert maxSize from MB to bytes)
-    if (file.size > maxSize * 1024 * 1024) {
-      setError(`File size exceeds ${maxSize}MB limit`)
-      return
-    }
+    const validationError = validateFile(file)
+    setError(validationError)
+    if (validationError) return
 
-    setError(null)
     const previousPreview = preview
     let temporaryPreview: string | null = null
 
     if (isImage) {
-      if (!file.type.startsWith("image/")) {
-        setError("Selected file is not an image")
-        return
-      }
       temporaryPreview = URL.createObjectURL(file)
       setPreview(temporaryPreview)
     } else {
@@ -73,24 +100,7 @@ export function FileUpload({
       setIsUploading(true)
       setFileName(file.name)
 
-      const formData = new FormData()
-      formData.append("file", file)
-
-      const response = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      })
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: "Failed to upload file" }))
-        throw new Error(errorData.error || "Failed to upload file")
-      }
-
-      const data: { imageUrl?: string; originalName?: string } = await response.json()
-
-      if (!data.imageUrl) {
-        throw new Error("Upload response missing file URL")
-      }
+      const data = await uploadFileToServer(file)
 
       onChange(data.imageUrl)
       if (data.originalName) {
@@ -114,7 +124,7 @@ export function FileUpload({
   }
 
   const clearFile = () => {
-    if (preview && preview.startsWith("blob:")) {
+    if (preview?.startsWith("blob:")) {
       URL.revokeObjectURL(preview)
     }
     setPreview(null)
@@ -125,6 +135,8 @@ export function FileUpload({
       fileInputRef.current.value = ""
     }
   }
+
+  const fileKind = isImage ? "Image" : "File"
 
   return (
     <div className="space-y-2">
@@ -187,7 +199,7 @@ export function FileUpload({
               disabled={isUploading}
             >
               <Upload className="h-4 w-4" />
-              {isUploading ? "Uploading..." : `Upload ${isImage ? "Image" : "File"}`}
+              {isUploading ? "Uploading..." : `Upload ${fileKind}`}
             </Button>
           </div>
         ) : null}

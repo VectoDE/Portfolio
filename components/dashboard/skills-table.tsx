@@ -186,7 +186,7 @@ export function DashboardSkillsTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>Loading...</TableCell>
@@ -196,7 +196,8 @@ export function DashboardSkillsTable() {
                     <TableCell>Loading...</TableCell>
                   </TableRow>
                 ))
-              ) : filteredSkills.length === 0 ? (
+              )}
+              {!loading && filteredSkills.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center text-muted-foreground py-6">
                     <p>No skills found</p>
@@ -205,7 +206,8 @@ export function DashboardSkillsTable() {
                     </Link>
                   </TableCell>
                 </TableRow>
-              ) : (
+              )}
+              {!loading && filteredSkills.length > 0 && (
                 filteredSkills.map((skill) => (
                   <TableRow key={skill.id}>
                     <TableCell className="font-medium">{skill.name}</TableCell>
