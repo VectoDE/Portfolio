@@ -81,5 +81,6 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "your-default-secret-do-not-use-in-production",
+  // Kein Fallback: Ohne NEXTAUTH_SECRET bricht NextAuth in Produktion ab (fail closed).
+  secret: process.env.NEXTAUTH_SECRET,
 }

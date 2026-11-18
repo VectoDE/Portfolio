@@ -28,9 +28,11 @@ export async function POST(req: Request) {
 
     const forwarded = req.headers.get("x-forwarded-for")
     const ip = forwarded ? forwarded.split(/, /)[0] : null
-    const ipHash = ip
-      ? createHash("sha256").update(`${process.env.IP_HASH_SALT ?? ""}${ip}`).digest("hex")
-      : null
+    // Ohne Salt waere der Hash einer IPv4-Adresse per Brute Force umkehrbar,
+    // deshalb wird dann gar kein Hash gespeichert.
+    const ipHashSalt = process.env.IP_HASH_SALT
+    const ipHash =
+      ip && ipHashSalt ? createHash("sha256").update(`${ipHashSalt}${ip}`).digest("hex") : null
 
     const pageView = await prisma.pageView.create({
       data: {
