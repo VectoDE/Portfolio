@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server"
-import { randomUUID } from "crypto"
+import { randomUUID } from "node:crypto"
 import prisma from "@/lib/db"
 import { sendSubscriptionConfirmation } from "@/lib/newsletter"
 
