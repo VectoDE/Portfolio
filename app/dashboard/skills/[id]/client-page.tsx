@@ -40,7 +40,7 @@ interface EditSkillPageClientProps {
   id?: string
 }
 
-export default function EditSkillPageClient({ id }: EditSkillPageClientProps) {
+export default function EditSkillPageClient({ id }: Readonly<EditSkillPageClientProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
@@ -96,7 +96,7 @@ export default function EditSkillPageClient({ id }: EditSkillPageClientProps) {
       }
     }
 
-    fetchSkill()
+    void fetchSkill()
   }, [id, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

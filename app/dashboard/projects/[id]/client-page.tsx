@@ -33,7 +33,7 @@ interface EditProjectPageClientProps {
   id?: string
 }
 
-export default function EditProjectPageClient({ id }: EditProjectPageClientProps) {
+export default function EditProjectPageClient({ id }: Readonly<EditProjectPageClientProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
@@ -85,7 +85,7 @@ export default function EditProjectPageClient({ id }: EditProjectPageClientProps
         setLogoUrl(data.project.logoUrl || "")
         setLogContent(data.project.logContent || "")
         setFeatures(
-          (data.project.features || []).map((feature) => ({
+          (data.project.features ?? []).map((feature) => ({
             id: feature.id,
             name: feature.name,
             description: feature.description ?? "",
@@ -103,7 +103,7 @@ export default function EditProjectPageClient({ id }: EditProjectPageClientProps
       }
     }
 
-    fetchProject()
+    void fetchProject()
   }, [id, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

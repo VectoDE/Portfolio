@@ -8,7 +8,7 @@ export const metadata: Metadata = {
   description: "Manage your portfolio content",
 }
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <div className="relative min-h-screen flex flex-col">
       <BackgroundGradientAnimation

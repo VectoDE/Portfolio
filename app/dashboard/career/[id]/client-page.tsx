@@ -40,7 +40,7 @@ interface CareerEntry {
   logoUrl?: string | null
 }
 
-export default function EditCareerPageClient({ id }: EditCareerPageClientProps) {
+export default function EditCareerPageClient({ id }: Readonly<EditCareerPageClientProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
@@ -92,7 +92,7 @@ export default function EditCareerPageClient({ id }: EditCareerPageClientProps) 
       }
     }
 
-    fetchCareerEntry()
+    void fetchCareerEntry()
   }, [id, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
