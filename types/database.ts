@@ -75,7 +75,7 @@ export interface Career {
   position: string
   company: string
   startDate: Date | string
-  endDate: string | Date | "Present"
+  endDate: string | Date
   description: string
   logoUrl: string | null
   location: string | null
