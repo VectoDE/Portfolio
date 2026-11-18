@@ -11,13 +11,13 @@ const sanitizeText = (value: string) => value.replace(/[<>]/g, "")
 
 const contactPayloadSchema = z.object({
   name: z
-    .string({ required_error: "Name is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Name is required" : undefined) })
     .trim()
     .min(2, "Name must be at least 2 characters")
     .max(120, "Name must be 120 characters or fewer")
     .transform(sanitizeText),
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Email is required" : undefined) })
     .trim()
     .email("A valid email address is required")
     .max(254)
@@ -41,7 +41,7 @@ const contactPayloadSchema = z.object({
     )
     .optional(),
   message: z
-    .string({ required_error: "Message is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Message is required" : undefined) })
     .trim()
     .min(10, "Message must be at least 10 characters")
     .max(5000, "Message must be 5000 characters or fewer")
