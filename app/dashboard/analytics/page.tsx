@@ -202,25 +202,22 @@ const formatViewsPerVisitor = (pageViews?: AnalyticsData["pageViews"]) => {
   return (pageViews.totalViews / pageViews.uniqueVisitors).toFixed(1)
 }
 
-// Fetch general and contact-specific analytics for a period
-async function fetchAnalyticsData(period: string) {
-  // Fetch general analytics
+// Fetch general analytics for a period
+async function fetchGeneralAnalytics(period: string): Promise<AnalyticsData> {
   const response = await fetch(`/api/analytics?period=${period}`)
   if (!response.ok) {
     throw new Error("Failed to fetch analytics")
   }
+  return response.json()
+}
 
-  const data: AnalyticsData = await response.json()
-
-  // Fetch contact-specific analytics
-  const contactResponse = await fetch(`/api/analytics/contacts?period=${period}`)
-  if (!contactResponse.ok) {
+// Fetch contact-specific analytics for a period
+async function fetchContactAnalytics(period: string): Promise<ContactAnalytics> {
+  const response = await fetch(`/api/analytics/contacts?period=${period}`)
+  if (!response.ok) {
     throw new Error("Failed to fetch contact analytics")
   }
-
-  const contactData: ContactAnalytics = await contactResponse.json()
-
-  return { data, contactData }
+  return response.json()
 }
 
 type ChartTooltipProps = TooltipProps<number, string>
@@ -439,9 +436,9 @@ export default function AnalyticsPage() {
     async function fetchAnalytics() {
       setLoading(true)
       try {
-        const { data, contactData } = await fetchAnalyticsData(period)
-        setAnalytics(data)
-        setContactAnalytics(contactData)
+        // General data is shown even if the contact request fails afterwards
+        setAnalytics(await fetchGeneralAnalytics(period))
+        setContactAnalytics(await fetchContactAnalytics(period))
       } catch (error) {
         console.error("Error fetching analytics:", error)
         toast({
