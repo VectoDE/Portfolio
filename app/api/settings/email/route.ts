@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { sendTestEmail } from "@/lib/email"
 
 // GET /api/settings/email - Get email settings
 export async function GET(_req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     let emailSettings = await prisma.emailSettings.findFirst()
@@ -47,10 +46,10 @@ export async function GET(_req: Request) {
 // POST /api/settings/email - Update email settings
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const data = await req.json()
@@ -111,10 +110,10 @@ export async function PUT(req: Request, { params }: TestRouteParams) {
   }
 
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const data = await req.json()

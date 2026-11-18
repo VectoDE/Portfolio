@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import { format, subDays, startOfDay, endOfDay } from "date-fns"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 // Function to calculate period change statistics
@@ -331,11 +330,13 @@ async function getPageViewAnalytics(days = 30) {
 // GET /api/analytics - Get all analytics
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
 

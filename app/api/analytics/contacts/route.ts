@@ -1,17 +1,16 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import { format, subDays } from "date-fns"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 // GET /api/analytics/contacts - Get contact analytics
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session || !session.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     // Get query parameters
