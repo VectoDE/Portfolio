@@ -37,7 +37,7 @@ jobs:
         env:
           SEMGREP_SEND_METRICS: "off"
         run: >-
-          uvx semgrep@1.186.0 scan
+          uvx --no-build semgrep@1.186.0 scan
           --config p/default
           --config p/owasp-top-ten
           --config p/secrets
@@ -48,7 +48,7 @@ jobs:
           --metrics off
 
       - name: Upload SARIF
-        if: always()
+        if: ${{ !cancelled() }}
         uses: github/codeql-action/upload-sarif@33d7b85da1a04171e211befe2c739303b9a4c066 # v4.39.3
         with:
           sarif_file: semgrep.sarif
