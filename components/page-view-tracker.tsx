@@ -1,8 +1,7 @@
 "use client"
 
-import { useEffect } from "react"
+import { Suspense, useEffect } from "react"
 import { usePathname, useSearchParams } from "next/navigation"
-import { Suspense } from "react"
 import { trackPageView } from "@/lib/track-pageview"
 
 function PageViewTrackerInner() {
@@ -11,7 +10,7 @@ function PageViewTrackerInner() {
 
   useEffect(() => {
     if (pathname) {
-      trackPageView(pathname)
+      void trackPageView(pathname)
     }
   }, [pathname, searchParams])
 

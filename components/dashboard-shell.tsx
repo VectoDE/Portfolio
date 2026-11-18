@@ -34,7 +34,7 @@ interface DashboardShellProps {
   children: React.ReactNode
 }
 
-export function DashboardShell({ children }: DashboardShellProps) {
+export function DashboardShell({ children }: Readonly<DashboardShellProps>) {
   const router = useRouter()
   const pathname = usePathname()
   const currentPath = pathname ?? ""
@@ -192,16 +192,15 @@ export function DashboardShell({ children }: DashboardShellProps) {
               <SidebarMenu>
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild tooltip="Logout">
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        handleLogout()
+                    <button
+                      type="button"
+                      onClick={() => {
+                        void handleLogout()
                       }}
                     >
                       <LogOut className="h-4 w-4" />
                       <span>Logout</span>
-                    </a>
+                    </button>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
