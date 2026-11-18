@@ -19,18 +19,18 @@ export const Logger = () => {
     }
 
     // Log basic info when page loads
-    sendLog("info", "Page loaded")
+    void sendLog("info", "Page loaded")
 
     // Log user agent (debug info)
-    sendLog("debug", `User agent: ${navigator.userAgent}`)
+    void sendLog("debug", `User agent: ${navigator.userAgent}`)
 
     // Capture global JS errors
     const handleError = (event: ErrorEvent) => {
-      sendLog("error", `Global error: ${event.message}`)
+      void sendLog("error", `Global error: ${event.message}`)
     }
 
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
-      sendLog("error", `Unhandled promise rejection: ${event.reason}`)
+      void sendLog("error", `Unhandled promise rejection: ${event.reason}`)
     }
 
     window.addEventListener("error", handleError)

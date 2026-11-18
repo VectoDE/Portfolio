@@ -12,7 +12,7 @@ interface ShareProjectProps {
   projectUrl: string
 }
 
-export function ShareProject({ projectTitle, projectUrl }: ShareProjectProps) {
+export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProjectProps>) {
   const { toast } = useToast()
   const [hasCopied, setHasCopied] = useState(false)
 

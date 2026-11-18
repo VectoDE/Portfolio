@@ -30,6 +30,17 @@ import { BackgroundGradientAnimation } from "@/components/ui/background-gradient
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
+// Linear-time replacement for /^[^\s@]+@[^\s@]+\.[^\s@]+$/ (same acceptance, no backtracking).
+function isValidEmail(value: string): boolean {
+  if (/\s/.test(value)) return false
+  const parts = value.split("@")
+  if (parts.length !== 2) return false
+  const [local, domain] = parts
+  if (local.length === 0) return false
+  const dot = domain.indexOf(".", 1)
+  return dot !== -1 && dot < domain.length - 1
+}
+
 export default function ContactPage() {
   const { toast } = useToast()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -45,11 +56,10 @@ export default function ContactPage() {
     const trimmedName = formData.name.trim()
     const trimmedEmail = formData.email.trim()
     const trimmedMessage = formData.message.trim()
-    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
     return (
       trimmedName.length >= 2 &&
-      emailPattern.test(trimmedEmail) &&
+      isValidEmail(trimmedEmail) &&
       trimmedMessage.length >= 10 &&
       privacyAccepted
     )
@@ -77,7 +87,7 @@ export default function ContactPage() {
       errors.push("Please enter your full name (at least 2 characters).")
     }
 
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedData.email)) {
+    if (!isValidEmail(trimmedData.email)) {
       errors.push("Please provide a valid email address.")
     }
 

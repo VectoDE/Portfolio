@@ -92,8 +92,8 @@ export function CookieBanner() {
 
     trackingInitializedRef.current = true
 
-    import("@/lib/track-pageview").then(({ trackPageView }) => {
-      trackPageView(window.location.pathname)
+    void import("@/lib/track-pageview").then(({ trackPageView }) => {
+      void trackPageView(window.location.pathname)
     })
   }
 

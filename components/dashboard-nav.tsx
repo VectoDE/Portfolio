@@ -373,7 +373,7 @@ export function DashboardNav() {
                 variant="ghost"
                 className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
                 onClick={() => {
-                  handleLogout()
+                  void handleLogout()
                   setIsMobileMenuOpen(false)
                 }}
               >

@@ -165,7 +165,7 @@ interface PreferenceToggleProps {
   disabled?: boolean
 }
 
-function PreferenceToggle({ id, label, description, checked, onCheckedChange, disabled }: PreferenceToggleProps) {
+function PreferenceToggle({ id, label, description, checked, onCheckedChange, disabled }: Readonly<PreferenceToggleProps>) {
   return (
     <div className="flex items-start justify-between gap-4 rounded-xl border border-border/60 bg-background/40 p-4">
       <div className="space-y-1">

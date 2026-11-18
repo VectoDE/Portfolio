@@ -199,7 +199,7 @@ export function DashboardCareerTable() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading ? (
+              {loading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <TableRow key={index}>
                     <TableCell>Loading...</TableCell>
@@ -208,7 +208,8 @@ export function DashboardCareerTable() {
                     <TableCell>Loading...</TableCell>
                   </TableRow>
                 ))
-              ) : filteredCareers.length === 0 ? (
+              )}
+              {!loading && filteredCareers.length === 0 && (
                 <TableRow>
                   <TableCell colSpan={4} className="text-center text-muted-foreground py-6">
                     <p>No career entries found</p>
@@ -217,7 +218,8 @@ export function DashboardCareerTable() {
                     </Link>
                   </TableCell>
                 </TableRow>
-              ) : (
+              )}
+              {!loading && filteredCareers.length > 0 && (
                 filteredCareers.map((career) => {
                   // Convert Date to string for display
                   const startDateString =
@@ -225,12 +227,13 @@ export function DashboardCareerTable() {
                       ? career.startDate
                       : new Date(career.startDate).toISOString()
 
-                  const endDateString =
-                    career.endDate === "Present"
-                      ? "Present"
-                      : typeof career.endDate === "string"
+                  let endDateString = "Present"
+                  if (career.endDate !== "Present") {
+                    endDateString =
+                      typeof career.endDate === "string"
                         ? career.endDate
                         : new Date(career.endDate as Date).toISOString()
+                  }
 
                   return (
                     <TableRow key={career.id}>

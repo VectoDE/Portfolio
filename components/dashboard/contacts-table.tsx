@@ -277,7 +277,7 @@ export function DashboardContactsTable() {
               </tr>
             </thead>
             <tbody>
-              {loading ? (
+              {loading && (
                 Array.from({ length: 5 }).map((_, index) => (
                   <tr key={index} className="border-b transition-colors hover:bg-muted/50">
                     <td className="p-4">Loading...</td>
@@ -287,13 +287,15 @@ export function DashboardContactsTable() {
                     <td className="p-4">Loading...</td>
                   </tr>
                 ))
-              ) : filteredContacts.length === 0 ? (
+              )}
+              {!loading && filteredContacts.length === 0 && (
                 <tr>
                   <td colSpan={5} className="p-4 text-center text-muted-foreground">
                     No contacts found
                   </td>
                 </tr>
-              ) : (
+              )}
+              {!loading && filteredContacts.length > 0 && (
                 filteredContacts.map((contact) => (
                   <tr
                     key={contact.id}

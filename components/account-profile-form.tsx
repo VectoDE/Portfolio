@@ -22,7 +22,7 @@ interface AccountProfileFormProps {
   }
 }
 
-export function AccountProfileForm({ user }: AccountProfileFormProps) {
+export function AccountProfileForm({ user }: Readonly<AccountProfileFormProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const { data: session, update } = useSession()

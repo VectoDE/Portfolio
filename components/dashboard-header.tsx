@@ -6,7 +6,7 @@ interface DashboardHeaderProps {
   children?: React.ReactNode
 }
 
-export function DashboardHeader({ heading, text, children }: DashboardHeaderProps) {
+export function DashboardHeader({ heading, text, children }: Readonly<DashboardHeaderProps>) {
   return (
     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-6">
       <div className="space-y-1">

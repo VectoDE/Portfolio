@@ -53,7 +53,7 @@ const reactionLabels: Record<ReactionType, { label: string; icon: ReactNode }> =
   },
 }
 
-export function ProjectFeedback({ projectId, initialComments, initialReactions }: ProjectFeedbackProps) {
+export function ProjectFeedback({ projectId, initialComments, initialReactions }: Readonly<ProjectFeedbackProps>) {
   const { data: session } = useSession()
   const { toast } = useToast()
   const [comment, setComment] = useState("")
@@ -155,7 +155,7 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
       <Card className="border-primary/20 bg-background/60 backdrop-blur-sm">
         <CardHeader>
           <CardTitle className="flex items-center justify-between text-xl">
-            Community feedback
+            Community feedback{" "}
             <span className="text-sm font-normal text-muted-foreground">
               {reactions?.total ?? initialReactions.total} reactions
             </span>
@@ -234,13 +234,15 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
           )}
 
           <div className="space-y-4">
-            {commentsLoading && orderedComments.length === 0 ? (
+            {commentsLoading && orderedComments.length === 0 && (
               <p className="text-sm text-muted-foreground">Loading comments...</p>
-            ) : orderedComments.length === 0 ? (
+            )}
+            {!commentsLoading && orderedComments.length === 0 && (
               <p className="text-sm text-muted-foreground">
                 No comments yet. Be the first to share your perspective!
               </p>
-            ) : (
+            )}
+            {orderedComments.length > 0 && (
               orderedComments.map((item) => (
                 <div key={item.id} className="rounded-md border border-border bg-background/80 p-4">
                   <div className="flex items-center justify-between text-sm">

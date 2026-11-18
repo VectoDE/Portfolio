@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
+import { signOut, useSession } from "next-auth/react"
 import { Code2, Menu, X, Moon, Sun, Settings, LayoutDashboard, LogOut, User } from "lucide-react"
 import { useTheme } from "next-themes"
 
@@ -18,7 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { signOut } from "next-auth/react"
 import { useToast } from "@/components/ui/use-toast"
 
 export function MainNav() {
@@ -296,7 +295,7 @@ export function MainNav() {
                     <button
                       className="text-lg font-medium flex items-center gap-2 text-red-500"
                       onClick={() => {
-                        handleLogout()
+                        void handleLogout()
                         setIsMobileMenuOpen(false)
                       }}
                     >

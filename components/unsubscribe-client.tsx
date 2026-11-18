@@ -64,7 +64,7 @@ export default function UnsubscribeClient() {
       }
     }
 
-    verifyToken()
+    void verifyToken()
   }, [token])
 
   async function handleUnsubscribe() {
