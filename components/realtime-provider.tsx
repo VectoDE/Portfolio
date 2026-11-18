@@ -9,7 +9,7 @@ interface RealtimeProviderProps {
   children: ReactNode
 }
 
-export function RealtimeProvider({ children }: RealtimeProviderProps) {
+export function RealtimeProvider({ children }: Readonly<RealtimeProviderProps>) {
   const router = useRouter()
 
   useEffect(() => {

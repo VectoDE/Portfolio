@@ -17,7 +17,7 @@ interface FeatureInputProps {
   onChange: (features: FeatureDraft[]) => void
 }
 
-export function FeatureInput({ features = [], onChange }: FeatureInputProps) {
+export function FeatureInput({ features = [], onChange }: Readonly<FeatureInputProps>) {
   const addFeature = () => {
     const newFeature: FeatureDraft = {
       id: `temp-${Date.now()}`,

@@ -10,7 +10,7 @@ interface IconRendererProps {
   className?: string
 }
 
-export function IconRenderer({ iconName, className = "h-6 w-6" }: IconRendererProps) {
+export function IconRenderer({ iconName, className = "h-6 w-6" }: Readonly<IconRendererProps>) {
   const [mounted, setMounted] = useState(false)
 
   useEffect(() => {

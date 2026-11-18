@@ -10,7 +10,7 @@ interface CommunityHighlightsProps {
   highlights: EngagementHighlights
 }
 
-export function CommunityHighlights({ highlights }: CommunityHighlightsProps) {
+export function CommunityHighlights({ highlights }: Readonly<CommunityHighlightsProps>) {
   const { totalComments, totalReactions, memberCount, topProjects, latestComment } = highlights
 
   return (

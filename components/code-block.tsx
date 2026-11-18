@@ -10,7 +10,7 @@ interface CodeBlockProps {
   language?: string
 }
 
-export function CodeBlock({ code, language = "javascript" }: CodeBlockProps) {
+export function CodeBlock({ code, language = "javascript" }: Readonly<CodeBlockProps>) {
   const [copied, setCopied] = useState(false)
 
   const copyToClipboard = async () => {

@@ -26,7 +26,7 @@ interface ProjectPageProps {
 
 export const revalidate = 0
 
-export async function generateMetadata({ params }: ProjectPageProps) {
+export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
   const { id } = await params
   if (!id) {
     return {
@@ -80,7 +80,7 @@ export async function generateMetadata({ params }: ProjectPageProps) {
   }
 }
 
-export default async function ProjectPage({ params }: ProjectPageProps) {
+export default async function ProjectPage({ params }: Readonly<ProjectPageProps>) {
   const { id } = await params
   if (!id) {
     notFound()
