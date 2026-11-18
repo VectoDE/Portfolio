@@ -3,10 +3,29 @@ import { NextResponse } from "next/server"
 
 import type { PrismaClient } from "@prisma/client"
 
+import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
+
+const REGISTRATION_CLOSED_MESSAGE = "Registration is currently closed."
+
+/**
+ * Self-service registration is off by default. Only ALLOW_REGISTRATION="true" enables it.
+ * The very first account can always be created so that a fresh installation can be set up.
+ */
+function isRegistrationEnabled(): boolean {
+  return process.env.ALLOW_REGISTRATION === "true"
+}
+
+function registrationClosed() {
+  return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
+}
 
 export async function POST(req: Request) {
   try {
+    if (!isRegistrationEnabled() && (await prisma.user.count()) > 0) {
+      return registrationClosed()
+    }
+
     const { email, password, name } = await req.json()
 
     if (!email || !password) {
@@ -46,7 +65,13 @@ export async function POST(req: Request) {
     const user = await prisma.$transaction(
       async (tx: PrismaClient) => {
         const existingUsers = await tx.user.count()
-        const role = existingUsers === 0 ? "Admin" : "Member"
+
+        // Re-checked inside the transaction so concurrent requests cannot bypass the switch.
+        if (existingUsers > 0 && !isRegistrationEnabled()) {
+          return null
+        }
+
+        const role = existingUsers === 0 ? ADMIN_ROLE : "Member"
 
         return tx.user.create({
           data: {
@@ -59,6 +84,10 @@ export async function POST(req: Request) {
       },
       { isolationLevel: "Serializable" },
     )
+
+    if (!user) {
+      return registrationClosed()
+    }
 
     // Return user without password
     const { password: _, ...userWithoutPassword } = user
