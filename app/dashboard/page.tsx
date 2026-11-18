@@ -10,6 +10,7 @@ import {
   TrendingUp,
   TrendingDown,
   Mail,
+  type LucideIcon,
 } from "lucide-react"
 import { getServerSession } from "next-auth"
 
@@ -170,18 +171,111 @@ async function calculateStatsWithChange(
   const change = countLast30Days - countPrevious30Days
 
   // Calculate percentage change
-  const percentage =
-    countPrevious30Days === 0
-      ? change > 0
-        ? 100
-        : 0
-      : Math.round((change / countPrevious30Days) * 100)
+  const percentage = calculatePercentageChange(change, countPrevious30Days)
 
   return {
     count: totalCount,
     change,
     percentage,
   }
+}
+
+// Function to calculate the percentage change relative to the previous period
+function calculatePercentageChange(change: number, previousCount: number): number {
+  if (previousCount !== 0) {
+    return Math.round((change / previousCount) * 100)
+  }
+
+  return change > 0 ? 100 : 0
+}
+
+function getTrendTextClass(change: number): string {
+  if (change > 0) return "text-green-500"
+  if (change < 0) return "text-red-500"
+  return "text-muted-foreground"
+}
+
+function TrendIcon({ change }: Readonly<{ change: number }>) {
+  if (change > 0) return <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
+  if (change < 0) return <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
+  return null
+}
+
+interface StatCardProps {
+  title: string
+  icon: LucideIcon
+  stats: StatsWithChange
+  href: string
+  manageLabel: string
+}
+
+function StatCard({ title, icon: Icon, stats, href, manageLabel }: Readonly<StatCardProps>) {
+  return (
+    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
+      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+        <CardTitle className="text-sm font-medium">{title}</CardTitle>
+        <Icon className="h-4 w-4 text-primary" />
+      </CardHeader>
+      <CardContent>
+        <div className="text-2xl font-bold">{stats.count}</div>
+        <div className="flex items-center mt-1">
+          <TrendIcon change={stats.change} />
+          <p className={`text-xs ${getTrendTextClass(stats.change)}`}>
+            {stats.change > 0 ? "+" : ""}
+            {stats.change} in the last 30 days ({stats.percentage}%)
+          </p>
+        </div>
+      </CardContent>
+      <CardFooter>
+        <Link href={href} className="w-full">
+          <Button variant="outline" size="sm" className="w-full">
+            {manageLabel}
+          </Button>
+        </Link>
+      </CardFooter>
+    </Card>
+  )
+}
+
+function getContactStatusDotClass(status: string): string {
+  switch (status) {
+    case "unread":
+      return "bg-blue-500"
+    case "read":
+      return "bg-gray-500"
+    case "replied":
+      return "bg-green-500"
+    default:
+      return "bg-yellow-500"
+  }
+}
+
+function ContactStatusBadge({ status }: Readonly<{ status: string }>) {
+  let label = "Archived"
+  let colors = "bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-100"
+
+  switch (status) {
+    case "unread":
+      label = "Unread"
+      colors = "bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-100"
+      break
+    case "read":
+      label = "Read"
+      colors = "bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100"
+      break
+    case "replied":
+      label = "Replied"
+      colors = "bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100"
+      break
+  }
+
+  return (
+    <span
+      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${colors}`}
+    >
+      {label}
+    </span>
+  )
 }
 
 async function getStats() {
@@ -280,155 +374,41 @@ export default async function DashboardPage() {
       </DashboardHeader>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Projects</CardTitle>
-            <FolderKanban className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{projects.count}</div>
-            <div className="flex items-center mt-1">
-              {projects.change > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : projects.change < 0 ? (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              ) : null}
-              <p
-                className={`text-xs ${projects.change > 0 ? "text-green-500" : projects.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                {projects.change > 0 ? "+" : ""}
-                {projects.change} in the last 30 days ({projects.percentage}%)
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/projects" className="w-full">
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Projects
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Certificates</CardTitle>
-            <GraduationCap className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{certificates.count}</div>
-            <div className="flex items-center mt-1">
-              {certificates.change > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : certificates.change < 0 ? (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              ) : null}
-              <p
-                className={`text-xs ${certificates.change > 0 ? "text-green-500" : certificates.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                {certificates.change > 0 ? "+" : ""}
-                {certificates.change} in the last 30 days ({certificates.percentage}%)
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/certificates" className="w-full">
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Certificates
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Skills</CardTitle>
-            <Languages className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{skills.count}</div>
-            <div className="flex items-center mt-1">
-              {skills.change > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : skills.change < 0 ? (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              ) : null}
-              <p
-                className={`text-xs ${skills.change > 0 ? "text-green-500" : skills.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                {skills.change > 0 ? "+" : ""}
-                {skills.change} in the last 30 days ({skills.percentage}%)
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/skills" className="w-full">
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Skills
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Career</CardTitle>
-            <FileText className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{career.count}</div>
-            <div className="flex items-center mt-1">
-              {career.change > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : career.change < 0 ? (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              ) : null}
-              <p
-                className={`text-xs ${career.change > 0 ? "text-green-500" : career.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                {career.change > 0 ? "+" : ""}
-                {career.change} in the last 30 days ({career.percentage}%)
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/career" className="w-full">
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Career
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
-
-        <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contacts</CardTitle>
-            <Mail className="h-4 w-4 text-primary" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{contacts.count}</div>
-            <div className="flex items-center mt-1">
-              {contacts.change > 0 ? (
-                <TrendingUp className="h-4 w-4 text-green-500 mr-1" />
-              ) : contacts.change < 0 ? (
-                <TrendingDown className="h-4 w-4 text-red-500 mr-1" />
-              ) : null}
-              <p
-                className={`text-xs ${contacts.change > 0 ? "text-green-500" : contacts.change < 0 ? "text-red-500" : "text-muted-foreground"}`}
-              >
-                {contacts.change > 0 ? "+" : ""}
-                {contacts.change} in the last 30 days ({contacts.percentage}%)
-              </p>
-            </div>
-          </CardContent>
-          <CardFooter>
-            <Link href="/dashboard/contacts" className="w-full">
-              <Button variant="outline" size="sm" className="w-full">
-                Manage Contacts
-              </Button>
-            </Link>
-          </CardFooter>
-        </Card>
+        <StatCard
+          title="Projects"
+          icon={FolderKanban}
+          stats={projects}
+          href="/dashboard/projects"
+          manageLabel="Manage Projects"
+        />
+        <StatCard
+          title="Certificates"
+          icon={GraduationCap}
+          stats={certificates}
+          href="/dashboard/certificates"
+          manageLabel="Manage Certificates"
+        />
+        <StatCard
+          title="Skills"
+          icon={Languages}
+          stats={skills}
+          href="/dashboard/skills"
+          manageLabel="Manage Skills"
+        />
+        <StatCard
+          title="Career"
+          icon={FileText}
+          stats={career}
+          href="/dashboard/career"
+          manageLabel="Manage Career"
+        />
+        <StatCard
+          title="Contacts"
+          icon={Mail}
+          stats={contacts}
+          href="/dashboard/contacts"
+          manageLabel="Manage Contacts"
+        />
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -534,10 +514,7 @@ export default async function DashboardPage() {
             ) : (
               <div className="space-y-4">
                 {recentContacts.map((contact: Contact) => {
-                  const createdAt =
-                    typeof contact.createdAt === "string"
-                      ? new Date(contact.createdAt)
-                      : new Date(contact.createdAt)
+                  const createdAt = new Date(contact.createdAt)
 
                   return (
                     <div
@@ -555,23 +532,7 @@ export default async function DashboardPage() {
                           {createdAt.toLocaleTimeString()}
                         </p>
                         <div className="mt-1">
-                          {contact.status === "unread" ? (
-                            <span className="inline-flex items-center rounded-full bg-blue-100 dark:bg-blue-900 px-2 py-0.5 text-xs font-medium text-blue-800 dark:text-blue-100">
-                              Unread
-                            </span>
-                          ) : contact.status === "read" ? (
-                            <span className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-100">
-                              Read
-                            </span>
-                          ) : contact.status === "replied" ? (
-                            <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900 px-2 py-0.5 text-xs font-medium text-green-800 dark:text-green-100">
-                              Replied
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center rounded-full bg-yellow-100 dark:bg-yellow-900 px-2 py-0.5 text-xs font-medium text-yellow-800 dark:text-yellow-100">
-                              Archived
-                            </span>
-                          )}
+                          <ContactStatusBadge status={contact.status} />
                         </div>
                       </div>
                       <Link href={`/dashboard/contacts/${contact.id}`}>
@@ -621,15 +582,7 @@ export default async function DashboardPage() {
                       <div className="flex items-center justify-between">
                         <div className="flex items-center">
                           <div
-                            className={`h-3 w-3 rounded-full mr-2 ${
-                              item.status === "unread"
-                                ? "bg-blue-500"
-                                : item.status === "read"
-                                  ? "bg-gray-500"
-                                  : item.status === "replied"
-                                    ? "bg-green-500"
-                                    : "bg-yellow-500"
-                            }`}
+                            className={`h-3 w-3 rounded-full mr-2 ${getContactStatusDotClass(item.status)}`}
                           />
                           <span className="capitalize">{item.status}</span>
                         </div>
@@ -640,15 +593,7 @@ export default async function DashboardPage() {
                       </div>
                       <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
                         <div
-                          className={`h-full rounded-full ${
-                            item.status === "unread"
-                              ? "bg-blue-500"
-                              : item.status === "read"
-                                ? "bg-gray-500"
-                                : item.status === "replied"
-                                  ? "bg-green-500"
-                                  : "bg-yellow-500"
-                          }`}
+                          className={`h-full rounded-full ${getContactStatusDotClass(item.status)}`}
                           style={{
                             width: `${percentage}%`,
                           }}

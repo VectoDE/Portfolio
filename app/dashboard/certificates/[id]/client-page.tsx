@@ -29,7 +29,7 @@ interface EditCertificatePageClientProps {
   id?: string
 }
 
-export default function EditCertificatePageClient({ id }: EditCertificatePageClientProps) {
+export default function EditCertificatePageClient({ id }: Readonly<EditCertificatePageClientProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const [isLoading, setIsLoading] = useState(true)
@@ -79,7 +79,7 @@ export default function EditCertificatePageClient({ id }: EditCertificatePageCli
       }
     }
 
-    fetchCertificate()
+    void fetchCertificate()
   }, [id, toast])
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {

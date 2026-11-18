@@ -4,7 +4,7 @@ interface EditSkillPageProps {
   params: Promise<{ id?: string }>
 }
 
-export default async function EditSkillPage({ params }: EditSkillPageProps) {
+export default async function EditSkillPage({ params }: Readonly<EditSkillPageProps>) {
   const resolvedParams = await params
 
   return <EditSkillPageClient id={resolvedParams?.id} />

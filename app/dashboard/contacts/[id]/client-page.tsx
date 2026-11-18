@@ -39,7 +39,7 @@ interface ContactDetailsPageClientProps {
   id?: string
 }
 
-export default function ContactDetailsPageClient({ id }: ContactDetailsPageClientProps) {
+export default function ContactDetailsPageClient({ id }: Readonly<ContactDetailsPageClientProps>) {
   const router = useRouter()
   const { toast } = useToast()
   const [contact, setContact] = useState<Contact | null>(null)
@@ -136,7 +136,7 @@ export default function ContactDetailsPageClient({ id }: ContactDetailsPageClien
       }
     }
 
-    fetchContact()
+    void fetchContact()
   }, [id, toast, handleStatusChange])
 
   async function handleDelete() {
@@ -271,7 +271,7 @@ export default function ContactDetailsPageClient({ id }: ContactDetailsPageClien
         </Link>
       </DashboardHeader>
 
-      {loading ? (
+      {loading && (
         <AnimatedSection className="space-y-4">
           <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
             <CardHeader>
@@ -285,7 +285,8 @@ export default function ContactDetailsPageClient({ id }: ContactDetailsPageClien
             </CardContent>
           </Card>
         </AnimatedSection>
-      ) : contact ? (
+      )}
+      {!loading && contact && (
         <AnimatedList className="grid gap-6" initialDelay={0.05}>
           <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
             <CardHeader>
@@ -382,21 +383,22 @@ export default function ContactDetailsPageClient({ id }: ContactDetailsPageClien
               <AnimatedList className="space-y-4" stagger={0.1}>
                 <AnimatedList className="grid grid-cols-1 gap-4 md:grid-cols-2" stagger={0.1} initialDelay={0.05}>
                   <div>
-                    <label className="text-sm font-medium">To</label>
+                    <p className="text-sm font-medium">To</p>
                     <div className="mt-1 rounded-md border border-primary/10 bg-background/60 p-2">
                       {contact.email}
                     </div>
                   </div>
                   <div>
-                    <label className="text-sm font-medium">Subject</label>
+                    <p className="text-sm font-medium">Subject</p>
                     <div className="mt-1 rounded-md border border-primary/10 bg-background/60 p-2">
                       Re: {contact.subject || "No Subject"}
                     </div>
                   </div>
                 </AnimatedList>
                 <div>
-                  <label className="text-sm font-medium">Message</label>
+                  <label htmlFor="reply-message" className="text-sm font-medium">Message</label>
                   <Textarea
+                    id="reply-message"
                     placeholder="Type your reply here..."
                     rows={6}
                     className="mt-1 resize-none"
@@ -420,7 +422,8 @@ export default function ContactDetailsPageClient({ id }: ContactDetailsPageClien
             </CardFooter>
           </Card>
         </AnimatedList>
-      ) : (
+      )}
+      {!loading && !contact && (
         <AnimatedSection>
           <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
             <CardContent className="flex flex-col items-center justify-center py-10 text-center space-y-2">

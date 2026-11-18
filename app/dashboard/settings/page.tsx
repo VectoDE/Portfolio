@@ -152,9 +152,9 @@ export default function SettingsPage() {
       }
     }
 
-    fetchEmailSettings()
-    fetchNewsletterPreferences()
-    fetchProfileImage()
+    void fetchEmailSettings()
+    void fetchNewsletterPreferences()
+    void fetchProfileImage()
   }, [toast])
 
   async function handleProfileUpdate(event: React.FormEvent<HTMLFormElement>) {
