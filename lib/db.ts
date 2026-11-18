@@ -18,9 +18,9 @@ function notifyStubUsage() {
 }
 
 function createStubClient(): PrismaClientType {
-  const asyncError = async () => {
+  const asyncError = () => {
     notifyStubUsage()
-    throw new Error(stubWarning)
+    return Promise.reject(new Error(stubWarning))
   }
 
   const syncError = () => {

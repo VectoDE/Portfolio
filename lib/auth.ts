@@ -53,10 +53,9 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     session: ({ session, token }) => {
       const imageFromToken = typeof token.image === "string" ? token.image : null
+      const sessionImage = typeof session.user?.image === "string" ? session.user.image : null
       const imageUrlFromToken =
-        typeof token.imageUrl === "string"
-          ? token.imageUrl
-          : imageFromToken ?? (typeof session.user?.image === "string" ? session.user.image : null)
+        typeof token.imageUrl === "string" ? token.imageUrl : (imageFromToken ?? sessionImage)
 
       return {
         ...session,

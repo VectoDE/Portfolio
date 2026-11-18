@@ -1,5 +1,6 @@
 import nodemailer from "nodemailer"
 import prisma from "@/lib/db"
+import { stripHtmlTags } from "@/lib/strip-html"
 
 type SubscriberPreferences = {
   projects: boolean
@@ -133,7 +134,8 @@ export async function sendWelcomeEmail(email: string, name: string, token: strin
     const transporter = await createTransporter()
     const emailConfig = await getEmailConfig()
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
-    const unsubscribeUrl = `${baseUrl}/unsubscribe${token ? `?token=${token}` : ""}`
+    const tokenQuery = token ? `?token=${token}` : ""
+    const unsubscribeUrl = `${baseUrl}/unsubscribe${tokenQuery}`
 
     // Create email content
     const mailOptions = {
@@ -326,7 +328,7 @@ export async function sendNewsletter(newsletter: {
             </div>
           `,
           text: `
-            ${newsletter.content.replace(/<[^>]*>/g, "")}
+            ${stripHtmlTags(newsletter.content)}
             
             You're receiving this email because you subscribed to my newsletter.
             To unsubscribe or manage your preferences, visit: ${unsubscribeUrl}

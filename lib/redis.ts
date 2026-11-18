@@ -16,9 +16,7 @@ export function createRedisConnection() {
 }
 
 export function getRedisConnection() {
-  if (!globalForRedis.redisConnection) {
-    globalForRedis.redisConnection = createRedisConnection()
-  }
+  globalForRedis.redisConnection ??= createRedisConnection()
 
   return globalForRedis.redisConnection
 }
