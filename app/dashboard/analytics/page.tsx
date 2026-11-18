@@ -28,6 +28,7 @@ import {
   PieChart as RechartsPlePieChart,
   ResponsiveContainer,
   Tooltip,
+  type TooltipProps,
   XAxis,
   YAxis,
 } from "recharts"
@@ -111,15 +112,320 @@ interface AnalyticsData {
   }[]
 }
 
+interface ContactAnalytics {
+  total: number
+  currentPeriod: { count: number; change: number; percentage: number }
+  statusBreakdown: { status: string; count: number }[]
+  dailyContacts: { date: string; count: number }[]
+}
+
+// Colors for status
+const statusColors = {
+  unread: "#3b82f6", // blue-500
+  read: "#6b7280", // gray-500
+  replied: "#22c55e", // green-500
+  archived: "#eab308", // yellow-500
+}
+
+// Get color for status
+const getStatusColor = (status: string) => {
+  return statusColors[status.toLowerCase() as keyof typeof statusColors] || "#6b7280"
+}
+
+// Format data for area charts
+const formatDailyData = (dailyData?: { date: string; count: number }[]) => {
+  if (!dailyData) return []
+
+  return dailyData.map((item) => ({
+    date: format(new Date(item.date), "MMM d"),
+    count: item.count,
+  }))
+}
+
+// Entity colors for charts
+const entityColors = {
+  projects: "#3b82f6", // blue
+  certificates: "#22c55e", // green
+  skills: "#eab308", // yellow
+  career: "#ec4899", // pink
+  contacts: "#8b5cf6", // purple
+  pageViews: "#f97316", // orange
+}
+
+// Prepare combined data for comparison chart
+const prepareComparisonData = (analytics: AnalyticsData | null) => {
+  if (!analytics) return []
+
+  const dates = analytics.projects.daily.map((item) => item.date)
+  return dates.map((date, index) => {
+    const formattedDate = format(new Date(date), "MMM d")
+    return {
+      date: formattedDate,
+      projects: analytics.projects.daily[index]?.count || 0,
+      certificates: analytics.certificates.daily[index]?.count || 0,
+      skills: analytics.skills.daily[index]?.count || 0,
+      career: analytics.career.daily[index]?.count || 0,
+      contacts: analytics.contacts.daily[index]?.count || 0,
+      pageViews: analytics.pageViews.dailyViews[index]?.count || 0,
+    }
+  })
+}
+
+// Prepare data for entity distribution pie chart
+const prepareEntityDistributionData = (analytics: AnalyticsData | null) => {
+  if (!analytics) return []
+
+  return [
+    { name: "Projects", value: analytics.projects.count, color: entityColors.projects },
+    {
+      name: "Certificates",
+      value: analytics.certificates.count,
+      color: entityColors.certificates,
+    },
+    { name: "Skills", value: analytics.skills.count, color: entityColors.skills },
+    { name: "Career", value: analytics.career.count, color: entityColors.career },
+    { name: "Contacts", value: analytics.contacts.count, color: entityColors.contacts },
+  ]
+}
+
+// Format a period change with an explicit plus sign for increases
+const formatChange = (change?: number) => {
+  if (change === undefined) return 0
+
+  return change > 0 ? `+${change}` : change
+}
+
+// Average pages per visitor
+const formatViewsPerVisitor = (pageViews?: AnalyticsData["pageViews"]) => {
+  if (!pageViews?.uniqueVisitors) return "0"
+
+  return (pageViews.totalViews / pageViews.uniqueVisitors).toFixed(1)
+}
+
+// Fetch general and contact-specific analytics for a period
+async function fetchAnalyticsData(period: string) {
+  // Fetch general analytics
+  const response = await fetch(`/api/analytics?period=${period}`)
+  if (!response.ok) {
+    throw new Error("Failed to fetch analytics")
+  }
+
+  const data: AnalyticsData = await response.json()
+
+  // Fetch contact-specific analytics
+  const contactResponse = await fetch(`/api/analytics/contacts?period=${period}`)
+  if (!contactResponse.ok) {
+    throw new Error("Failed to fetch contact analytics")
+  }
+
+  const contactData: ContactAnalytics = await contactResponse.json()
+
+  return { data, contactData }
+}
+
+type ChartTooltipProps = TooltipProps<number, string>
+
+function EntityPieTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Type</span>
+          <span className="font-bold text-sm">{payload[0].name}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Count</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DateValueTooltip({
+  active,
+  payload,
+  valueLabel,
+}: ChartTooltipProps & { valueLabel: string }) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Date</span>
+          <span className="font-bold text-sm">{payload[0].payload.date}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">{valueLabel}</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ComparisonTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col col-span-2 mb-1">
+          <span className="text-xs text-muted-foreground">Date</span>
+          <span className="font-bold text-sm">{payload[0].payload.date}</span>
+        </div>
+        {payload.map((entry) => (
+          <div key={entry.name} className="flex flex-col">
+            <span className="text-xs text-muted-foreground capitalize">{entry.name}</span>
+            <span className="font-bold text-sm">{entry.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function PathViewsTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-1 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Path</span>
+          <span className="font-bold text-sm">{payload[0].payload.path}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Views</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatusPieTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Status</span>
+          <span className="font-bold text-sm capitalize">{payload[0].name}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Count</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ContactTrendTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Date</span>
+          <span className="font-bold text-sm">
+            {format(new Date(payload[0].payload.date), "MMM d, yyyy")}
+          </span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Contacts</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function StatusBarTooltip({ active, payload }: ChartTooltipProps) {
+  if (!active || !payload?.length) return null
+
+  return (
+    <div className="rounded-lg border bg-background p-2 shadow-sm">
+      <div className="grid grid-cols-2 gap-2">
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Status</span>
+          <span className="font-bold text-sm capitalize">{payload[0].payload.status}</span>
+        </div>
+        <div className="flex flex-col">
+          <span className="text-xs text-muted-foreground">Count</span>
+          <span className="font-bold text-sm">{payload[0].value}</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function TopPagesOverview({
+  loading,
+  topPages,
+}: {
+  loading: boolean
+  topPages?: { path: string; count: number }[]
+}) {
+  if (loading) {
+    return (
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+        <Skeleton className="h-4 w-full" />
+      </div>
+    )
+  }
+
+  if (topPages?.length === 0) {
+    return (
+      <div className="flex h-40 items-center justify-center text-muted-foreground">
+        No page view data available
+      </div>
+    )
+  }
+
+  const maxCount = Math.max(...(topPages?.map((p) => p.count) || [1]))
+
+  return (
+    <div className="space-y-4">
+      {topPages?.map((page) => (
+        <div key={page.path} className="space-y-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="font-medium truncate max-w-[300px]">{page.path}</span>
+            </div>
+            <div className="flex items-center space-x-2">
+              <span className="font-medium">{page.count}</span>
+              <span className="text-sm text-muted-foreground">views</span>
+            </div>
+          </div>
+          <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+            <div
+              className="h-full rounded-full bg-primary"
+              style={{
+                width: `${maxCount > 0 ? (page.count / maxCount) * 100 : 0}%`,
+              }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 export default function AnalyticsPage() {
   const { toast } = useToast()
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
-  const [contactAnalytics, setContactAnalytics] = useState<null | {
-    total: number
-    currentPeriod: { count: number; change: number; percentage: number }
-    statusBreakdown: { status: string; count: number }[]
-    dailyContacts: { date: string; count: number }[]
-  }>(null)
+  const [contactAnalytics, setContactAnalytics] = useState<ContactAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [period, setPeriod] = useState("30")
   const [activeTab, setActiveTab] = useState("overview")
@@ -133,22 +439,8 @@ export default function AnalyticsPage() {
     async function fetchAnalytics() {
       setLoading(true)
       try {
-        // Fetch general analytics
-        const response = await fetch(`/api/analytics?period=${period}`)
-        if (!response.ok) {
-          throw new Error("Failed to fetch analytics")
-        }
-
-        const data = await response.json()
+        const { data, contactData } = await fetchAnalyticsData(period)
         setAnalytics(data)
-
-        // Fetch contact-specific analytics
-        const contactResponse = await fetch(`/api/analytics/contacts?period=${period}`)
-        if (!contactResponse.ok) {
-          throw new Error("Failed to fetch contact analytics")
-        }
-
-        const contactData = await contactResponse.json()
         setContactAnalytics(contactData)
       } catch (error) {
         console.error("Error fetching analytics:", error)
@@ -162,79 +454,8 @@ export default function AnalyticsPage() {
       }
     }
 
-    fetchAnalytics()
+    void fetchAnalytics()
   }, [period, toast])
-
-  // Colors for status
-  const statusColors = {
-    unread: "#3b82f6", // blue-500
-    read: "#6b7280", // gray-500
-    replied: "#22c55e", // green-500
-    archived: "#eab308", // yellow-500
-  }
-
-  // Get color for status
-  const getStatusColor = (status: string) => {
-    return statusColors[status.toLowerCase() as keyof typeof statusColors] || "#6b7280"
-  }
-
-  // Format data for area charts
-  const formatDailyData = (dailyData?: { date: string; count: number }[]) => {
-    if (!dailyData) return []
-
-    return dailyData.map((item) => ({
-      date: format(new Date(item.date), "MMM d"),
-      count: item.count,
-    }))
-  }
-
-  // Entity colors for charts
-  const entityColors = {
-    projects: "#3b82f6", // blue
-    certificates: "#22c55e", // green
-    skills: "#eab308", // yellow
-    career: "#ec4899", // pink
-    contacts: "#8b5cf6", // purple
-    pageViews: "#f97316", // orange
-  }
-
-  // Prepare combined data for comparison chart
-  const prepareComparisonData = () => {
-    if (!analytics) return []
-
-    const dates = analytics.projects.daily.map((item) => item.date)
-    const result = dates.map((date, index) => {
-      const formattedDate = format(new Date(date), "MMM d")
-      return {
-        date: formattedDate,
-        projects: analytics.projects.daily[index]?.count || 0,
-        certificates: analytics.certificates.daily[index]?.count || 0,
-        skills: analytics.skills.daily[index]?.count || 0,
-        career: analytics.career.daily[index]?.count || 0,
-        contacts: analytics.contacts.daily[index]?.count || 0,
-        pageViews: analytics.pageViews.dailyViews[index]?.count || 0,
-      }
-    })
-
-    return result
-  }
-
-  // Prepare data for entity distribution pie chart
-  const prepareEntityDistributionData = () => {
-    if (!analytics) return []
-
-    return [
-      { name: "Projects", value: analytics.projects.count, color: entityColors.projects },
-      {
-        name: "Certificates",
-        value: analytics.certificates.count,
-        color: entityColors.certificates,
-      },
-      { name: "Skills", value: analytics.skills.count, color: entityColors.skills },
-      { name: "Career", value: analytics.career.count, color: entityColors.career },
-      { name: "Contacts", value: analytics.contacts.count, color: entityColors.contacts },
-    ]
-  }
 
   return (
     <div className="space-y-6">
@@ -350,7 +571,7 @@ export default function AnalyticsPage() {
                     <ResponsiveContainer width="100%" height="100%">
                       <RechartsPlePieChart>
                         <Pie
-                          data={prepareEntityDistributionData()}
+                          data={prepareEntityDistributionData(analytics)}
                           cx="50%"
                           cy="50%"
                           labelLine={false}
@@ -359,36 +580,16 @@ export default function AnalyticsPage() {
                           dataKey="value"
                           label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                         >
-                          {prepareEntityDistributionData().map((entry, index) => (
+                          {prepareEntityDistributionData(analytics).map((entry) => (
                             <Cell
-                              key={`cell-${index}`}
+                              key={entry.name}
                               fill={entry.color}
                               className="stroke-background dark:stroke-background"
                               strokeWidth={2}
                             />
                           ))}
                         </Pie>
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Type</span>
-                                      <span className="font-bold text-sm">{payload[0].name}</span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Count</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<EntityPieTooltip />} />
                         <Legend />
                       </RechartsPlePieChart>
                     </ResponsiveContainer>
@@ -433,29 +634,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Views</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Views" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
@@ -477,55 +656,10 @@ export default function AnalyticsPage() {
                 <CardDescription>Most visited pages in the last {period} days</CardDescription>
               </CardHeader>
               <CardContent>
-                {loading ? (
-                  <div className="space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-full" />
-                  </div>
-                ) : analytics?.pageViews?.topPages?.length === 0 ? (
-                  <div className="flex h-40 items-center justify-center text-muted-foreground">
-                    No page view data available
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {analytics?.pageViews?.topPages?.map((page, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center">
-                            <span className="font-medium truncate max-w-[300px]">{page.path}</span>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <span className="font-medium">{page.count}</span>
-                            <span className="text-sm text-muted-foreground">views</span>
-                          </div>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-primary"
-                            style={{
-                              width: `${
-                                Math.max(
-                                  ...(analytics?.pageViews?.topPages?.map((p) => p.count) || [1]),
-                                ) > 0
-                                  ? (page.count /
-                                      Math.max(
-                                        ...(analytics?.pageViews?.topPages?.map((p) => p.count) || [
-                                          1,
-                                        ]),
-                                      )) *
-                                    100
-                                  : 0
-                              }%`,
-                            }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <TopPagesOverview
+                  loading={loading}
+                  topPages={analytics?.pageViews?.topPages}
+                />
               </CardContent>
             </Card>
           </div>
@@ -558,7 +692,7 @@ export default function AnalyticsPage() {
                     <div className="h-96">
                       <ResponsiveContainer width="100%" height="100%">
                         <AreaChart
-                          data={prepareComparisonData()}
+                          data={prepareComparisonData(analytics)}
                           margin={{
                             top: 10,
                             right: 30,
@@ -580,33 +714,7 @@ export default function AnalyticsPage() {
                             axisLine={false}
                             className="text-muted-foreground"
                           />
-                          <Tooltip
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <div className="flex flex-col col-span-2 mb-1">
-                                        <span className="text-xs text-muted-foreground">Date</span>
-                                        <span className="font-bold text-sm">
-                                          {payload[0].payload.date}
-                                        </span>
-                                      </div>
-                                      {payload.map((entry, index) => (
-                                        <div key={index} className="flex flex-col">
-                                          <span className="text-xs text-muted-foreground capitalize">
-                                            {entry.name}
-                                          </span>
-                                          <span className="font-bold text-sm">{entry.value}</span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
+                          <Tooltip content={<ComparisonTooltip />} />
                           <Legend />
                           <Area
                             type="monotone"
@@ -665,11 +773,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {analytics?.projects?.change !== undefined
-                        ? analytics.projects.change > 0
-                          ? `+${analytics.projects.change}`
-                          : analytics.projects.change
-                        : 0}
+                      {formatChange(analytics?.projects?.change)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Change in the last {period} days ({analytics?.projects?.percentage || 0}%)
@@ -684,11 +788,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {analytics?.certificates?.change !== undefined
-                        ? analytics.certificates.change > 0
-                          ? `+${analytics.certificates.change}`
-                          : analytics.certificates.change
-                        : 0}
+                      {formatChange(analytics?.certificates?.change)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Change in the last {period} days ({analytics?.certificates?.percentage || 0}%)
@@ -703,11 +803,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {analytics?.skills?.change !== undefined
-                        ? analytics.skills.change > 0
-                          ? `+${analytics.skills.change}`
-                          : analytics.skills.change
-                        : 0}
+                      {formatChange(analytics?.skills?.change)}
                     </div>
                     <div className="text-sm text-muted-foreground">
                       Change in the last {period} days ({analytics?.skills?.percentage || 0}%)
@@ -750,11 +846,7 @@ export default function AnalyticsPage() {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold">
-                      {analytics?.pageViews?.uniqueVisitors
-                        ? (
-                            analytics.pageViews.totalViews / analytics.pageViews.uniqueVisitors
-                          ).toFixed(1)
-                        : "0"}
+                      {formatViewsPerVisitor(analytics?.pageViews)}
                     </div>
                   </CardContent>
                 </Card>
@@ -791,29 +883,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Views</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Views" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
@@ -855,29 +925,7 @@ export default function AnalyticsPage() {
                             value.length > 20 ? `${value.substring(0, 20)}...` : value
                           }
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-1 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Path</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.path}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Views</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<PathViewsTooltip />} />
                         <Bar dataKey="count" fill={entityColors.pageViews} />
                       </BarChart>
                     </ResponsiveContainer>
@@ -946,42 +994,16 @@ export default function AnalyticsPage() {
                             nameKey="status"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                           >
-                            {(contactAnalytics?.statusBreakdown || []).map((entry, index) => (
+                            {(contactAnalytics?.statusBreakdown || []).map((entry) => (
                               <Cell
-                                key={`cell-${index}`}
+                                key={entry.status}
                                 fill={getStatusColor(entry.status)}
                                 className="stroke-background dark:stroke-background"
                                 strokeWidth={2}
                               />
                             ))}
                           </Pie>
-                          <Tooltip
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground">
-                                          Status
-                                        </span>
-                                        <span className="font-bold text-sm capitalize">
-                                          {payload[0].name}
-                                        </span>
-                                      </div>
-                                      <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground">Count</span>
-                                        <span className="font-bold text-sm">
-                                          {payload[0].value}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
+                          <Tooltip content={<StatusPieTooltip />} />
                           <Legend />
                         </RechartsPlePieChart>
                       </ResponsiveContainer>
@@ -1021,33 +1043,7 @@ export default function AnalyticsPage() {
                             axisLine={false}
                             className="text-muted-foreground"
                           />
-                          <Tooltip
-                            content={({ active, payload }) => {
-                              if (active && payload && payload.length) {
-                                return (
-                                  <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                    <div className="grid grid-cols-2 gap-2">
-                                      <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground">Date</span>
-                                        <span className="font-bold text-sm">
-                                          {format(new Date(payload[0].payload.date), "MMM d, yyyy")}
-                                        </span>
-                                      </div>
-                                      <div className="flex flex-col">
-                                        <span className="text-xs text-muted-foreground">
-                                          Contacts
-                                        </span>
-                                        <span className="font-bold text-sm">
-                                          {payload[0].value}
-                                        </span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                )
-                              }
-                              return null
-                            }}
-                          />
+                          <Tooltip content={<ContactTrendTooltip />} />
                           <Area
                             type="monotone"
                             dataKey="count"
@@ -1092,32 +1088,10 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Status</span>
-                                      <span className="font-bold text-sm capitalize">
-                                        {payload[0].payload.status}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Count</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<StatusBarTooltip />} />
                         <Bar dataKey="count">
-                          {(contactAnalytics?.statusBreakdown || []).map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={getStatusColor(entry.status)} />
+                          {(contactAnalytics?.statusBreakdown || []).map((entry) => (
+                            <Cell key={entry.status} fill={getStatusColor(entry.status)} />
                           ))}
                         </Bar>
                       </BarChart>
@@ -1196,31 +1170,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">
-                                        Projects
-                                      </span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Projects" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
@@ -1306,31 +1256,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">
-                                        Certificates
-                                      </span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Certificates" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
@@ -1416,29 +1342,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Skills</span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Skills" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
@@ -1522,31 +1426,7 @@ export default function AnalyticsPage() {
                           axisLine={false}
                           className="text-muted-foreground"
                         />
-                        <Tooltip
-                          content={({ active, payload }) => {
-                            if (active && payload && payload.length) {
-                              return (
-                                <div className="rounded-lg border bg-background p-2 shadow-sm">
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">Date</span>
-                                      <span className="font-bold text-sm">
-                                        {payload[0].payload.date}
-                                      </span>
-                                    </div>
-                                    <div className="flex flex-col">
-                                      <span className="text-xs text-muted-foreground">
-                                        Career Entries
-                                      </span>
-                                      <span className="font-bold text-sm">{payload[0].value}</span>
-                                    </div>
-                                  </div>
-                                </div>
-                              )
-                            }
-                            return null
-                          }}
-                        />
+                        <Tooltip content={<DateValueTooltip valueLabel="Career Entries" />} />
                         <Area
                           type="monotone"
                           dataKey="count"
