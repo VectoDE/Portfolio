@@ -57,7 +57,7 @@ export async function POST(req: Request) {
     const { adminEmail, emailFrom, smtpServer, smtpPort, smtpUser, smtpPassword, sendAutoReply } =
       data
 
-    let emailSettings = await prisma.emailSettings.findFirst()
+    const emailSettings = await prisma.emailSettings.findFirst()
 
     if (emailSettings) {
       await prisma.emailSettings.update({
