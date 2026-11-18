@@ -1,0 +1,31 @@
+name: tmp-lockfile
+on:
+  push:
+    branches: [chore/deps-security-updates, chore/nodemailer-10, chore/zod-4]
+permissions:
+  contents: read
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@a7487c7e89a18df4991f7f222e4898a00d66ddda # v4.1.0
+        with:
+          version: 10.13.1
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: 20
+      - name: Lockfile neu erzeugen
+        run: |
+          if [ -f .lockfile-regen ]; then rm -f pnpm-lock.yaml; fi
+          pnpm install --lockfile-only --ignore-scripts
+      - name: Audit
+        run: pnpm audit --json > audit.json || true
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: lockfile
+          path: |
+            pnpm-lock.yaml
+            audit.json
