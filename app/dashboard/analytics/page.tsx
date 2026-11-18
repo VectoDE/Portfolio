@@ -369,10 +369,10 @@ function StatusBarTooltip({ active, payload }: ChartTooltipProps) {
 function TopPagesOverview({
   loading,
   topPages,
-}: {
+}: Readonly<{
   loading: boolean
   topPages?: { path: string; count: number }[]
-}) {
+}>) {
   if (loading) {
     return (
       <div className="space-y-2">

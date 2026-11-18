@@ -183,7 +183,7 @@ async function calculateStatsWithChange(
 type DailyDataModel = "project" | "certificate" | "skill" | "career" | "contact" | "pageview"
 
 // Count the records of a model within a time window
-async function countInRange(userId: string, model: DailyDataModel, dayStart: Date, dayEnd: Date): Promise<number> {
+function countInRange(userId: string, model: DailyDataModel, dayStart: Date, dayEnd: Date): Promise<number> {
   const createdAt = { gte: dayStart, lte: dayEnd }
 
   switch (model) {
