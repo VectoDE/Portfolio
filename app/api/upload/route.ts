@@ -38,7 +38,7 @@ export async function POST(req: Request) {
     const isAdmin = await isAdminSession(session)
     const fileExtension = EXTENSION_BY_MIME_TYPE.get(file.type)
 
-    // SVG files can carry scripts, so only admins may upload them (e.g. logos for portfolio content).
+    // SVG files can carry scripts, so only admins may upload them (e.g. logos).
     if (!fileExtension || (file.type === "image/svg+xml" && !isAdmin)) {
       return NextResponse.json({ error: "Only image uploads are allowed" }, { status: 415 })
     }
