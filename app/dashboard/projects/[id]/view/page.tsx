@@ -1,6 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
-import { redirect, notFound } from "next/navigation"
+import { notFound } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { ArrowLeft, ExternalLink, Pencil } from "lucide-react"
 
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { authOptions } from "@/lib/auth"
+import { requireDashboardAdmin } from "@/lib/dashboard-guard"
 import prisma from "@/lib/db"
 
 function formatDate(value: Date | string): string {
@@ -46,12 +47,11 @@ interface ProjectViewPageProps {
 export default async function ProjectViewPage({ params }: Readonly<ProjectViewPageProps>) {
   const { id } = await params
   const session = await getServerSession(authOptions)
-
-  if (!session?.user?.id) {
-    redirect(`/login?callbackUrl=/dashboard/projects/${id}/view`)
-  }
-
-  const userId = session.user.id as string
+  // Layout and page render in parallel, so check the admin role here before the query.
+  const userId = await requireDashboardAdmin(
+    session,
+    `/login?callbackUrl=/dashboard/projects/${id}/view`,
+  )
 
   const project = await prisma.project.findUnique({
     where: {
