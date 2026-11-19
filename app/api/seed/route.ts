@@ -1,9 +1,10 @@
 import { NextResponse } from "next/server"
-import { createHash, randomBytes, timingSafeEqual } from "node:crypto"
+import { createHash, timingSafeEqual } from "node:crypto"
 import bcrypt from "bcryptjs"
 
 import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { resolveSeedAdminPassword } from "@/lib/seed-password"
 
 const SEED_ADMIN_EMAIL = "admin@example.com"
 const SEED_TOKEN_HEADER = "x-seed-token"
@@ -52,9 +53,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: "Seed data already exists" })
     }
 
-    const configuredPassword = process.env.SEED_ADMIN_PASSWORD
-    const generatedPassword = configuredPassword ? undefined : randomBytes(18).toString("base64url")
-    const adminPassword = generatedPassword ?? configuredPassword ?? ""
+    const seedPassword = resolveSeedAdminPassword(process.env.SEED_ADMIN_PASSWORD)
+
+    if (!seedPassword.ok) {
+      return NextResponse.json({ error: seedPassword.error }, { status: 400 })
+    }
+
+    const adminPassword = seedPassword.password
+    const generatedPassword = seedPassword.generated ? seedPassword.password : undefined
 
     // Create admin user
     const hashedPassword = await bcrypt.hash(adminPassword, 10)

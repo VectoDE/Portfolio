@@ -128,7 +128,7 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
 | `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
-| `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
+| `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. It must meet the same rule as registration (at least 8 characters, at most 72 bytes); otherwise the seed answers 400. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
 
 > **Tip:** Whenever you introduce a new environment variable, document it in this table and surface an onboarding default inside the relevant API route.
 
