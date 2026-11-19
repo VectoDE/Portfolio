@@ -11,8 +11,8 @@
     "start": "PORT=3020 next start",
     "start:local": "next start",
     "prod:start": "next start",
-    "lint": "next lint",
-    "lint:fix": "next lint --fix",
+    "lint": "eslint app pages components lib",
+    "lint:fix": "eslint app pages components lib --fix",
     "typecheck": "tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
@@ -71,7 +71,7 @@
     "input-otp": "1.5.0",
     "ioredis": "^5.8.2",
     "lucide-react": "^0.454.0",
-    "next": "15.5.29",
+    "next": "16.4.6",
     "next-auth": "4.24.15",
     "next-themes": "0.4.6",
     "nodemailer": "^10.6.0",
@@ -98,7 +98,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.38.0",
-    "@next/eslint-plugin-next": "^15.5.29",
+    "@next/eslint-plugin-next": "^16.4.6",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
@@ -122,7 +122,6 @@
   "pnpm": {
     "overrides": {
       "cookie": "^0.7.2",
-      "next>postcss": "^8.5.33",
       "@prisma/config>deepmerge-ts": "^8.0.2"
     }
   },
