@@ -12,6 +12,10 @@ import {
   REGISTRATION_NOT_COMPLETED_MESSAGE,
   REQUEST_TOO_LARGE_MESSAGE,
 } from "../lib/registration-policy.ts"
+import {
+  PASSWORD_TOO_LONG_MESSAGE,
+  PASSWORD_TOO_SHORT_MESSAGE,
+} from "../lib/password-policy.ts"
 
 const BOOTSTRAP = "owner@example.com"
 
@@ -212,6 +216,61 @@ describe("evaluateRegistrationRequest with existing accounts", () => {
       }),
       { outcome: "proceed", email: "a@example.com", password: "long-enough", name: null, admin: false },
     )
+  })
+})
+
+describe("evaluateRegistrationRequest applies the shared password rule", () => {
+  const tooLong = "a".repeat(73)
+
+  it("rejects too short and too long passwords with 400 once the request may proceed", () => {
+    const allowed = [
+      { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, email: BOOTSTRAP },
+      { existingUsers: 2, registrationEnabled: true, bootstrapEmail: BOOTSTRAP, email: "a@example.com" },
+    ]
+
+    for (const { email, ...input } of allowed) {
+      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: { email, password: "short" } }), {
+        outcome: "invalid",
+        error: PASSWORD_TOO_SHORT_MESSAGE,
+      })
+      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: { email, password: tooLong } }), {
+        outcome: "invalid",
+        error: PASSWORD_TOO_LONG_MESSAGE,
+      })
+      assert.equal(
+        evaluateRegistrationRequest({ ...input, body: { email, password: "a".repeat(72) } }).outcome,
+        "proceed",
+      )
+    }
+  })
+
+  it("never reveals the password rule on an empty or closed instance", () => {
+    const refused = [
+      {
+        input: { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP },
+        email: "attacker@example.com",
+        decision: { outcome: "bootstrap-email-mismatch" },
+      },
+      {
+        input: { existingUsers: 0, registrationEnabled: true, bootstrapEmail: "" },
+        email: BOOTSTRAP,
+        decision: { outcome: "bootstrap-not-configured" },
+      },
+      {
+        input: { existingUsers: 2, registrationEnabled: false, bootstrapEmail: BOOTSTRAP },
+        email: "a@example.com",
+        decision: { outcome: "closed" },
+      },
+    ]
+
+    for (const { input, email, decision } of refused) {
+      for (const password of ["short", tooLong, "long-enough-password"]) {
+        assert.deepEqual(evaluateRegistrationRequest({ ...input, body: { email, password } }), {
+          outcome: "refuse",
+          decision,
+        })
+      }
+    }
   })
 })
 

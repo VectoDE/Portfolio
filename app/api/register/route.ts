@@ -76,6 +76,8 @@ export async function POST(req: Request) {
       return registrationClosed(gate.decision)
     }
 
+    // Includes the shared password rule (validatePassword), checked only after the address
+    // matched; see evaluateRegistrationRequest.
     if (gate.outcome === "invalid") {
       return NextResponse.json({ error: gate.error }, { status: 400 })
     }

@@ -128,7 +128,8 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
 | `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
-| `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
+| `SEED_ADMIN_EMAIL` | Used by `node prisma/seed.mjs` when no admin exists yet: email of the admin account the content is attached to. | `you@example.com` |
+| `SEED_ADMIN_PASSWORD` | Used by `node prisma/seed.mjs` together with `SEED_ADMIN_EMAIL`. Must pass the registration rule (8 characters to 72 bytes). Without it the seed stops; no password is generated. | *(empty)* |
 
 > **Tip:** Whenever you introduce a new environment variable, document it in this table and surface an onboarding default inside the relevant API route.
 
@@ -148,18 +149,16 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
    pnpm prisma:studio
    ```
 
-### Optional: Seed Sample Content
+### Optional: Seed Content
 
-A helper endpoint populates a development database with an admin account and sample content. It is disabled in production (`NODE_ENV=production`) and whenever `SEED_TOKEN` is not set; in both cases it answers `404`.
+`prisma/seed.mjs` fills the database with the content from `content/*.json` (projects, skills, career, certificates). It is the only seed path.
 
-1. Set `SEED_TOKEN` in your local `.env`. Optionally set `SEED_ADMIN_PASSWORD`.
-2. Start the dev server with `pnpm dev` and run:
+```bash
+node prisma/seed.mjs            # create missing entries, keep existing ones
+node prisma/seed.mjs --update   # overwrite existing entries with the JSON content
+```
 
-   ```bash
-   curl -X POST http://localhost:3000/api/seed -H "x-seed-token: $SEED_TOKEN"
-   ```
-
-The endpoint creates an `admin@example.com` account with the admin role, alongside demo projects, certificates, skills, and career entries. If `SEED_ADMIN_PASSWORD` is unset, the response contains a generated password once; store it, it is not shown again.
+The content is attached to the first admin account. If none exists, the script creates it from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` and stops with an error if either is missing or the password breaks the registration rule. See [content/README.md](content/README.md).
 
 ### User Registration
 
