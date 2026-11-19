@@ -5,6 +5,8 @@ import {
   createLogThrottle,
   createMemoryRateLimiter,
   evaluateWindow,
+  MEMORY_RATE_LIMIT_SWEEP_INTERVAL_MS,
+  RATE_LIMIT_REDIS_OPTIONS,
   getClientIp,
   MAX_IP_HEADER_LENGTH,
   normalizeIp,
@@ -203,5 +205,59 @@ describe("createMemoryRateLimiter", () => {
 
     assert.equal(limiter.size, 2)
     assert.equal(limiter.hit("active", policy, 70_000).remaining, 1)
+  })
+})
+
+describe("createMemoryRateLimiter when full", () => {
+  it("drops only the oldest window and keeps the counts of active clients", () => {
+    const limiter = createMemoryRateLimiter(3)
+
+    limiter.hit("a", policy, 0)
+    limiter.hit("b", policy, 1)
+    limiter.hit("c", policy, 2)
+    limiter.hit("c", policy, 3)
+    limiter.hit("c", policy, 4)
+
+    limiter.hit("d", policy, 5)
+
+    assert.equal(limiter.size, 3)
+    // "c" kept its window: the fourth hit is over the limit of three.
+    assert.equal(limiter.hit("c", policy, 6).allowed, false)
+    // "b" kept its window: second hit, remaining 1.
+    assert.equal(limiter.hit("b", policy, 7).remaining, 1)
+  })
+
+  it("sweeps expired windows at most once per interval", () => {
+    const limiter = createMemoryRateLimiter(3, 1_000)
+    const short: RateLimitPolicy = { name: "short", limit: 5, windowMs: 10 }
+
+    limiter.hit("x", short, 0)
+    limiter.hit("y", short, 0)
+    limiter.hit("z", policy, 0)
+
+    // First insert on a full map sweeps: x and y have expired, z stays.
+    limiter.hit("n1", policy, 20)
+    assert.equal(limiter.size, 2)
+
+    limiter.hit("e1", short, 21)
+    // Full again within the interval: no sweep, only the oldest entry (z) is dropped,
+    // although e1 has expired by then.
+    limiter.hit("n2", policy, 40)
+    assert.equal(limiter.size, 3)
+    assert.equal(limiter.hit("z", policy, 41).remaining, policy.limit - 1)
+  })
+
+  it("keeps the sweep interval positive and within one minute", () => {
+    assert.ok(MEMORY_RATE_LIMIT_SWEEP_INTERVAL_MS > 0)
+    assert.ok(MEMORY_RATE_LIMIT_SWEEP_INTERVAL_MS <= 60_000)
+  })
+})
+
+describe("RATE_LIMIT_REDIS_OPTIONS", () => {
+  it("fails fast and bounds every command", () => {
+    assert.equal(RATE_LIMIT_REDIS_OPTIONS.enableOfflineQueue, false)
+    assert.equal(RATE_LIMIT_REDIS_OPTIONS.maxRetriesPerRequest, 1)
+    assert.ok(RATE_LIMIT_REDIS_OPTIONS.connectTimeout > 0)
+    assert.ok(RATE_LIMIT_REDIS_OPTIONS.commandTimeout > 0 && RATE_LIMIT_REDIS_OPTIONS.commandTimeout <= 1_000)
   })
 })
