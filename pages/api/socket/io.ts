@@ -11,6 +11,28 @@ export const config = {
   },
 }
 
+/**
+ * Allowed CORS origin from NEXT_PUBLIC_SITE_URL. Browsers send the Origin header without a path
+ * or trailing slash, so "https://example.com/" would never match; new URL().origin turns any
+ * configured URL into exactly that form. A missing or unparseable value means same-origin only.
+ */
+function getAllowedOrigin(): string | false {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL?.trim()
+
+  if (!siteUrl) {
+    return false
+  }
+
+  try {
+    const { origin } = new URL(siteUrl)
+
+    return origin === "null" ? false : origin
+  } catch {
+    console.warn("NEXT_PUBLIC_SITE_URL is not a valid URL; Socket.IO allows same-origin clients only.")
+    return false
+  }
+}
+
 export default function handler(req: NextApiRequest, res: NextApiResponseServerIO) {
   const existingServer = res.socket.server as typeof res.socket.server & { io?: IOServer }
 
@@ -20,7 +42,7 @@ export default function handler(req: NextApiRequest, res: NextApiResponseServerI
       cors: {
         // Without a configured site URL only same-origin clients may connect; never fall back
         // to "*", which would let any website open a realtime connection.
-        origin: process.env.NEXT_PUBLIC_SITE_URL || false,
+        origin: getAllowedOrigin(),
       },
     })
 
