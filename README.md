@@ -17,6 +17,7 @@ A production-ready personal portfolio and creator operations platform built with
   - [Database Setup](#database-setup)
   - [Optional: Seed Sample Content](#optional-seed-sample-content)
   - [User Registration](#user-registration)
+  - [First-Time Setup (Admin Account)](#first-time-setup-admin-account)
   - [Running the App](#running-the-app)
 - [Quality Assurance](#quality-assurance)
 - [Project Structure](#project-structure)
@@ -124,7 +125,8 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `SEND_AUTO_REPLY` | Set to `true` to send automatic acknowledgements for contact submissions. | `false` |
 | `ETHEREAL_EMAIL`, `ETHEREAL_PASSWORD` | Optional Ethereal credentials for development previews (fallback transport). | `user@ethereal.email`, `pass` |
 | `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
-| `ALLOW_REGISTRATION` | Self-service sign-up. Off unless set to `true`. While it is off, only the very first account can register (it becomes the admin); every later attempt receives `403`. | `false` |
+| `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
 | `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
 | `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
 
@@ -161,7 +163,27 @@ The endpoint creates an `admin@example.com` account with the admin role, alongsi
 
 ### User Registration
 
-Self-service registration is disabled by default. On a fresh installation the first account can always be created through `/register` and receives the admin role. After that, `/api/register` answers `403` unless `ALLOW_REGISTRATION=true` is set; accounts created that way get the `Member` role.
+Self-service registration is disabled by default. After the first admin exists, `/api/register` answers `403` unless `ALLOW_REGISTRATION=true` is set; accounts created that way get the `Member` role and never become admins.
+
+### First-Time Setup (Admin Account)
+
+A fresh installation has no accounts. To stop strangers from claiming a newly deployed, publicly reachable instance, only one pre-configured address can create the first account:
+
+1. Set `ADMIN_BOOTSTRAP_EMAIL` to your own email address in the environment of the running app (for example `.env` or your hosting provider's settings) and restart or redeploy.
+2. Open `/register` and sign up with exactly that address. Case and surrounding spaces do not matter. The account receives the admin role.
+3. Optionally remove `ADMIN_BOOTSTRAP_EMAIL` afterwards. It only matters while the database has no accounts.
+
+If `ADMIN_BOOTSTRAP_EMAIL` is missing or empty, or a different address is used, the first registration is refused with `403` and the same message as a closed registration. While the database is empty this also applies to malformed JSON and missing fields; the usual `400` checks (for example a password shorter than 8 characters) only run once the address matches. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
+
+Request bodies for `/api/register` are limited to 16 KB. The body is always read (up to that limit) before the route decides anything, so an empty instance and a closed one respond the same way, also in timing. A larger body is refused with the same `403` while the database is empty or registration is closed, and with `413` (`Request body is too large.`) only when registration is open. If a parallel sign-up with the same address hits the unique constraint, open registration answers `409` (`Registration could not be completed.`); during the first registration it stays the generic `403`.
+
+#### Right after the first deploy
+
+Do the first-time setup immediately after deploying, before you share the URL:
+
+1. Register with the `ADMIN_BOOTSTRAP_EMAIL` address as described above.
+2. Sign in with the new account and check that the admin dashboard opens. Only then is the setup complete.
+3. If the bootstrap address is public, for example because it is also the contact address shown on the site, keep the instance unreachable from the internet (private preview, IP allow list, maintenance page or no public DNS yet) until steps 1 and 2 are done. Otherwise anyone who knows the address can race you to the first account.
 
 ### Running the App
 
@@ -182,6 +204,7 @@ Run these scripts locally before pushing changes:
 - `pnpm lint` – ESLint with Next.js rules.
 - `pnpm lint:fix` – Auto-fix lint violations where possible.
 - `pnpm typecheck` – TypeScript in `--noEmit` mode.
+- `pnpm test` – Unit tests in `tests/` with the built-in Node.js test runner (Node.js 22 or newer).
 - `pnpm format:check` / `pnpm format` – Enforce Prettier style guidelines.
 - `pnpm validate` – Convenience script chaining linting and type checks.
 

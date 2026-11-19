@@ -13,19 +13,19 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
 import type {
-  ProjectComment,
+  PublicProjectComment,
   ReactionSummary,
   ReactionType,
 } from "@/types/database"
 
 interface ProjectFeedbackProps {
   projectId: string
-  initialComments: ProjectComment[]
+  initialComments: PublicProjectComment[]
   initialReactions: ReactionSummary
 }
 
 interface CommentsResponse {
-  comments: ProjectComment[]
+  comments: PublicProjectComment[]
 }
 
 const fetcher = async <T,>(url: string): Promise<T> => {
@@ -246,7 +246,7 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
               orderedComments.map((item) => (
                 <div key={item.id} className="rounded-md border border-border bg-background/80 p-4">
                   <div className="flex items-center justify-between text-sm">
-                    <p className="font-medium">{item.user?.name ?? "Community member"}</p>
+                    <p className="font-medium">{item.author.name ?? "Community member"}</p>
                     <span className="text-xs text-muted-foreground">
                       {formatDistanceToNow(new Date(item.createdAt), {
                         addSuffix: true,

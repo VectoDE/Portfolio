@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server"
 
 import logger from "@/lib/logger"
+import { LOGGER_RATE_LIMIT } from "@/lib/rate-limit"
+import { checkRateLimit, rateLimitExceeded } from "@/lib/rate-limit-store"
 
 const ALLOWED_LEVELS = ["error", "info", "debug"] as const
 type LogLevel = (typeof ALLOWED_LEVELS)[number]
@@ -11,6 +13,12 @@ function isLogLevel(value: string): value is LogLevel {
 
 export async function POST(req: Request) {
   try {
+    const rateLimit = await checkRateLimit(req, LOGGER_RATE_LIMIT)
+
+    if (!rateLimit.allowed) {
+      return rateLimitExceeded(rateLimit)
+    }
+
     const { level, message } = await req.json()
 
     if (!level || !message) {

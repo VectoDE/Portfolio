@@ -4,22 +4,18 @@ import prisma from "@/lib/db"
 import type {
   EngagementHighlightProject,
   EngagementHighlights,
-  ProjectComment,
+  PublicProjectComment,
   ReactionSummary,
   ReactionType,
 } from "@/types/database"
 
 export const reactionTypes = ["LIKE", "INSIGHTFUL", "CELEBRATE"] as const satisfies ReactionType[]
 
-type PrismaCommentWithUser = {
+type PrismaCommentWithAuthor = {
   id: string
-  projectId: string
-  userId: string
   content: string
   createdAt: Date
-  updatedAt: Date
   user: {
-    id: string
     name: string | null
     imageUrl: string | null
   } | null
@@ -43,39 +39,43 @@ type RawProjectHighlight = {
   }
 }
 
-export async function getProjectComments(projectId: string): Promise<ProjectComment[]> {
+/**
+ * Maps a comment row to its public shape. Only the comment id, content,
+ * creation time and the author's display name and image leave the server;
+ * user ids and e-mail addresses are never included.
+ */
+export function toPublicProjectComment(comment: PrismaCommentWithAuthor): PublicProjectComment {
+  return {
+    id: comment.id,
+    content: comment.content,
+    createdAt: comment.createdAt.toISOString(),
+    author: {
+      name: comment.user?.name ?? null,
+      imageUrl: comment.user?.imageUrl ?? null,
+    },
+  }
+}
+
+export async function getProjectComments(projectId: string): Promise<PublicProjectComment[]> {
   noStore()
   try {
     const comments = (await prisma.projectComment.findMany({
       where: { projectId },
-      include: {
+      select: {
+        id: true,
+        content: true,
+        createdAt: true,
         user: {
           select: {
-            id: true,
             name: true,
             imageUrl: true,
           },
         },
       },
       orderBy: { createdAt: "desc" },
-    })) as PrismaCommentWithUser[]
+    })) as PrismaCommentWithAuthor[]
 
-    return comments.map((comment) => {
-      const { user, ...rest } = comment
-
-      return {
-        ...rest,
-        user: user
-          ? {
-              id: user.id,
-              name: user.name,
-              imageUrl: user.imageUrl,
-            }
-          : undefined,
-        createdAt: comment.createdAt.toISOString(),
-        updatedAt: comment.updatedAt.toISOString(),
-      }
-    })
+    return comments.map(toPublicProjectComment)
   } catch (error) {
     console.error("Error fetching project comments", error)
     return []
