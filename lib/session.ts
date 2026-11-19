@@ -1,3 +1,4 @@
+import { connection } from "next/server"
 import type { Session } from "next-auth"
 // Einzige erlaubte Stelle für getServerSession, siehe eslint.config.mjs (no-restricted-imports).
 // eslint-disable-next-line no-restricted-imports
@@ -25,6 +26,11 @@ export class AuthConfigurationError extends Error {
  * Deshalb wird vorher geprüft und mit dem geprüften Wert gearbeitet (fail closed).
  */
 export async function getAppSession(): Promise<Session | null> {
+  // Markiert die Seite als dynamisch, bevor geprüft wird. Sonst versucht `next build`,
+  // Seiten wie /account statisch vorzurendern, und scheitert ohne Laufzeit-Secret.
+  // (getServerSession erledigte das bisher implizit über headers().)
+  await connection()
+
   const secret = readSecret("NEXTAUTH_SECRET")
 
   if (!secret) {
