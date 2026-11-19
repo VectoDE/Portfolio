@@ -1,14 +1,41 @@
 import type React from "react"
 import type { Metadata } from "next"
+import { redirect } from "next/navigation"
+import { getServerSession } from "next-auth"
+
 import { DashboardNav } from "@/components/dashboard-nav"
 import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
+import { authOptions } from "@/lib/auth"
+import { isAdminSession } from "@/lib/authz"
+import {
+  DASHBOARD_FORBIDDEN_PATH,
+  DASHBOARD_LOGIN_PATH,
+  decideDashboardAccess,
+} from "@/lib/dashboard-access"
 
 export const metadata: Metadata = {
   title: "Dashboard | Tim Hauke",
   description: "Manage your portfolio content",
 }
 
-export default function DashboardLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+export default async function DashboardLayout({
+  children,
+}: Readonly<{ children: React.ReactNode }>) {
+  // The middleware only sees the role stored in the session token. Check the role in the
+  // database here as well, so demoted or deleted accounts lose access right away.
+  const session = await getServerSession(authOptions)
+  const userId = session?.user?.id
+  const isAdmin = session && userId ? await isAdminSession(session) : false
+  const access = decideDashboardAccess({ userId, isAdmin })
+
+  if (access === "login") {
+    redirect(DASHBOARD_LOGIN_PATH)
+  }
+
+  if (access === "forbidden") {
+    redirect(DASHBOARD_FORBIDDEN_PATH)
+  }
+
   return (
     <div className="relative min-h-screen flex flex-col">
       <BackgroundGradientAnimation
