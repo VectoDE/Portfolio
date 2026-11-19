@@ -161,7 +161,7 @@ export default function RootLayout({
         {/* Rendered on the server so crawlers see it in the HTML; next/script would inject it later. */}
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\u003c") }}
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
         />
       </body>
     </html>
