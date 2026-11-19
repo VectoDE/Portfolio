@@ -142,9 +142,9 @@ export function CookieBanner() {
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex-1">
-                <h2 className="mb-2 font-sans text-lg font-semibold">Cookies on this site</h2>
+                <h2 className="mb-2 font-sans text-lg font-semibold">Cookies and statistics</h2>
                 <p className="text-sm text-muted-foreground">
-                  Necessary cookies keep the site working. Analytics cookies are only set if you
+                  Necessary storage keeps the site working. Page-view statistics only run if you
                   allow them, and you can change your choice at any time under Cookie settings.
                 </p>
               </div>

@@ -38,12 +38,13 @@ const sections = [
     title: "2. Hosting und Server-Logs",
     content: [
       "Die Website läuft bei Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. Bei jedem Aufruf verarbeitet Vercel technisch notwendige Daten: IP-Adresse, Zeitpunkt, aufgerufene Adresse, Referrer und Browserkennung. Ohne diese Daten kann die Seite nicht ausgeliefert und nicht vor Angriffen geschützt werden.",
-      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren, erreichbaren Website). Vercel ist nach eigenen Angaben unter dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO) und nutzt zusätzlich die Standardvertragsklauseln der EU-Kommission. Wie lange Vercel Logdaten aufbewahrt, regelt Vercel selbst.",
+      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren, erreichbaren Website). Vercel ist nach eigenen Angaben unter dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO) und nutzt zusätzlich die Standardvertragsklauseln der EU-Kommission. Wie lange Vercel diese Logdaten aufbewahrt, legt Vercel in seiner Datenschutzerklärung fest (vercel.com/legal/privacy-policy).",
     ],
   },
   {
-    title: "3. Schutz vor Missbrauch",
+    title: "3. Schutz vor Missbrauch und Fehlerprotokolle",
     content: [
+      "Tritt im Browser ein Fehler auf, schickt die Seite die Fehlermeldung, die Browserkennung und die aufgerufene Adresse an den Server, wo sie im Protokoll des Hosters landet. So kann ich Fehler finden und beheben. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; es gilt die Aufbewahrungsdauer der Vercel-Protokolle.",
       "Die Schnittstellen für die Besuchsstatistik und für Fehlermeldungen aus dem Browser begrenzen die Zahl der Anfragen je IP-Adresse. Dafür wird die IP-Adresse für die Dauer des Zeitfensters im Arbeitsspeicher des Servers oder in einem Redis-Zwischenspeicher gehalten und danach automatisch verworfen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Schutz vor Missbrauch).",
     ],
   },
@@ -77,7 +78,7 @@ const sections = [
     title: "8. Speicherung im Browser und Besuchsstatistik",
     content: [
       "Notwendig und immer aktiv: das Sitzungscookie nach einer Anmeldung (ein signiertes Token, gelöscht beim Abmelden oder nach Ablauf), Ihre Wahl zwischen hellem und dunklem Design und Ihre Cookie-Entscheidung (beides im lokalen Speicher des Browsers). Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG, weil die Website diese Angaben für die von Ihnen gewünschten Funktionen braucht.",
-      "Nur mit Ihrer Einwilligung: eine eigene Besuchsstatistik. Gezählt werden aufgerufene Seite, Referrer, Browserkennung und die IP-Adresse als Hash (SHA-256 mit geheimem Salt); die IP-Adresse selbst wird nicht gespeichert. Die Daten bleiben in der Datenbank dieser Website und gehen an niemanden weiter. Rechtsgrundlage sind § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO.",
+      "Nur mit Ihrer Einwilligung: eine eigene Besuchsstatistik. Gezählt werden aufgerufene Seite, Referrer, Browserkennung und die IP-Adresse als SHA-256-Hash; die IP-Adresse selbst wird nicht gespeichert. Das ist eine Pseudonymisierung, keine Anonymisierung. Die Daten bleiben in der Datenbank dieser Website und gehen an niemanden weiter. Rechtsgrundlage sind § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO.",
       'Ihre Entscheidung gilt 7 Tage, danach fragt die Website erneut. Sie können sie jederzeit über „Cookie-Einstellungen“ im Footer ändern oder widerrufen.',
       "Es gibt keine Werbung, kein Tracking durch Dritte und keine Social-Media-Plugins. Die Schriften sind auf dem eigenen Server eingebunden; beim Laden der Seite geht keine Anfrage an Google oder andere Schriftanbieter.",
     ],
@@ -85,7 +86,7 @@ const sections = [
   {
     title: "9. Empfänger",
     content: [
-      "Personenbezogene Daten erhalten nur die genannten Dienstleister für Hosting, Datenbank und E-Mail-Versand, jeweils im Rahmen eines Vertrags zur Auftragsverarbeitung. Ich verkaufe keine Daten und gebe sie nicht für Werbung weiter.",
+      "Personenbezogene Daten erhalten nur Dienstleister, die ich als Auftragsverarbeiter nach Art. 28 DSGVO einsetze: Vercel für das Hosting (siehe Abschnitt 2), der Betreiber der Datenbank, in der Kontaktanfragen, Newsletter-Adressen, Konten und Statistik liegen, und der SMTP-Dienst für den E-Mail-Versand. Ich verkaufe keine Daten und gebe sie nicht für Werbung weiter.",
     ],
   },
   {
@@ -97,7 +98,13 @@ const sections = [
     ],
   },
   {
-    title: "11. Stand",
+    title: "11. Kommentare und Reaktionen",
+    content: [
+      "Angemeldete Nutzer können Projekte kommentieren und mit Reaktionen versehen. Kommentar, Name und Profilbild sind dann für alle Besucher sichtbar. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Sie können Kommentare jederzeit löschen lassen.",
+    ],
+  },
+  {
+    title: "12. Stand",
     content: ["19. November 2026."],
   },
 ]

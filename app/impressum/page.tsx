@@ -23,7 +23,7 @@ const UPDATED = "19. November 2026"
 const sections = [
   {
     title: "Haftung für Inhalte",
-    text: "Ich erstelle die Inhalte dieser Website mit Sorgfalt, kann für Richtigkeit, Vollständigkeit und Aktualität aber keine Gewähr übernehmen. Für eigene Inhalte bin ich nach den allgemeinen Gesetzen verantwortlich. Fremde Informationen, die ich übermittle oder speichere, muss ich nach §§ 7 bis 10 DDG nicht überwachen. Sobald ich von einem Rechtsverstoß erfahre, entferne ich den betreffenden Inhalt.",
+    text: "Ich erstelle die Inhalte dieser Website mit Sorgfalt, kann für Richtigkeit, Vollständigkeit und Aktualität aber keine Gewähr übernehmen. Für eigene Inhalte bin ich nach den allgemeinen Gesetzen verantwortlich. Fremde Informationen, die ich übermittle oder speichere, muss ich nicht überwachen. Sobald ich von einem Rechtsverstoß erfahre, entferne ich den betreffenden Inhalt.",
   },
   {
     title: "Haftung für Links",
