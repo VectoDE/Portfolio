@@ -21,20 +21,6 @@ function registrationClosed() {
   return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
 }
 
-const REGISTRATION_CLOSED_MESSAGE = "Registration is currently closed."
-
-/**
- * Self-service registration is off by default. Only ALLOW_REGISTRATION="true" enables it.
- * The very first account can always be created so that a fresh installation can be set up.
- */
-function isRegistrationEnabled(): boolean {
-  return process.env.ALLOW_REGISTRATION === "true"
-}
-
-function registrationClosed() {
-  return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
-}
-
 export async function POST(req: Request) {
   try {
     if (!isRegistrationEnabled() && (await prisma.user.count()) > 0) {
