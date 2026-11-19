@@ -35,13 +35,23 @@ export function initScript(theme) {
 // Scrolls through the page so scroll-triggered sections render before capture.
 export async function settle(page) {
   await page.waitForLoadState("networkidle").catch(() => {})
-  await page.evaluate(async () => {
-    const step = Math.max(200, Math.floor(window.innerHeight * 0.8))
-    for (let y = 0; y < document.body.scrollHeight; y += step) {
-      window.scrollTo(0, y)
-      await new Promise((resolve) => setTimeout(resolve, 120))
+  // A client-side redirect (for example on /unsubscribe without a token) can replace the page
+  // while it scrolls. Wait for the new page once and try again instead of failing the run.
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    try {
+      await page.evaluate(async () => {
+        const step = Math.max(200, Math.floor(window.innerHeight * 0.8))
+        for (let y = 0; y < document.body.scrollHeight; y += step) {
+          window.scrollTo(0, y)
+          await new Promise((resolve) => setTimeout(resolve, 120))
+        }
+        window.scrollTo(0, 0)
+      })
+      break
+    } catch (error) {
+      if (attempt === 1 || !String(error).includes("Execution context was destroyed")) throw error
+      await page.waitForLoadState("networkidle").catch(() => {})
     }
-    window.scrollTo(0, 0)
-  })
+  }
   await page.waitForTimeout(800)
 }
