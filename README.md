@@ -266,7 +266,7 @@ Management endpoints require an authenticated account with the admin role (`lib/
 
 - `lib/track-pageview.ts` sends anonymised page view events to `POST /api/analytics/pageview`, hashing IP addresses with `IP_HASH_SALT` to protect visitor privacy.
 - Aggregated metrics (totals, unique visitors, time windows) are exposed via `GET /api/analytics/pageview` and rendered in dashboard charts.
-- The Winston logger in `lib/logger.ts` writes to rotating files under `logs/` and to the console during development. Client-originated logs can be forwarded to the `logger` API for investigation.
+- The Winston logger in `lib/logger.ts` writes to files under `logs/` (not rotated; rotate them with the host, e.g. logrotate) and to the console during development. On Vercel, Netlify and AWS Lambda it only writes to the console (see `LOG_TO_FILE`). Client-originated logs can be forwarded to the `logger` API for investigation.
 
 ## Deployment Notes
 

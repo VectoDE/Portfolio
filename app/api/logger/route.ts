@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 
-import { sanitizeClientLogMessage } from "@/lib/log-config"
+import { readJsonLimited } from "@/lib/http"
+import { CLIENT_LOG_MAX_BODY_BYTES, sanitizeClientLogMessage } from "@/lib/log-config"
 import logger from "@/lib/logger"
 import { LOGGER_RATE_LIMIT } from "@/lib/rate-limit"
 import { checkRateLimit, rateLimitExceeded } from "@/lib/rate-limit-store"
@@ -20,7 +21,13 @@ export async function POST(req: Request) {
       return rateLimitExceeded(rateLimit)
     }
 
-    const body: unknown = await req.json().catch(() => null)
+    const read = await readJsonLimited(req, CLIENT_LOG_MAX_BODY_BYTES)
+
+    if (!read.ok) {
+      return NextResponse.json({ message: "Request body is too large" }, { status: 413 })
+    }
+
+    const body: unknown = read.body
     const { level, message } = (body ?? {}) as { level?: unknown; message?: unknown }
     const cleanMessage = sanitizeClientLogMessage(message)
 

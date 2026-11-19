@@ -37,6 +37,18 @@ const logger = createLogger({
   transports: fileTransports,
 })
 
+// File transports report problems such as EACCES or EROFS asynchronously as "error" events.
+// Without a listener such an event would crash the process; log a warning instead.
+for (const transport of fileTransports) {
+  transport.on("error", (error: unknown) => {
+    console.warn("File logging failed:", error instanceof Error ? error.message : error)
+  })
+}
+
+logger.on("error", (error: unknown) => {
+  console.warn("Logger error:", error instanceof Error ? error.message : error)
+})
+
 if (process.env.NODE_ENV !== "production" || fileTransports.length === 0) {
   logger.add(
     new transports.Console({

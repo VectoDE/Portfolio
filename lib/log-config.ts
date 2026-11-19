@@ -5,6 +5,15 @@ const SERVERLESS_ENV_KEYS = ["VERCEL", "NETLIFY", "AWS_LAMBDA_FUNCTION_NAME"] as
 
 export const CLIENT_LOG_MAX_LENGTH = 1000
 
+/** Largest request body /api/logger reads; larger bodies get 413 without being parsed. */
+export const CLIENT_LOG_MAX_BODY_BYTES = 4 * 1024
+
+// Control (Cc), format (Cf: bidi overrides, zero-width characters, BOM) and line/paragraph
+// separators (Zl, Zp). Cc covers CR, LF, VT, FF, ESC and U+0085.
+// Built with the constructor: tsconfig targets ES6, and TypeScript rejects \p{} in regex
+// literals below ES2018. Node supports it at run time.
+const UNSAFE_LOG_CHARACTERS = new RegExp("[\\p{Cc}\\p{Cf}\\p{Zl}\\p{Zp}]", "gu")
+
 /**
  * Serverless platforms only allow writes below /tmp. Creating file transports there throws
  * while the module loads, which turned every request to /api/logger into an empty 500 (#103).
@@ -23,8 +32,10 @@ export function shouldUseFileLogs(env: Record<string, string | undefined>): bool
 }
 
 /**
- * Client log messages are untrusted. Control characters (including CR and LF) are replaced so
- * a message cannot forge additional log lines (CWE-117), and the length is capped.
+ * Client log messages are untrusted. Control and format characters (including CR, LF, bidi
+ * overrides and zero-width characters) are replaced so a message can neither forge additional
+ * log lines (CWE-117) nor hide or reorder text, and the length is capped without splitting a
+ * surrogate pair.
  * Returns null when the value is not a non-empty string.
  */
 export function sanitizeClientLogMessage(value: unknown): string | null {
@@ -32,12 +43,23 @@ export function sanitizeClientLogMessage(value: unknown): string | null {
     return null
   }
 
-  // eslint-disable-next-line no-control-regex
-  const cleaned = value.replace(/[\u0000-\u001f\u007f-\u009f\u2028\u2029]/g, " ").trim()
+  const cleaned = value.replace(UNSAFE_LOG_CHARACTERS, " ").trim()
 
   if (!cleaned) {
     return null
   }
 
-  return cleaned.length > CLIENT_LOG_MAX_LENGTH ? `${cleaned.slice(0, CLIENT_LOG_MAX_LENGTH)}…` : cleaned
+  if (cleaned.length <= CLIENT_LOG_MAX_LENGTH) {
+    return cleaned
+  }
+
+  let cut = cleaned.slice(0, CLIENT_LOG_MAX_LENGTH)
+  const last = cut.charCodeAt(cut.length - 1)
+
+  // Do not leave half of a surrogate pair (e.g. an emoji) at the end.
+  if (last >= 0xd800 && last <= 0xdbff) {
+    cut = cut.slice(0, -1)
+  }
+
+  return `${cut}…`
 }

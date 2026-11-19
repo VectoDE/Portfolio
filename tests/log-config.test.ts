@@ -1,7 +1,12 @@
 import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
-import { CLIENT_LOG_MAX_LENGTH, sanitizeClientLogMessage, shouldUseFileLogs } from "../lib/log-config.ts"
+import {
+  CLIENT_LOG_MAX_BODY_BYTES,
+  CLIENT_LOG_MAX_LENGTH,
+  sanitizeClientLogMessage,
+  shouldUseFileLogs,
+} from "../lib/log-config.ts"
 
 describe("shouldUseFileLogs", () => {
   it("writes files on a normal server", () => {
@@ -36,5 +41,27 @@ describe("sanitizeClientLogMessage", () => {
   it("caps the length", () => {
     const result = sanitizeClientLogMessage("a".repeat(CLIENT_LOG_MAX_LENGTH + 50))
     assert.equal(result, `${"a".repeat(CLIENT_LOG_MAX_LENGTH)}…`)
+  })
+})
+
+describe("sanitizeClientLogMessage, Unicode", () => {
+  it("removes bidi overrides, zero-width characters, BOM, NEL and ESC", () => {
+    const input = "a\u202Eb\u2066c\u200Bd\uFEFFe\u0085f\u001b[31mg"
+    const result = sanitizeClientLogMessage(input) ?? ""
+    assert.equal(/[\u202E\u2066\u200B\uFEFF\u0085\u001b]/.test(result), false)
+    assert.equal(result, "a b c d e f [31mg")
+  })
+
+  it("does not split a surrogate pair when cutting", () => {
+    const input = `${"a".repeat(CLIENT_LOG_MAX_LENGTH - 1)}\u{1F600}tail`
+    const result = sanitizeClientLogMessage(input) ?? ""
+    assert.equal(result, `${"a".repeat(CLIENT_LOG_MAX_LENGTH - 1)}…`)
+    assert.equal(result.isWellFormed(), true)
+  })
+})
+
+describe("CLIENT_LOG_MAX_BODY_BYTES", () => {
+  it("is a small fixed limit", () => {
+    assert.equal(CLIENT_LOG_MAX_BODY_BYTES, 4096)
   })
 })
