@@ -36,7 +36,7 @@ Thank you for your interest in improving the Portfolio platform! This document c
    pnpm prisma:generate
    pnpm prisma:migrate
    ```
-5. Seed development data if helpful by starting the dev server and running `curl -X POST http://localhost:3000/api/seed`. This creates an admin user plus sample portfolio records.
+5. Seed development data if helpful: set `SEED_TOKEN` (and optionally `SEED_ADMIN_PASSWORD`) in `.env`, start the dev server and run `curl -X POST http://localhost:3000/api/seed -H "x-seed-token: $SEED_TOKEN"`. This creates an admin user plus sample portfolio records. The endpoint is disabled in production.
 6. Launch the development server with `pnpm dev` and confirm you can sign in via the seeded credentials or newly registered account.
 
 > **Tip:** The project writes uploaded media to `public/uploads/` and log files to `logs/`. Add both folders to your `.gitignore` or clean them before committing.

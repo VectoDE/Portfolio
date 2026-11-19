@@ -1,20 +1,30 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import { v4 as uuidv4 } from "uuid"
 
-import { authOptions } from "@/lib/auth"
+import { isAdminSession, requireSession } from "@/lib/authz"
 import prisma from "@/lib/db"
+
+const EXTENSION_BY_MIME_TYPE = new Map<string, string>([
+  ["image/jpeg", ".jpg"],
+  ["image/png", ".png"],
+  ["image/gif", ".gif"],
+  ["image/webp", ".webp"],
+  ["image/avif", ".avif"],
+  ["image/svg+xml", ".svg"],
+])
 
 // POST /api/upload - Upload a file
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireSession()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const formData = await req.formData()
@@ -24,20 +34,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
-    const allowedMimeTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/webp",
-      "image/avif",
-      "image/svg+xml",
-    ]
+    // The stored file extension is derived from the MIME type, never from the client file name.
+    const isAdmin = await isAdminSession(session)
+    const fileExtension = EXTENSION_BY_MIME_TYPE.get(file.type)
 
-    if (!file.type || !allowedMimeTypes.includes(file.type)) {
-      return NextResponse.json(
-        { error: "Only image uploads are allowed" },
-        { status: 415 }
-      )
+    // SVG files can carry scripts, so only admins may upload them (e.g. logos).
+    if (!fileExtension || (file.type === "image/svg+xml" && !isAdmin)) {
+      return NextResponse.json({ error: "Only image uploads are allowed" }, { status: 415 })
     }
 
     const maxSize = 10 * 1024 * 1024 // 10MB
@@ -49,7 +52,6 @@ export async function POST(req: Request) {
     await mkdir(uploadsDir, { recursive: true })
 
     const originalName = file.name || "upload"
-    const fileExtension = path.extname(originalName) || ""
     const fileName = `${uuidv4()}${fileExtension}`
     const filePath = path.join(uploadsDir, fileName)
 

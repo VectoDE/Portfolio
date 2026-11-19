@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
 import { z } from "zod"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { sendContactNotification, sendContactAutoReply } from "@/lib/email"
 
@@ -11,13 +10,13 @@ const sanitizeText = (value: string) => value.replace(/[<>]/g, "")
 
 const contactPayloadSchema = z.object({
   name: z
-    .string({ required_error: "Name is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Name is required" : undefined) })
     .trim()
     .min(2, "Name must be at least 2 characters")
     .max(120, "Name must be 120 characters or fewer")
     .transform(sanitizeText),
   email: z
-    .string({ required_error: "Email is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Email is required" : undefined) })
     .trim()
     .email("A valid email address is required")
     .max(254)
@@ -41,7 +40,7 @@ const contactPayloadSchema = z.object({
     )
     .optional(),
   message: z
-    .string({ required_error: "Message is required" })
+    .string({ error: (issue) => (issue.input === undefined ? "Message is required" : undefined) })
     .trim()
     .min(10, "Message must be at least 10 characters")
     .max(5000, "Message must be 5000 characters or fewer")
@@ -107,10 +106,10 @@ export async function POST(req: Request) {
 // GET /api/contacts - Get all contacts (protected)
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     // Get query parameters

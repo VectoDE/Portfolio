@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth/next"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 type SubscriberPreferences = {
@@ -56,10 +55,10 @@ function formatSubscriber(sub: SubscriberRecord) {
 export async function GET(_req: Request) {
   try {
     // Get the current user session
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     // Get all subscribers with their preferences
@@ -79,10 +78,10 @@ export async function GET(_req: Request) {
 
 export async function DELETE(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const { ids } = (await req.json()) as { ids?: string[] }
@@ -112,10 +111,10 @@ type UpdateSubscriberPayload = {
 
 export async function PATCH(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const { id, isConfirmed, preferences } = (await req.json()) as UpdateSubscriberPayload

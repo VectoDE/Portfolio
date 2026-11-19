@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 interface RouteParams {
@@ -13,10 +12,10 @@ interface RouteParams {
 // GET /api/contacts/[id] - Get a single contact (protected)
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const { id } = await params
@@ -41,10 +40,10 @@ export async function GET(req: Request, { params }: RouteParams) {
 // PATCH /api/contacts/[id] - Update a contact (protected)
 export async function PATCH(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const { status, notes } = await req.json()
@@ -71,10 +70,10 @@ export async function PATCH(req: Request, { params }: RouteParams) {
 // DELETE /api/contacts/[id] - Delete a contact (protected)
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const { id } = await params
