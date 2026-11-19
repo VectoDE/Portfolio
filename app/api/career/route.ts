@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { careerPublicSelect } from "@/lib/public-fields"
 
 export const dynamic = "force-dynamic"
 
@@ -19,6 +20,7 @@ export async function GET() {
       where: {
         userId: session.user.id as string,
       },
+      select: careerPublicSelect,
       orderBy: {
         startDate: "desc",
       },
