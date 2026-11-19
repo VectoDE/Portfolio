@@ -3,9 +3,6 @@ name: tmp 404 reload loop check
 # Temporary proof for #118/#119. Removed again before the merge.
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - fix/realtime-refresh-loop
 
 permissions: {}
 
@@ -112,23 +109,29 @@ jobs:
           const browser = await chromium.launch()
           const page = await browser.newPage()
           let navigations = 0
+          let documentRequests = 0
+          let loads = 0
           page.on("framenavigated", (frame) => { if (frame === page.mainFrame()) navigations++ })
+          page.on("request", (req) => { if (req.resourceType() === "document" && req.frame() === page.mainFrame()) documentRequests++ })
+          page.on("load", () => { loads++ })
           const response = await page.goto(url, { waitUntil: "load", timeout: 60_000 })
           await page.waitForTimeout(30_000)
           const marker = await page.locator("[data-not-found]").count().catch(() => -1)
-          const result = { url, status: response?.status(), navigations, notFoundMarker: marker }
+          const result = { url, status: response?.status(), framenavigated: navigations, documentRequests, loads, notFoundMarker: marker }
           console.log(JSON.stringify(result))
           await browser.close()
-          const looped = navigations > 1
+          // A full reload means a new document request; same-document history updates do not count.
+          const looped = documentRequests > 1 || loads > 1
           if (process.env.EXPECT_LOOP === "true") {
             console.log(looped ? "base reproduces the loop" : "base did not loop in this run")
           } else if (looped) {
             console.error("FAIL: page kept navigating")
             process.exit(1)
           } else {
-            console.log("OK: exactly one navigation in 30 s")
+            console.log("OK: one document load in 30 s, no reload")
           }
           JS
+          set -o pipefail
           node check.mjs | tee "$RUNNER_TEMP/result.json"
           {
             echo "### ${{ matrix.name }}"
