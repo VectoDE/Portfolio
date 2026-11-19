@@ -34,13 +34,21 @@ try {
           () => document.documentElement.scrollWidth - window.innerWidth,
           entry.path,
         )
-        await page.screenshot({ path: path.join(outDir, file), fullPage: true, animations: "disabled" })
+        let captureError = null
+        try {
+          await page.screenshot({ path: path.join(outDir, file), fullPage: true, animations: "disabled", timeout: 20_000 })
+        } catch (error) {
+          // A page that keeps reloading must not stop the whole run. It is reported instead.
+          captureError = String(error).split(String.fromCharCode(10))[0]
+          console.log(`::error title=Screenshot failed::${entry.path} (${viewport.name}, ${theme}): ${captureError}`)
+        }
         report.push({
           page: entry.name,
           viewport: viewport.name,
           theme,
           status: response?.status() ?? null,
           finalUrl: page.url(),
+          captureError,
           horizontalOverflowPx: overflow,
           file,
         })
