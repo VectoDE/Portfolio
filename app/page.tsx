@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import { Suspense } from "react"
 import Link from "next/link"
 import { Mail } from "lucide-react"
@@ -16,12 +18,13 @@ import { Portrait } from "@/components/portrait"
 import { SectionHeading } from "@/components/section-heading"
 import { profile } from "@/lib/content"
 
-export const metadata: Metadata = {
-  title: { absolute: `${profile.name} | Full-stack developer in Itzehoe` },
+export const metadata: Metadata = pageMetadata({
+  title: `${profile.name} | Full-stack developer in Itzehoe`,
   description:
     "Tim Hauke builds websites, web apps, APIs and Discord bots and runs them on his own servers. Founder of UplyTech, coding since 2017.",
-  alternates: { canonical: "/" },
-}
+  path: "/",
+  absoluteTitle: true,
+})
 
 export const revalidate = 0
 

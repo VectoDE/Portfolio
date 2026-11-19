@@ -1,15 +1,18 @@
 import type { Metadata } from "next"
 
+import { pageMetadata } from "@/lib/seo"
+
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
-export const metadata: Metadata = {
-  title: "Privacy Policy",
+export const metadata: Metadata = pageMetadata({
+  title: "Datenschutzerklärung",
   description:
-    "Datenschutzerklärung für das Portfolio von Tim Hauke mit Informationen zur DSGVO, TTDSG und NIS-2 konformen Verarbeitung.",
-}
+    "Wie diese Website personenbezogene Daten verarbeitet: Kontaktformular, Newsletter, Konten und Cookies.",
+  path: "/privacy",
+})
 
 const sections = [
   {
@@ -114,7 +117,7 @@ export default function PrivacyPolicyPage() {
     <div className="flex min-h-screen flex-col">
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
-        <main id="main" className="flex-1 py-16">
+        <main id="main" lang="de" className="flex-1 py-16">
           <AnimatedSection className="container space-y-10 px-4 md:px-6">
             <header className="space-y-4 text-center">
               <p className="text-sm uppercase tracking-wider text-primary">Rechtliche Hinweise</p>

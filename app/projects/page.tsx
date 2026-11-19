@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import { Suspense } from "react"
 
 import { MainNav } from "@/components/main-nav"
@@ -10,12 +12,12 @@ import { SectionHeading } from "@/components/section-heading"
 
 export const dynamic = "force-dynamic"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
     "Apps, bots and tools by Tim Hauke: Tellersonne, VectoBeat, VectolynCloud, NodCord, ServerCommander and more, most of them open source.",
-  alternates: { canonical: "/projects" },
-}
+  path: "/projects",
+})
 
 export default function ProjectsPage() {
   return (

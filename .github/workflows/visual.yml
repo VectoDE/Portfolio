@@ -157,6 +157,14 @@ jobs:
           OUT_DIR: ${{ runner.temp }}/out/shots
         run: node screenshots.mjs
 
+      - name: SEO checks
+        if: matrix.target != 'base'
+        working-directory: head/.github/e2e
+        env:
+          BASE_URL: http://localhost:3000
+          OUT_DIR: ${{ runner.temp }}/out/seo
+        run: node seo.mjs
+
       - name: Accessibility checks
         id: a11y
         continue-on-error: true

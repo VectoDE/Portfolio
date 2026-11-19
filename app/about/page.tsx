@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -11,13 +13,13 @@ import { Portrait } from "@/components/portrait"
 import { SectionHeading } from "@/components/section-heading"
 import { profile } from "@/lib/content"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description:
     "Tim Hauke is a self-taught full-stack developer from Itzehoe and founder of UplyTech. Career, stack, certificates and how to reach him.",
-  alternates: { canonical: "/about" },
-  openGraph: { type: "profile", url: "/about" },
-}
+  path: "/about",
+  type: "profile",
+})
 
 export default function AboutPage() {
   return (

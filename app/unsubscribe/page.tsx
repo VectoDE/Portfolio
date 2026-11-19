@@ -1,17 +1,18 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import { Suspense } from "react"
 import UnsubscribeClient from "@/components/unsubscribe-client"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { AnimatedSection } from "@/components/animated-section"
 
-export const metadata: Metadata = {
-  title: "Manage newsletter settings",
-  description: "Unsubscribe from Tim Hauke updates or fine-tune the topics you want to receive.",
-  alternates: {
-    canonical: "/unsubscribe",
-  },
-}
+export const metadata: Metadata = pageMetadata({
+  title: "Unsubscribe",
+  description: "Unsubscribe from the newsletter or change which updates you get.",
+  path: "/unsubscribe",
+  noindex: true,
+})
 
 export default function UnsubscribePage() {
   return (

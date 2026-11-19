@@ -2,35 +2,41 @@ import type { MetadataRoute } from "next"
 
 import { getProjects } from "@/lib/projects"
 import { getSiteUrl } from "@/lib/site"
-import type { Project } from "@/types/database"
+
+// Pages meant for search results. Sign-in, registration and unsubscribe are noindex.
+const staticRoutes: Array<{
+  path: string
+  priority: number
+  changeFrequency: "weekly" | "monthly" | "yearly"
+}> = [
+  { path: "/", priority: 1, changeFrequency: "weekly" },
+  { path: "/about", priority: 0.9, changeFrequency: "monthly" },
+  { path: "/projects", priority: 0.9, changeFrequency: "weekly" },
+  { path: "/contact", priority: 0.7, changeFrequency: "yearly" },
+  { path: "/newsletter", priority: 0.4, changeFrequency: "yearly" },
+  { path: "/privacy", priority: 0.2, changeFrequency: "yearly" },
+  { path: "/impressum", priority: 0.2, changeFrequency: "yearly" },
+]
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = getSiteUrl()
-  const staticRoutes: MetadataRoute.Sitemap = [
-    "",
-    "/projects",
-    "/about",
-    "/contact",
-    "/newsletter",
-    "/unsubscribe",
-    "/login",
-    "/register",
-    "/privacy",
-    "/impressum",
-  ].map((route) => ({
-    url: route === "" ? baseUrl : getSiteUrl(route),
-    lastModified: new Date(),
-    changeFrequency: "weekly",
-    priority: route === "" ? 1 : 0.7,
-  }))
+  const projects = await getProjects()
+  const latestUpdate = projects.reduce<Date | undefined>((latest, project) => {
+    const updated = new Date(project.updatedAt)
+    return !latest || updated > latest ? updated : latest
+  }, undefined)
 
-  const projects = (await getProjects()) as Project[]
-  const projectRoutes: MetadataRoute.Sitemap = projects.map((project) => ({
-    url: getSiteUrl(`/projects/${project.id}`),
-    lastModified: project.updatedAt ? new Date(project.updatedAt) : new Date(),
-    changeFrequency: "monthly",
-    priority: 0.8,
-  }))
-
-  return [...staticRoutes, ...projectRoutes]
+  return [
+    ...staticRoutes.map((route) => ({
+      url: getSiteUrl(route.path),
+      lastModified: route.path === "/projects" || route.path === "/" ? latestUpdate : undefined,
+      changeFrequency: route.changeFrequency,
+      priority: route.priority,
+    })),
+    ...projects.map((project) => ({
+      url: getSiteUrl(`/projects/${project.id}`),
+      lastModified: new Date(project.updatedAt),
+      changeFrequency: "monthly" as const,
+      priority: 0.8,
+    })),
+  ]
 }
