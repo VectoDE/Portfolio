@@ -2,7 +2,7 @@
   {
     "id": "tellersonne",
     "title": "Tellersonne",
-    "description": "A calm cooking app for iOS, Android and tablets, with public recipe pages and a web admin panel. No ads, no third-party analytics.",
+    "description": "A cooking app for iOS and Android with public recipe pages and a web admin panel. No ads, no third-party analytics.",
     "technologies": ["TypeScript", "Cloudflare", "iOS", "Android"],
     "link": "https://tellersonne.app",
     "githubUrl": null,
@@ -10,7 +10,7 @@
     "status": "Live at tellersonne.app",
     "year": 2026,
     "features": [
-      { "name": "Apps for phone and tablet", "description": "One codebase for iOS, Android and tablets." },
+      { "name": "Apps for phone and tablet", "description": "Runs on phones and tablets with iOS and Android." },
       { "name": "Public recipe pages", "description": "Recipes can be opened in the browser without the app." },
       { "name": "Web admin panel", "description": "Recipes and content are managed in a separate admin area." },
       { "name": "No tracking", "description": "No ads and no third-party analytics." }
@@ -22,7 +22,7 @@
   {
     "id": "vectobeat",
     "title": "VectoBeat",
-    "description": "Discord music bot with Lavalink v4 audio, playlists, fast queue handling and a dynamic equalizer, plus a Next.js control panel.",
+    "description": "Discord music bot with Lavalink v4 audio, playlists, a queue and a live equalizer, plus a Next.js control panel.",
     "technologies": ["Python", "discord.py", "Lavalink", "Next.js"],
     "link": null,
     "githubUrl": "https://github.com/VectoDE/VectoBeat",
@@ -31,7 +31,7 @@
     "year": 2025,
     "features": [
       { "name": "Lavalink v4 audio", "description": "Playback runs on a Lavalink v4 node." },
-      { "name": "Playlists and queue", "description": "Saved playlists and a queue that stays responsive on large servers." },
+      { "name": "Playlists and queue", "description": "Saved playlists and a queue per server." },
       { "name": "Dynamic equalizer", "description": "Sound presets that can be changed while a track plays." },
       { "name": "Control panel", "description": "A Next.js web panel for server settings." }
     ],
@@ -42,7 +42,7 @@
   {
     "id": "vectolyncloud",
     "title": "VectolynCloud",
-    "description": "Kit for running your own Minecraft network. Its own cloud manages proxies, servers and plugins, and Java and Bedrock players play together.",
+    "description": "A kit for running your own Minecraft network. A built-in cloud system manages proxies, servers and plugins, and Java and Bedrock players join the same network.",
     "technologies": ["Java", "Gradle", "Docker"],
     "link": "https://vectode.github.io/VectolynCloud/",
     "githubUrl": "https://github.com/VectoDE/VectolynCloud",
@@ -54,7 +54,7 @@
       { "name": "Java and Bedrock", "description": "Players on Java and Bedrock Edition join the same network." },
       { "name": "OpenSSF Best Practices", "description": "The project holds the OpenSSF Best Practices badge at passing level." }
     ],
-    "developmentProcess": "VectolynCloud builds on what I learned running the PlayGS network from 2017 to 2019, written down as a reusable kit.",
+    "developmentProcess": "VectolynCloud builds on what I learned running the PlayGS network from 2017 to 2019.",
     "challengesFaced": null,
     "futurePlans": null
   },
@@ -94,7 +94,7 @@
   {
     "id": "self-updater",
     "title": "Self-Updater",
-    "description": "Watches a GitHub or GitLab repository and updates your app under PM2 or Docker when something new lands.",
+    "description": "Watches a GitHub or GitLab repository and updates your app under PM2 or Docker after each push.",
     "technologies": ["TypeScript", "PM2", "Docker"],
     "link": "https://vectode.github.io/Self-Updater/",
     "githubUrl": "https://github.com/VectoDE/Self-Updater",
@@ -109,7 +109,7 @@
   {
     "id": "linux-server-setup",
     "title": "Linux Server Setup",
-    "description": "Turns a fresh Debian, Ubuntu, CentOS or RHEL machine into a production web server with Nginx, PHP, MySQL, Node.js, Fail2Ban and SSL.",
+    "description": "Sets up a fresh Debian, Ubuntu, CentOS or RHEL machine as a web server with Nginx, PHP, MySQL, Node.js, Fail2Ban and SSL.",
     "technologies": ["Shell", "Nginx", "Linux"],
     "link": null,
     "githubUrl": "https://github.com/VectoDE/Linux-Server-Setup-Script",
@@ -124,7 +124,7 @@
   {
     "id": "relationnotes",
     "title": "RelationNotes",
-    "description": "Research notebook in the style of NotebookLM: hybrid search over your own sources, running as one Cloudflare Worker with D1 and R2.",
+    "description": "Research notebook with hybrid search over your own sources. Runs as a single Cloudflare Worker with D1 and R2 storage.",
     "technologies": ["TypeScript", "Hono", "Cloudflare"],
     "link": null,
     "githubUrl": "https://github.com/VectoDE/Notebook-LM-Klon",
@@ -159,7 +159,7 @@
     "link": null,
     "githubUrl": "https://github.com/VectoDE/LifeVerse",
     "featured": false,
-    "status": "Game, partly in concept",
+    "status": "Early concept, not playable yet",
     "year": null,
     "features": [],
     "developmentProcess": null,

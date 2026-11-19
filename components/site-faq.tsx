@@ -2,12 +2,12 @@ const faqItems = [
   {
     question: "Can I register just to leave feedback?",
     answer:
-      "Absolutely. Creating a free community profile unlocks reactions and comments on every project without exposing administrative tools.",
+      "Yes. A free community profile lets you react to and comment on projects. It gives you no access to admin tools.",
   },
   {
-    question: "Where can I manage or cancel the newsletter?",
+    question: "How do I unsubscribe from the newsletter?",
     answer:
-      "Every email contains your personal unsubscribe link pointing to the /unsubscribe hub. Whenever you need a reminder, come back to this FAQ: open the link in the message to see your subscribed address, then either confirm the one-click unsubscribe or toggle individual topics and save—no login required.",
+      "Every email has an unsubscribe link. It opens a page that shows your address. Unsubscribe with one click or change individual topics, no login needed.",
   },
   {
     question: "Who reads my message?",
@@ -16,8 +16,7 @@ const faqItems = [
   },
   {
     question: "Do you send marketing emails after I unsubscribe?",
-    answer:
-      "No. Once you confirm the unsubscribe action, all promotional communication stops immediately unless you resubscribe manually.",
+    answer: "No. After you unsubscribe, you get no more newsletters unless you sign up again.",
   },
 ]
 
@@ -40,11 +39,9 @@ export function SiteFAQ() {
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="space-y-2">
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display">
-              Frequently asked questions
-            </h2>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display">Questions and answers</h2>
             <p className="mx-auto max-w-2xl text-muted-foreground md:text-xl">
-              Quick answers about community registration, newsletter controls, and getting in touch.
+              Short answers about community profiles, the newsletter and contact.
             </p>
           </div>
         </div>

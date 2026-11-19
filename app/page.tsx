@@ -21,7 +21,7 @@ import { profile } from "@/lib/content"
 export const metadata: Metadata = pageMetadata({
   title: `${profile.name} | Full-stack developer in Itzehoe`,
   description:
-    "Tim Hauke builds websites, web apps, APIs and Discord bots and runs them on his own servers. Founder of UplyTech, coding since 2017.",
+    "Tim Hauke builds websites, web apps, APIs and Discord bots, and hosts what he ships. Founder of UplyTech, coding since 2017.",
   path: "/",
   absoluteTitle: true,
 })
@@ -56,7 +56,7 @@ export default function Home() {
                   <Link href="/projects">See projects</Link>
                 </Button>
                 <Button asChild size="lg" variant="outline">
-                  <Link href="/contact">Get in touch</Link>
+                  <Link href="/contact">Send a message</Link>
                 </Button>
               </div>
               <dl className="mt-10 grid gap-x-8 gap-y-4 border-t pt-6 sm:grid-cols-3">

@@ -15,7 +15,7 @@ export const dynamic = "force-dynamic"
 export const metadata: Metadata = pageMetadata({
   title: "Projects",
   description:
-    "Apps, bots and tools by Tim Hauke: Tellersonne, VectoBeat, VectolynCloud, NodCord, ServerCommander and more, most of them open source.",
+    "Apps, bots and tools by Tim Hauke, from the cooking app Tellersonne to the Discord bot VectoBeat. Most of them are open source.",
   path: "/projects",
 })
 

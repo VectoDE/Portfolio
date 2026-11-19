@@ -158,12 +158,12 @@ export function CookieBanner() {
               </div>
               <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">
                 <Button variant="outline" onClick={() => setShowDetails(true)}>
-                  Cookie Settings
+                  Cookie settings
                 </Button>
                 <Button variant="outline" onClick={acceptNecessary}>
-                  Necessary Only
+                  Necessary only
                 </Button>
-                <Button onClick={acceptAll}>Accept All</Button>
+                <Button onClick={acceptAll}>Accept all</Button>
               </div>
             </div>
           </div>
@@ -174,7 +174,7 @@ export function CookieBanner() {
       <Sheet open={showDetails} onOpenChange={setShowDetails}>
         <SheetContent className="w-full sm:max-w-md overflow-y-auto" side="right">
           <SheetHeader className="mb-4">
-            <SheetTitle>Cookie Settings</SheetTitle>
+            <SheetTitle>Cookie settings</SheetTitle>
             <SheetDescription>
               Customize your cookie preferences. You can change these settings at any time.
             </SheetDescription>
@@ -317,11 +317,11 @@ export function CookieBanner() {
 
               <div className="flex justify-between mt-6">
                 <Button variant="outline" onClick={acceptNecessary}>
-                  Necessary Only
+                  Necessary only
                 </Button>
                 <div className="space-x-2">
                   <Button variant="outline" onClick={acceptAll}>
-                    Accept All
+                    Accept all
                   </Button>
                   <Button onClick={savePreferences}>Save Preferences</Button>
                 </div>
