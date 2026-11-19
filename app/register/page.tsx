@@ -36,6 +36,7 @@ export default function RegisterPage() {
     const email = formData.get("email") as string
     const password = formData.get("password") as string
     const name = formData.get("name") as string
+    const bootstrapToken = String(formData.get("bootstrapToken") ?? "").trim()
 
     try {
       const response = await fetch("/api/register", {
@@ -47,6 +48,8 @@ export default function RegisterPage() {
           email,
           password,
           name,
+          // Only needed for the very first (admin) account; see ADMIN_BOOTSTRAP_TOKEN.
+          ...(bootstrapToken ? { bootstrapToken } : {}),
         }),
       })
 
@@ -96,7 +99,7 @@ export default function RegisterPage() {
               Create a free community profile to comment on projects, add reactions, and stay close to upcoming launches.
             </CardDescription>
           </CardHeader>
-          <form onSubmit={onSubmit}>
+          <form method="post" onSubmit={onSubmit}>
             <CardContent className="space-y-4">
             <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-primary">Good to know</p>
@@ -162,6 +165,22 @@ export default function RegisterPage() {
                   </span>
                 </Button>
               </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="bootstrapToken" className="flex items-center gap-2">
+                <KeyRound className="h-5 w-5 text-muted-foreground" />
+                Setup token (first admin only)
+              </Label>
+              <Input
+                id="bootstrapToken"
+                name="bootstrapToken"
+                type="password"
+                autoComplete="off"
+                aria-describedby="bootstrapToken-hint"
+              />
+              <p id="bootstrapToken-hint" className="text-xs text-muted-foreground">
+                Leave empty unless you are setting up a new installation.
+              </p>
             </div>
           </CardContent>
             <CardFooter className="flex flex-col space-y-4">

@@ -124,9 +124,11 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ADMIN_EMAIL` | Default administrative contact for inbound contact alerts. | `admin@example.com` |
 | `SEND_AUTO_REPLY` | Set to `true` to send automatic acknowledgements for contact submissions. | `false` |
 | `ETHEREAL_EMAIL`, `ETHEREAL_PASSWORD` | Optional Ethereal credentials for development previews (fallback transport). | `user@ethereal.email`, `pass` |
+| `LOG_TO_FILE` | Server logs go to `logs/*.log` unless the app runs on Vercel, Netlify or AWS Lambda, where only the console is used. `false` turns file logs off, `true` forces them on. | *(empty)* |
 | `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
-| `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
+| `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive), together with `ADMIN_BOOTSTRAP_TOKEN`, and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
+| `ADMIN_BOOTSTRAP_TOKEN` | Secret for the first registration, at least 32 characters. It must be entered in the *Setup token* field on `/register` together with `ADMIN_BOOTSTRAP_EMAIL`. Compared in constant time. Unset, empty or shorter than 32 characters keeps the first registration closed (`403`). Has no effect once an account exists; remove it after the setup. | `openssl rand -hex 32` |
 | `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
 | `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
 
@@ -167,13 +169,15 @@ Self-service registration is disabled by default. After the first admin exists, 
 
 ### First-Time Setup (Admin Account)
 
-A fresh installation has no accounts. To stop strangers from claiming a newly deployed, publicly reachable instance, only one pre-configured address can create the first account:
+A fresh installation has no accounts. To stop strangers from claiming a newly deployed, publicly reachable instance, the first account needs a pre-configured address and a secret token:
 
-1. Set `ADMIN_BOOTSTRAP_EMAIL` to your own email address in the environment of the running app (for example `.env` or your hosting provider's settings) and restart or redeploy.
-2. Open `/register` and sign up with exactly that address. Case and surrounding spaces do not matter. The account receives the admin role.
-3. Optionally remove `ADMIN_BOOTSTRAP_EMAIL` afterwards. It only matters while the database has no accounts.
+1. Set `ADMIN_BOOTSTRAP_EMAIL` to your own email address and `ADMIN_BOOTSTRAP_TOKEN` to a random secret of at least 32 characters (for example `openssl rand -hex 32`) in the environment of the running app (for example `.env` or your hosting provider's settings), then restart or redeploy.
+2. Open `/register`, sign up with exactly that address and paste the token into the *Setup token* field. Case and surrounding spaces of the address do not matter; the token must match exactly (surrounding spaces are ignored). The account receives the admin role.
+3. Remove `ADMIN_BOOTSTRAP_TOKEN` (and optionally `ADMIN_BOOTSTRAP_EMAIL`) afterwards. Both only matter while the database has no accounts; once an account exists they have no effect.
 
-If `ADMIN_BOOTSTRAP_EMAIL` is missing or empty, or a different address is used, the first registration is refused with `403` and the same message as a closed registration. While the database is empty this also applies to malformed JSON and missing fields; the usual `400` checks (for example a password shorter than 8 characters) only run once the address matches. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
+> **Upgrading an instance that has no account yet:** since `ADMIN_BOOTSTRAP_TOKEN` was introduced, an empty instance stays closed until the token is set as well. Setting only `ADMIN_BOOTSTRAP_EMAIL` is no longer enough. Instances that already have an account are not affected.
+
+If `ADMIN_BOOTSTRAP_EMAIL` or `ADMIN_BOOTSTRAP_TOKEN` is missing, empty or the token is shorter than 32 characters, or a different address or token is used, the first registration is refused with `403` and the same message as a closed registration. While the database is empty this also applies to malformed JSON and missing fields; the usual `400` checks (for example a password shorter than 8 characters) only run once address and token match. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
 
 Request bodies for `/api/register` are limited to 16 KB. The body is always read (up to that limit) before the route decides anything, so an empty instance and a closed one respond the same way, also in timing. A larger body is refused with the same `403` while the database is empty or registration is closed, and with `413` (`Request body is too large.`) only when registration is open. If a parallel sign-up with the same address hits the unique constraint, open registration answers `409` (`Registration could not be completed.`); during the first registration it stays the generic `403`.
 
@@ -181,9 +185,9 @@ Request bodies for `/api/register` are limited to 16 KB. The body is always read
 
 Do the first-time setup immediately after deploying, before you share the URL:
 
-1. Register with the `ADMIN_BOOTSTRAP_EMAIL` address as described above.
+1. Register with the `ADMIN_BOOTSTRAP_EMAIL` address and the `ADMIN_BOOTSTRAP_TOKEN` as described above.
 2. Sign in with the new account and check that the admin dashboard opens. Only then is the setup complete.
-3. If the bootstrap address is public, for example because it is also the contact address shown on the site, keep the instance unreachable from the internet (private preview, IP allow list, maintenance page or no public DNS yet) until steps 1 and 2 are done. Otherwise anyone who knows the address can race you to the first account.
+3. Remove `ADMIN_BOOTSTRAP_TOKEN` from the environment. Keep the token secret until then: it is what stops someone who knows the (often public) address from claiming the instance first.
 
 ### Running the App
 
@@ -265,7 +269,7 @@ Management endpoints require an authenticated account with the admin role (`lib/
 
 - `lib/track-pageview.ts` sends anonymised page view events to `POST /api/analytics/pageview`, hashing IP addresses with `IP_HASH_SALT` to protect visitor privacy.
 - Aggregated metrics (totals, unique visitors, time windows) are exposed via `GET /api/analytics/pageview` and rendered in dashboard charts.
-- The Winston logger in `lib/logger.ts` writes to rotating files under `logs/` and to the console during development. Client-originated logs can be forwarded to the `logger` API for investigation.
+- The Winston logger in `lib/logger.ts` writes to files under `logs/` (not rotated; rotate them with the host, e.g. logrotate) and to the console during development. On Vercel, Netlify and AWS Lambda it only writes to the console (see `LOG_TO_FILE`). Client-originated logs can be forwarded to the `logger` API for investigation.
 
 ## Deployment Notes
 

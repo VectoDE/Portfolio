@@ -43,6 +43,25 @@ export const PAGEVIEW_RATE_LIMIT: RateLimitPolicy = {
  */
 export const MEMORY_RATE_LIMIT_MAX_KEYS = 10_000
 
+/**
+ * A full sweep of expired windows in the in-memory limiter runs at most this often. Between
+ * sweeps a full map only drops its oldest entry, so a flood of new keys costs O(1) per request
+ * instead of a walk over all entries (#97).
+ */
+export const MEMORY_RATE_LIMIT_SWEEP_INTERVAL_MS = 10_000
+
+/**
+ * ioredis options for the rate-limit store. The connection fails fast instead of queueing
+ * commands, and commandTimeout bounds a Redis that is connected but does not answer (#96): the
+ * command rejects, and checkRateLimit falls back to the in-memory limiter.
+ */
+export const RATE_LIMIT_REDIS_OPTIONS = {
+  enableOfflineQueue: false,
+  maxRetriesPerRequest: 1,
+  connectTimeout: 2_000,
+  commandTimeout: 500,
+} as const
+
 export interface HeaderReader {
   get(name: string): string | null
 }
@@ -286,17 +305,27 @@ export interface MemoryRateLimiter {
   readonly size: number
 }
 
-export function createMemoryRateLimiter(maxKeys = MEMORY_RATE_LIMIT_MAX_KEYS): MemoryRateLimiter {
+export function createMemoryRateLimiter(
+  maxKeys = MEMORY_RATE_LIMIT_MAX_KEYS,
+  sweepIntervalMs = MEMORY_RATE_LIMIT_SWEEP_INTERVAL_MS,
+): MemoryRateLimiter {
   const windows = new Map<string, WindowEntry>()
+  let lastSweep = Number.NEGATIVE_INFINITY
 
   function makeRoom(now: number) {
-    for (const [key, entry] of windows) {
-      if (entry.resetAt <= now) {
-        windows.delete(key)
+    // Expired windows are swept at most once per interval, not on every new key.
+    if (now - lastSweep >= sweepIntervalMs) {
+      lastSweep = now
+
+      for (const [key, entry] of windows) {
+        if (entry.resetAt <= now) {
+          windows.delete(key)
+        }
       }
     }
 
-    // Map keeps insertion order, so the first keys are the oldest windows.
+    // Map keeps insertion order and renewed windows are re-inserted, so the first key is the
+    // window that started longest ago. Only as many entries as needed are dropped, never all.
     while (windows.size >= maxKeys) {
       const oldest = windows.keys().next().value
 

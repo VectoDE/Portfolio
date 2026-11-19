@@ -7,6 +7,7 @@ import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { MAX_JSON_BODY_BYTES, readJsonLimited } from "@/lib/http"
 import {
+  bootstrapTokenFromBody,
   classifyRegistrationError,
   decideRegistration,
   evaluateRegistrationRequest,
@@ -18,8 +19,9 @@ import {
 
 /**
  * Self-service registration is off by default. Only ALLOW_REGISTRATION="true" enables it.
- * The very first account is only accepted for the address in ADMIN_BOOTSTRAP_EMAIL and becomes
- * the admin; without that variable a fresh installation stays closed.
+ * The very first account needs the address in ADMIN_BOOTSTRAP_EMAIL and the secret in
+ * ADMIN_BOOTSTRAP_TOKEN and becomes the admin; without both a fresh installation stays closed.
+ * Once an account exists, both values have no effect.
  */
 function isRegistrationEnabled(): boolean {
   return process.env.ALLOW_REGISTRATION === "true"
@@ -32,11 +34,13 @@ function isRegistrationEnabled(): boolean {
 function registrationClosed(decision: RegistrationDecision) {
   if (decision.outcome === "bootstrap-not-configured") {
     console.warn(
-      "Initial registration refused: ADMIN_BOOTSTRAP_EMAIL is not set. Set it to the email " +
-        "address of the first admin account and register with exactly that address.",
+      "Initial registration refused: ADMIN_BOOTSTRAP_EMAIL or ADMIN_BOOTSTRAP_TOKEN (at least 32 " +
+        "characters) is not set. Set both and register with exactly that address and token.",
     )
   } else if (decision.outcome === "bootstrap-email-mismatch") {
     console.warn("Initial registration refused: email does not match ADMIN_BOOTSTRAP_EMAIL.")
+  } else if (decision.outcome === "bootstrap-token-mismatch") {
+    console.warn("Initial registration refused: bootstrap token does not match ADMIN_BOOTSTRAP_TOKEN.")
   }
 
   return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
@@ -63,12 +67,14 @@ export async function POST(req: Request) {
       return registrationClosed({ outcome: "closed" })
     }
 
-    // On an empty database the bootstrap address is checked before any other validation, so
-    // broken JSON, missing fields and wrong addresses all get the same 403.
+    // On an empty database the bootstrap address and token are checked before any other
+    // validation, so broken JSON, missing fields, wrong addresses and wrong tokens all get the
+    // same 403.
     const gate = evaluateRegistrationRequest({
       existingUsers: userCount,
       registrationEnabled,
       bootstrapEmail: process.env.ADMIN_BOOTSTRAP_EMAIL,
+      bootstrapToken: process.env.ADMIN_BOOTSTRAP_TOKEN,
       body: read.body,
     })
 
@@ -101,12 +107,14 @@ export async function POST(req: Request) {
     const result = await prisma.$transaction(
       async (tx: PrismaClient) => {
         // Re-decided inside the transaction so concurrent requests cannot bypass the switch or
-        // the bootstrap address, e.g. two parallel first registrations.
+        // the bootstrap address and token, e.g. two parallel first registrations.
         const decision = decideRegistration({
           existingUsers: await tx.user.count(),
           registrationEnabled: isRegistrationEnabled(),
           email,
           bootstrapEmail: process.env.ADMIN_BOOTSTRAP_EMAIL,
+          bootstrapToken: process.env.ADMIN_BOOTSTRAP_TOKEN,
+          providedToken: bootstrapTokenFromBody(read.body),
         })
 
         if (decision.outcome !== "create") {
