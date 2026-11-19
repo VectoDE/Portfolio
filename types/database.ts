@@ -207,6 +207,21 @@ export interface ProjectComment {
   user?: Pick<User, "id" | "name" | "imageUrl">
 }
 
+/**
+ * Public representation of a project comment, as returned by the public
+ * comments API and rendered on project pages. Deliberately contains no
+ * user id, project-internal ids or e-mail addresses.
+ */
+export interface PublicProjectComment {
+  id: string
+  content: string
+  createdAt: string
+  author: {
+    name: string | null
+    imageUrl: string | null
+  }
+}
+
 export interface ProjectReaction {
   id: string
   projectId: string
