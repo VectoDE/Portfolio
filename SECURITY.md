@@ -61,7 +61,8 @@ On an empty database, `POST /api/register` accepts exactly one address: the valu
 - A different address: refused with `403`.
 - Both cases return the same message as a closed registration, so a caller cannot tell whether the instance is still waiting for its first admin.
 - Malformed JSON and missing fields get the same `403` while the database is empty. Other validations, such as `400` for a password shorter than 8 characters, only run after the address matched.
-- Database conflicts are answered without details: Prisma `P2034` (serialization conflict or deadlock) as `409`, `P2002` (unique constraint) as the generic `403`. The log records only the error code and a short reason, never the error object.
+- Database conflicts are answered without details: Prisma `P2034` (serialization conflict or deadlock) as `409`, `P2002` (unique constraint) as the generic `403` during the first registration and as `409` `Registration could not be completed.` when registration is open. The log records only the error code and a short reason, never the error object.
+- The request body is limited to 16 KB and always read (up to that limit) before any decision, in every branch. A `Content-Length` above the limit is refused without reading; a longer stream is cancelled once the counter passes the limit. While the database is empty or registration is closed, an oversized body gets the same `403`; only open registration answers `413`. This keeps a large or slowly sent body from revealing an unclaimed instance through response timing.
 - The decision is repeated inside the serializable transaction that creates the account, so concurrent first registrations cannot both become admin.
 
 Once any account exists, `ADMIN_BOOTSTRAP_EMAIL` has no effect; `ALLOW_REGISTRATION` alone decides, and new accounts are always `Member`. `ADMIN_BOOTSTRAP_EMAIL` is separate from `ADMIN_EMAIL`, which only sets the recipient of contact notifications.

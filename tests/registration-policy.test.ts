@@ -5,8 +5,12 @@ import {
   classifyRegistrationError,
   decideRegistration,
   evaluateRegistrationRequest,
+  isRegistrationOpen,
   normalizeEmail,
+  oversizedBodyResponse,
   REGISTRATION_CLOSED_MESSAGE,
+  REGISTRATION_NOT_COMPLETED_MESSAGE,
+  REQUEST_TOO_LARGE_MESSAGE,
 } from "../lib/registration-policy.ts"
 
 const BOOTSTRAP = "owner@example.com"
@@ -223,17 +227,31 @@ describe("classifyRegistrationError", () => {
     assert.doesNotMatch(failure.message, /deadlock|conflict/i)
   })
 
-  it("maps Prisma P2002 to the generic closed response", () => {
-    const failure = classifyRegistrationError(
-      Object.assign(new Error("Unique constraint failed on the fields: (`email`)"), {
-        code: "P2002",
-        meta: { target: ["email"] },
-      }),
-    )
+  const uniqueViolation = () =>
+    Object.assign(new Error("Unique constraint failed on the fields: (`email`)"), {
+      code: "P2002",
+      meta: { target: ["email"] },
+    })
+
+  it("maps Prisma P2002 to the generic closed response during the first registration", () => {
+    for (const failure of [
+      classifyRegistrationError(uniqueViolation()),
+      classifyRegistrationError(uniqueViolation(), { openRegistration: false }),
+    ]) {
+      assert.deepEqual(
+        { status: failure.status, message: failure.message, code: failure.code },
+        { status: 403, message: REGISTRATION_CLOSED_MESSAGE, code: "P2002" },
+      )
+    }
+  })
+
+  it("maps Prisma P2002 to 'could not be completed' when registration is open", () => {
+    const failure = classifyRegistrationError(uniqueViolation(), { openRegistration: true })
     assert.deepEqual(
       { status: failure.status, message: failure.message, code: failure.code },
-      { status: 403, message: REGISTRATION_CLOSED_MESSAGE, code: "P2002" },
+      { status: 409, message: REGISTRATION_NOT_COMPLETED_MESSAGE, code: "P2002" },
     )
+    assert.notEqual(failure.message, REGISTRATION_CLOSED_MESSAGE)
   })
 
   it("keeps other errors at 500 and never copies the error message into the log fields", () => {
@@ -245,5 +263,30 @@ describe("classifyRegistrationError", () => {
       assert.ok(!failure.code.includes("hunter2") && !failure.reason.includes("hunter2"))
       assert.ok(!failure.reason.includes("owner@example.com"))
     }
+  })
+})
+
+describe("isRegistrationOpen", () => {
+  it("is true only with existing accounts and ALLOW_REGISTRATION on", () => {
+    assert.equal(isRegistrationOpen({ existingUsers: 1, registrationEnabled: true }), true)
+    assert.equal(isRegistrationOpen({ existingUsers: 1, registrationEnabled: false }), false)
+    assert.equal(isRegistrationOpen({ existingUsers: 0, registrationEnabled: true }), false)
+    assert.equal(isRegistrationOpen({ existingUsers: 0, registrationEnabled: false }), false)
+  })
+})
+
+describe("oversizedBodyResponse", () => {
+  it("answers like a closed registration on an empty database and with closed registration", () => {
+    const expected = { status: 403, message: REGISTRATION_CLOSED_MESSAGE }
+    assert.deepEqual(oversizedBodyResponse({ existingUsers: 0, registrationEnabled: false }), expected)
+    assert.deepEqual(oversizedBodyResponse({ existingUsers: 0, registrationEnabled: true }), expected)
+    assert.deepEqual(oversizedBodyResponse({ existingUsers: 3, registrationEnabled: false }), expected)
+  })
+
+  it("answers 413 with a generic message only when registration is open", () => {
+    assert.deepEqual(oversizedBodyResponse({ existingUsers: 3, registrationEnabled: true }), {
+      status: 413,
+      message: REQUEST_TOO_LARGE_MESSAGE,
+    })
   })
 })

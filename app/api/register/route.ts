@@ -5,10 +5,13 @@ import type { PrismaClient } from "@prisma/client"
 
 import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { MAX_JSON_BODY_BYTES, readJsonLimited } from "@/lib/http"
 import {
   classifyRegistrationError,
   decideRegistration,
   evaluateRegistrationRequest,
+  isRegistrationOpen,
+  oversizedBodyResponse,
   REGISTRATION_CLOSED_MESSAGE,
   type RegistrationDecision,
 } from "@/lib/registration-policy"
@@ -39,19 +42,24 @@ function registrationClosed(decision: RegistrationDecision) {
   return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
 }
 
-async function readJson(req: Request): Promise<unknown> {
-  try {
-    return await req.json()
-  } catch {
-    return undefined
-  }
-}
-
 export async function POST(req: Request) {
-  try {
-    const userCount = await prisma.user.count()
+  let existingUsers: number | undefined
 
-    if (userCount > 0 && !isRegistrationEnabled()) {
+  try {
+    // The body is always read (up to the size limit) before anything is decided, so a closed
+    // instance and an empty one take the same path and cannot be told apart by timing with a
+    // large or slowly sent body.
+    const read = await readJsonLimited(req, MAX_JSON_BODY_BYTES)
+    const userCount = await prisma.user.count()
+    existingUsers = userCount
+    const registrationEnabled = isRegistrationEnabled()
+
+    if (!read.ok) {
+      const { status, message } = oversizedBodyResponse({ existingUsers: userCount, registrationEnabled })
+      return NextResponse.json({ error: message }, { status })
+    }
+
+    if (userCount > 0 && !registrationEnabled) {
       return registrationClosed({ outcome: "closed" })
     }
 
@@ -59,9 +67,9 @@ export async function POST(req: Request) {
     // broken JSON, missing fields and wrong addresses all get the same 403.
     const gate = evaluateRegistrationRequest({
       existingUsers: userCount,
-      registrationEnabled: isRegistrationEnabled(),
+      registrationEnabled,
       bootstrapEmail: process.env.ADMIN_BOOTSTRAP_EMAIL,
-      body: await readJson(req),
+      body: read.body,
     })
 
     if (gate.outcome === "refuse") {
@@ -126,7 +134,10 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ user: userWithoutPassword }, { status: 201 })
   } catch (error) {
-    const failure = classifyRegistrationError(error)
+    const failure = classifyRegistrationError(error, {
+      openRegistration:
+        existingUsers !== undefined && isRegistrationOpen({ existingUsers, registrationEnabled: isRegistrationEnabled() }),
+    })
     console.error(`Error in register route: ${failure.code} (${failure.reason})`)
     return NextResponse.json({ error: failure.message }, { status: failure.status })
   }

@@ -175,6 +175,8 @@ A fresh installation has no accounts. To stop strangers from claiming a newly de
 
 If `ADMIN_BOOTSTRAP_EMAIL` is missing or empty, or a different address is used, the first registration is refused with `403` and the same message as a closed registration. While the database is empty this also applies to malformed JSON and missing fields; the usual `400` checks (for example a password shorter than 8 characters) only run once the address matches. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
 
+Request bodies for `/api/register` are limited to 16 KB. The body is always read (up to that limit) before the route decides anything, so an empty instance and a closed one respond the same way, also in timing. A larger body is refused with the same `403` while the database is empty or registration is closed, and with `413` (`Request body is too large.`) only when registration is open. If a parallel sign-up with the same address hits the unique constraint, open registration answers `409` (`Registration could not be completed.`); during the first registration it stays the generic `403`.
+
 #### Right after the first deploy
 
 Do the first-time setup immediately after deploying, before you share the URL:

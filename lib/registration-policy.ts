@@ -49,6 +49,27 @@ export function decideRegistration(input: RegistrationInput): RegistrationDecisi
 }
 
 export const REGISTRATION_CLOSED_MESSAGE = "Registration is currently closed."
+export const REGISTRATION_NOT_COMPLETED_MESSAGE = "Registration could not be completed."
+export const REQUEST_TOO_LARGE_MESSAGE = "Request body is too large."
+
+/** True only when accounts exist and ALLOW_REGISTRATION is on, i.e. sign-up is publicly open. */
+export function isRegistrationOpen(input: { existingUsers: number; registrationEnabled: boolean }): boolean {
+  return input.existingUsers > 0 && input.registrationEnabled
+}
+
+/**
+ * Response for a body above the size limit. On an empty database and with closed registration it
+ * is the same 403 as every other refusal, so the size limit reveals nothing about the instance.
+ * Only with open registration, which is observable anyway, does the client get 413.
+ */
+export function oversizedBodyResponse(input: {
+  existingUsers: number
+  registrationEnabled: boolean
+}): { status: number; message: string } {
+  return isRegistrationOpen(input)
+    ? { status: 413, message: REQUEST_TOO_LARGE_MESSAGE }
+    : { status: 403, message: REGISTRATION_CLOSED_MESSAGE }
+}
 
 export type RegistrationRefusal = Exclude<RegistrationDecision, { outcome: "create" }>
 
@@ -125,11 +146,17 @@ export interface RegistrationFailure {
 
 /**
  * Maps an unexpected error from the create step to a response. Prisma P2034 (serialization
- * conflict or deadlock) becomes 409 so the client can retry, P2002 (unique constraint, e.g. a
- * concurrent registration with the same address) becomes the generic 403. The result carries only
+ * conflict or deadlock) becomes 409 so the client can retry. P2002 (unique constraint, e.g. a
+ * concurrent registration with the same address) becomes the generic closed 403 during the first
+ * registration, so an empty instance stays indistinguishable from a closed one; with open
+ * registration it becomes 409 "Registration could not be completed.", because a closed message
+ * would be wrong there. Without context the safe bootstrap answer is used. The result carries only
  * a code and a short reason for the log, never the error object with its query details.
  */
-export function classifyRegistrationError(error: unknown): RegistrationFailure {
+export function classifyRegistrationError(
+  error: unknown,
+  context: { openRegistration: boolean } = { openRegistration: false },
+): RegistrationFailure {
   const code =
     typeof error === "object" && error !== null && typeof (error as { code?: unknown }).code === "string"
       ? (error as { code: string }).code
@@ -145,12 +172,19 @@ export function classifyRegistrationError(error: unknown): RegistrationFailure {
   }
 
   if (code === "P2002") {
-    return {
-      status: 403,
-      message: REGISTRATION_CLOSED_MESSAGE,
-      code,
-      reason: "unique constraint violation",
-    }
+    return context.openRegistration
+      ? {
+          status: 409,
+          message: REGISTRATION_NOT_COMPLETED_MESSAGE,
+          code,
+          reason: "unique constraint violation",
+        }
+      : {
+          status: 403,
+          message: REGISTRATION_CLOSED_MESSAGE,
+          code,
+          reason: "unique constraint violation",
+        }
   }
 
   const name = error instanceof Error ? error.name : typeof error
