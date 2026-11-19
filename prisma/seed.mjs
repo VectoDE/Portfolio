@@ -14,7 +14,7 @@ import { fileURLToPath } from "node:url"
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
 
-import { validatePassword } from "../lib/password-policy.mjs"
+import { PASSWORD_MAX_BYTES, PASSWORD_MIN_LENGTH, validatePassword } from "../lib/password-policy.mjs"
 
 const ADMIN_ROLE = "Admin"
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
@@ -42,9 +42,11 @@ async function resolveOwner(prisma) {
   if (!password) {
     throw new Error("No admin account found and SEED_ADMIN_PASSWORD is not set. Set it to the password for the new admin account.")
   }
-  const passwordError = validatePassword(password)
-  if (passwordError) {
-    throw new Error(`SEED_ADMIN_PASSWORD: ${passwordError}`)
+  // The message names the rule, never anything derived from the password itself.
+  if (validatePassword(password) !== null) {
+    throw new Error(
+      `SEED_ADMIN_PASSWORD breaks the password rule: at least ${PASSWORD_MIN_LENGTH} characters and at most ${PASSWORD_MAX_BYTES} bytes in UTF-8.`,
+    )
   }
   const profile = await readContent("profile")
   return prisma.user.create({

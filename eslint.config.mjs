@@ -18,6 +18,16 @@ export default [
       },
     },
   },
+  {
+    // CI page scripts: Node, plus functions passed to page.evaluate that run in the browser.
+    files: [".github/e2e/**/*.mjs"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.browser,
+      },
+    },
+  },
   nextPlugin.configs.recommended,
   js.configs.recommended,
   ...tseslint.configs.recommended,
