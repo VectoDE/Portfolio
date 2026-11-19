@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { CareerTimeline } from "@/components/career-timeline"
+import { OtherRoles } from "@/components/other-roles"
 import { CertificatesShowcase } from "@/components/certificates-showcase"
 import { SkillsShowcase } from "@/components/skills-showcase"
 import { Portrait } from "@/components/portrait"
@@ -58,7 +59,7 @@ export default function AboutPage() {
                   <dt className="text-sm text-muted-foreground">Education</dt>
                   {profile.education.map((entry) => (
                     <dd key={entry.title} className="mt-1 font-medium">
-                      {entry.title}, {entry.institution} ({entry.period})
+                      {[entry.title, entry.institution].filter(Boolean).join(", ")} ({entry.period})
                     </dd>
                   ))}
                 </div>
@@ -76,10 +77,21 @@ export default function AboutPage() {
             <SectionHeading
               id="career-heading"
               title="Career"
-              description="Projects, clubs and teams since 2017."
+              description="Software, clubs and teams since 2017, followed by work outside IT."
             />
             <div className="mt-10">
               <CareerTimeline />
+            </div>
+            <div className="mt-16">
+              <h3 id="other-roles-heading" className="text-2xl font-semibold">
+                Other jobs and internships
+              </h3>
+              <p className="mt-2 max-w-prose text-muted-foreground">
+                Work outside software, from school internships to phone jobs.
+              </p>
+              <div className="mt-8">
+                <OtherRoles />
+              </div>
             </div>
           </div>
         </section>

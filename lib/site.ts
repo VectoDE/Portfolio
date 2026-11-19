@@ -25,5 +25,4 @@ export const siteProfile = {
   defaultDescription:
     "Tim Hauke, self-taught full-stack developer from Itzehoe and founder of UplyTech. He builds websites, web apps, APIs and Discord bots and hosts them for clients.",
   locale: "en_US",
-  twitterHandle: "@vecto_de",
 }

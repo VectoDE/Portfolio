@@ -187,7 +187,6 @@ export default async function AccountPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(76,29,149,0.35),_transparent_55%)]" />
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
         <main className="flex-1">

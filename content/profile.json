@@ -22,7 +22,8 @@
     "IT consulting when you need to pick a stack, scope a project or clean up an existing codebase"
   ],
   "education": [
-    { "title": "Secondary school certificate", "institution": "RBZ Itzehoe", "period": "2020–2021" }
+    { "title": "Secondary school certificate", "institution": "RBZ Itzehoe", "period": "2020–2021" },
+    { "title": "Forklift licence", "institution": "", "period": "2023" }
   ],
   "contact": {
     "email": "contact@uplytech.de",
@@ -36,7 +37,7 @@
     { "label": "UplyTech", "url": "https://www.uplytech.de" },
     { "label": "DEV", "url": "https://dev.to/vectode" },
     { "label": "YouTube", "url": "https://www.youtube.com/@vectode" },
-    { "label": "X", "url": "https://x.com/vecto_de" },
+    { "label": "Twitch", "url": "https://www.twitch.tv/vectode" },
     { "label": "Instagram", "url": "https://www.instagram.com/vecto_de" }
   ]
 }

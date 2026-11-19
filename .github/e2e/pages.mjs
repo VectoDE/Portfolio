@@ -23,7 +23,7 @@ export const themes = ["light", "dark"]
 
 // Stored consent hides the cookie banner so it does not cover the page.
 export function initScript(theme) {
-  const consent = { necessary: true, analytics: false, marketing: false, preferences: false }
+  const consent = { necessary: true, analytics: false }
   return `
     try {
       localStorage.setItem("theme", ${JSON.stringify(theme)});

@@ -3,7 +3,6 @@ import type { Metadata } from "next"
 import { getServerSession } from "next-auth"
 
 import { DashboardNav } from "@/components/dashboard-nav"
-import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { authOptions } from "@/lib/auth"
 import { requireDashboardAdmin } from "@/lib/dashboard-guard"
 
@@ -22,12 +21,6 @@ export default async function DashboardLayout({
 
   return (
     <div className="relative min-h-screen flex flex-col">
-      <BackgroundGradientAnimation
-        firstColor="rgba(125, 39, 255, 0.2)"
-        secondColor="rgba(0, 87, 255, 0.2)"
-        thirdColor="rgba(0, 214, 242, 0.2)"
-        className="opacity-60"
-      />
       <div className="relative z-10 flex-1 flex flex-col">
         <DashboardNav />
         <main className="flex-1 p-4 md:p-8 overflow-auto">

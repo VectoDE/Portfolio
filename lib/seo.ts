@@ -50,8 +50,6 @@ export function pageMetadata({
     },
     twitter: {
       card: "summary_large_image",
-      site: siteProfile.twitterHandle,
-      creator: siteProfile.twitterHandle,
       title: fullTitle,
       description,
       images: [ogImage.url],

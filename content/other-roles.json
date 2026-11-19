@@ -1,0 +1,49 @@
+[
+  {
+    "id": "other-gevekom",
+    "position": "Call centre agent",
+    "company": "gevekom GmbH",
+    "period": "2022",
+    "description": "Customer service by phone for an ADAC project: answering enquiries, routing calls and logging each conversation."
+  },
+  {
+    "id": "other-taxi-1411",
+    "position": "Telephone dispatcher (mini-job)",
+    "company": "Taxi 1411 UG",
+    "location": "Henstedt-Ulzburg",
+    "period": "2021",
+    "description": "Took taxi bookings by phone and passed the rides on to the drivers."
+  },
+  {
+    "id": "other-saror",
+    "position": "Electrician (internship)",
+    "company": "Saror Meisterbetrieb",
+    "location": "Itzehoe",
+    "period": "2020",
+    "description": "Electrical installation, maintenance, fault finding and repairs."
+  },
+  {
+    "id": "other-trede-von-pein",
+    "position": "Driver's assistant (internship)",
+    "company": "Trede und von Pein Verwaltungsgesellschaft mbH",
+    "location": "Itzehoe",
+    "period": "2020",
+    "description": "Deliveries and logistics: loading, safe transport and handing over goods."
+  },
+  {
+    "id": "other-willy-arnold",
+    "position": "Food technology (internship)",
+    "company": "Willy Arnold GmbH",
+    "location": "Hamburg",
+    "period": "2020",
+    "description": "Production and packaging of spices, quality checks and moving goods with a forklift and pallet truck."
+  },
+  {
+    "id": "other-step-one",
+    "position": "Warehouse logistics (internship)",
+    "company": "step one GmbH",
+    "location": "Quickborn",
+    "period": "2018",
+    "description": "Goods in and out, storage and stock records."
+  }
+]

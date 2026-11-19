@@ -18,16 +18,12 @@ import {
 interface CookieConsent {
   necessary: boolean
   analytics: boolean
-  marketing: boolean
-  preferences: boolean
   timestamp: number
 }
 
 const defaultConsent: CookieConsent = {
   necessary: true,
   analytics: false,
-  marketing: false,
-  preferences: false,
   timestamp: Date.now(),
 }
 
@@ -111,8 +107,6 @@ export function CookieBanner() {
     saveConsent({
       necessary: true,
       analytics: true,
-      marketing: true,
-      preferences: true,
     })
   }
 
@@ -120,8 +114,6 @@ export function CookieBanner() {
     saveConsent({
       necessary: true,
       analytics: false,
-      marketing: false,
-      preferences: false,
     })
   }
 
@@ -150,9 +142,9 @@ export function CookieBanner() {
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex-1">
-                <h2 className="mb-2 font-sans text-lg font-semibold">Cookies on this site</h2>
+                <h2 className="mb-2 font-sans text-lg font-semibold">Cookies and statistics</h2>
                 <p className="text-sm text-muted-foreground">
-                  Necessary cookies keep the site working. Analytics cookies are only set if you
+                  Necessary storage keeps the site working. Page-view statistics only run if you
                   allow them, and you can change your choice at any time under Cookie settings.
                 </p>
               </div>
@@ -176,7 +168,7 @@ export function CookieBanner() {
           <SheetHeader className="mb-4">
             <SheetTitle>Cookie settings</SheetTitle>
             <SheetDescription>
-              Customize your cookie preferences. You can change these settings at any time.
+              Choose what the site may store. You can change this at any time.
             </SheetDescription>
           </SheetHeader>
 
@@ -188,43 +180,26 @@ export function CookieBanner() {
 
             <TabsContent value="cookie-policy" className="mt-4 space-y-4">
               <div className="space-y-4">
-                <h4 className="font-medium">About Cookies</h4>
+                <h4 className="font-medium">What this site stores</h4>
                 <p className="text-sm text-muted-foreground">
-                  Cookies are small text files that are stored on your browser or device by
-                  websites, apps, online media, and advertisements. We use cookies for various
-                  purposes including:
+                  There are two categories. The site shows no ads and uses no advertising or
+                  cross-site tracking.
                 </p>
 
                 <div className="space-y-2">
-                  <h5 className="font-medium">Necessary Cookies</h5>
+                  <h5 className="font-medium">Necessary</h5>
                   <p className="text-sm text-muted-foreground">
-                    These cookies are essential for the website to function properly. They enable
-                    basic functions like page navigation and access to secure areas of the website.
+                    Keeps the site working: your sign-in session, your light or dark theme and this
+                    cookie choice. These are always on.
                   </p>
                 </div>
 
                 <div className="space-y-2">
-                  <h5 className="font-medium">Analytics Cookies</h5>
+                  <h5 className="font-medium">Analytics</h5>
                   <p className="text-sm text-muted-foreground">
-                    These cookies help us understand how visitors interact with our website by
-                    collecting and reporting information anonymously.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <h5 className="font-medium">Marketing Cookies</h5>
-                  <p className="text-sm text-muted-foreground">
-                    These cookies are used to track visitors across websites. The intention is to
-                    display ads that are relevant and engaging for the individual user.
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <h5 className="font-medium">Preference Cookies</h5>
-                  <p className="text-sm text-muted-foreground">
-                    These cookies enable the website to remember information that changes the way
-                    the website behaves or looks, like your preferred language or the region you are
-                    in.
+                    Counts page views on this site only, with a hashed IP address, browser type,
+                    referrer and page address. Nothing is shared with other services. Off unless you
+                    allow it.
                   </p>
                 </div>
 
@@ -251,10 +226,10 @@ export function CookieBanner() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="necessary" className="font-medium">
-                      Necessary Cookies
+                      Necessary
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Required for the website to function properly
+                      Sign-in session, theme and this choice. Always on
                     </p>
                   </div>
                   <Switch id="necessary" checked={consent.necessary} disabled />
@@ -265,10 +240,10 @@ export function CookieBanner() {
                 <div className="flex items-center justify-between">
                   <div className="space-y-0.5">
                     <Label htmlFor="analytics" className="font-medium">
-                      Analytics Cookies
+                      Analytics
                     </Label>
                     <p className="text-sm text-muted-foreground">
-                      Help us improve our website by collecting anonymous data
+                      Page views on this site, with a hashed IP address
                     </p>
                   </div>
                   <Switch
@@ -278,41 +253,6 @@ export function CookieBanner() {
                   />
                 </div>
 
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="marketing" className="font-medium">
-                      Marketing Cookies
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Used to deliver personalized advertisements
-                    </p>
-                  </div>
-                  <Switch
-                    id="marketing"
-                    checked={consent.marketing}
-                    onCheckedChange={() => toggleConsent("marketing")}
-                  />
-                </div>
-
-                <Separator />
-
-                <div className="flex items-center justify-between">
-                  <div className="space-y-0.5">
-                    <Label htmlFor="preferences" className="font-medium">
-                      Preference Cookies
-                    </Label>
-                    <p className="text-sm text-muted-foreground">
-                      Remember your settings and preferences
-                    </p>
-                  </div>
-                  <Switch
-                    id="preferences"
-                    checked={consent.preferences}
-                    onCheckedChange={() => toggleConsent("preferences")}
-                  />
-                </div>
               </div>
 
               <div className="flex justify-between mt-6">
@@ -323,7 +263,7 @@ export function CookieBanner() {
                   <Button variant="outline" onClick={acceptAll}>
                     Accept all
                   </Button>
-                  <Button onClick={savePreferences}>Save Preferences</Button>
+                  <Button onClick={savePreferences}>Save choice</Button>
                 </div>
               </div>
             </TabsContent>

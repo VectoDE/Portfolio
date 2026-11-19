@@ -6,6 +6,7 @@ import Link from "next/link"
 import { useMemo, useState } from "react"
 import {
   Clock,
+  ExternalLink,
   HeartHandshake,
   Lightbulb,
   MapPin,
@@ -27,6 +28,7 @@ import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
+import profile from "@/content/profile.json"
 
 // Linear-time replacement for /^[^\s@]+@[^\s@]+\.[^\s@]+$/ (same acceptance, no backtracking).
 function isValidEmail(value: string): boolean {
@@ -211,6 +213,30 @@ export default function ContactPage() {
                         <div>
                           <CardTitle className="text-lg">Location</CardTitle>
                           <CardDescription>Itzehoe, Germany</CardDescription>
+                        </div>
+                      </CardContent>
+                    </Card>
+                    <Card className="">
+                      <CardContent className="p-6 flex items-start gap-4">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-primary/10">
+                          <ExternalLink className="h-6 w-6 text-primary" aria-hidden="true" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">Profiles</CardTitle>
+                          <ul className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-sm">
+                            {profile.links.map((link) => (
+                              <li key={link.url}>
+                                <a
+                                  href={link.url}
+                                  target="_blank"
+                                  rel="noopener noreferrer me"
+                                  className="text-primary underline-offset-4 hover:underline"
+                                >
+                                  {link.label}
+                                </a>
+                              </li>
+                            ))}
+                          </ul>
                         </div>
                       </CardContent>
                     </Card>
