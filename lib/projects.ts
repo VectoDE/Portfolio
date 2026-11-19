@@ -1,101 +1,53 @@
 import { unstable_noStore as noStore } from "next/cache"
 
+import { getContentProjects, withContentFallback } from "@/lib/content"
 import prisma from "@/lib/db"
 import type { Project } from "@/types/database"
 
-export async function getProjects() {
+/** All projects, newest first, with their features. */
+export async function getProjects(): Promise<Project[]> {
   noStore()
-  try {
-    if (!prisma) {
-      console.error("Prisma client is not initialized")
-      return []
-    }
-
-    const projects = await prisma.project.findMany({
-      orderBy: { createdAt: "desc" },
-      include: {
-        features: true,
-      },
-    })
-    return projects
-  } catch (error) {
-    console.error("Error fetching projects:", error)
-    return []
-  }
+  return withContentFallback<Project[]>(
+    () =>
+      prisma.project.findMany({
+        orderBy: { createdAt: "desc" },
+        include: { features: true },
+      }),
+    getContentProjects,
+    "projects",
+  )
 }
 
+/** All projects for the public project list, featured ones first. */
 export async function getAllProjects(): Promise<Project[]> {
-  noStore()
-  try {
-    if (!prisma) {
-      console.error("Prisma client is not initialized")
-      return []
-    }
-
-    const projects = await prisma.project.findMany({
-      where: {
-        featured: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-    })
-
-    return projects
-  } catch (error) {
-    console.error("Error fetching all projects:", error)
-    return []
-  }
+  const projects = await getProjects()
+  return [...projects].sort((a, b) => Number(b.featured) - Number(a.featured))
 }
 
 export async function getProjectById(id: string): Promise<Project | null> {
   noStore()
-  try {
-    if (!prisma) {
-      console.error("Prisma client is not initialized")
-      return null
-    }
-
-    const project = await prisma.project.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        features: true,
-      },
-    })
-
-    return project
-  } catch (error) {
-    console.error(`Error fetching project with id ${id}:`, error)
-    return null
-  }
+  return withContentFallback<Project | null>(
+    () =>
+      prisma.project.findUnique({
+        where: { id },
+        include: { features: true },
+      }),
+    () => getContentProjects().find((project) => project.id === id) ?? null,
+    `project ${id}`,
+  )
 }
 
 export async function getFeaturedProjects(limit = 3): Promise<Project[]> {
   noStore()
-  try {
-    if (!prisma) {
-      console.error("Prisma client is not initialized")
-      return []
-    }
-
-    const projects = await prisma.project.findMany({
-      where: {
-        featured: true,
-      },
-      orderBy: {
-        createdAt: "desc",
-      },
-      take: limit,
-      include: {
-        features: true,
-      },
-    })
-
-    return projects
-  } catch (error) {
-    console.error("Error fetching featured projects:", error)
-    return []
-  }
+  return withContentFallback<Project[]>(
+    () =>
+      prisma.project.findMany({
+        where: { featured: true },
+        orderBy: { createdAt: "desc" },
+        take: limit,
+        include: { features: true },
+      }),
+    () => getContentProjects().filter((project) => project.featured).slice(0, limit),
+    "featured projects",
+  )
 }

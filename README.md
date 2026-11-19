@@ -130,6 +130,8 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive), together with `ADMIN_BOOTSTRAP_TOKEN`, and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
 | `ADMIN_BOOTSTRAP_TOKEN` | Secret for the first registration, at least 32 characters. It must be entered in the *Setup token* field on `/register` together with `ADMIN_BOOTSTRAP_EMAIL`. Compared in constant time. Unset, empty or shorter than 32 characters keeps the first registration closed (`403`). Has no effect once an account exists; remove it after the setup. | `openssl rand -hex 32` |
+| `SEED_ADMIN_EMAIL` | Used by `node prisma/seed.mjs` when no admin exists yet: email of the admin account the content is attached to. | `you@example.com` |
+| `SEED_ADMIN_PASSWORD` | Used by `node prisma/seed.mjs` together with `SEED_ADMIN_EMAIL`. Must pass the registration rule (8 characters to 72 bytes). Without it the seed stops; no password is generated. | *(empty)* |
 
 > **Tip:** Whenever you introduce a new environment variable, document it in this table and surface an onboarding default inside the relevant API route.
 
@@ -149,9 +151,16 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
    pnpm prisma:studio
    ```
 
-### Optional: Seed Sample Content
+### Optional: Seed Content
 
-There is no HTTP seed endpoint; `/api/seed` was removed because it is needless attack surface. Sample content is loaded with the Prisma seed script (`prisma/seed.mjs`) from the command line, never through the running app.
+`prisma/seed.mjs` fills the database with the content from `content/*.json` (projects, skills, career, certificates). It is the only seed path; there is no HTTP seed endpoint (`/api/seed` was removed as needless attack surface), so content is never loaded through the running app.
+
+```bash
+node prisma/seed.mjs            # create missing entries, keep existing ones
+node prisma/seed.mjs --update   # overwrite existing entries with the JSON content
+```
+
+The content is attached to the first admin account. If none exists, the script creates it from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` and stops with an error if either is missing or the password breaks the registration rule. See [content/README.md](content/README.md).
 
 ### User Registration
 

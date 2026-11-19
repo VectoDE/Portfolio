@@ -1,59 +1,31 @@
 import { unstable_noStore as noStore } from "next/cache"
 
+import { getContentSkills, withContentFallback } from "@/lib/content"
 import prisma from "@/lib/db"
 import type { Skill } from "@/types/database"
 
 export async function getAllSkills(): Promise<Skill[]> {
   noStore()
-  try {
-    const skills = await prisma.skill.findMany({
-      orderBy: [{ category: "asc" }, { level: "desc" }, { name: "asc" }],
-    })
-
-    return skills
-  } catch (error) {
-    console.error("Error fetching all skills:", error)
-    return []
-  }
+  return withContentFallback<Skill[]>(
+    () =>
+      prisma.skill.findMany({
+        orderBy: [{ category: "asc" }, { name: "asc" }],
+      }),
+    getContentSkills,
+    "skills",
+  )
 }
 
 export async function getSkillById(id: string): Promise<Skill | null> {
   noStore()
-  try {
-    const skill = await prisma.skill.findUnique({
-      where: {
-        id,
-      },
-    })
-
-    return skill
-  } catch (error) {
-    console.error(`Error fetching skill with id ${id}:`, error)
-    return null
-  }
+  return withContentFallback<Skill | null>(
+    () => prisma.skill.findUnique({ where: { id } }),
+    () => getContentSkills().find((skill) => skill.id === id) ?? null,
+    `skill ${id}`,
+  )
 }
 
 export async function getSkillsByCategory(category: string): Promise<Skill[]> {
-  noStore()
-  try {
-    // Get the first user (assuming it's the portfolio owner)
-    const user = await prisma.user.findFirst()
-
-    if (!user) {
-      return []
-    }
-
-    const skills = await prisma.skill.findMany({
-      where: {
-        userId: user.id,
-        category,
-      },
-      orderBy: [{ level: "desc" }, { name: "asc" }],
-    })
-
-    return skills
-  } catch (error) {
-    console.error(`Error fetching skills for category ${category}:`, error)
-    return []
-  }
+  const skills = await getAllSkills()
+  return skills.filter((skill) => skill.category === category)
 }

@@ -1,0 +1,56 @@
+[
+  {
+    "id": "career-uplytech",
+    "position": "Founder and developer",
+    "company": "UplyTech",
+    "startDate": "2021-01-01",
+    "endDate": "Present",
+    "location": "Itzehoe, Germany",
+    "description": "UplyTech is a community and project for development, design, video and marketing. It is not a registered business. I build websites, web apps, APIs and custom software there, and I host and maintain what I ship. The GitHub organisation followed in March 2024."
+  },
+  {
+    "id": "career-mitfits-gaming",
+    "position": "Founder",
+    "company": "MitFits Gaming",
+    "startDate": "2025-04-01",
+    "endDate": "2026-09-01",
+    "location": null,
+    "description": "Founded the esports club in April 2025 and handed it over to a community member in September 2026."
+  },
+  {
+    "id": "career-bontogo",
+    "position": "Chief Marketing Officer (volunteer)",
+    "company": "BonToGo",
+    "startDate": "2023-11-01",
+    "endDate": "2024-06-01",
+    "location": "Bremen, Germany",
+    "description": "Wrote the marketing plan and ran social media."
+  },
+  {
+    "id": "career-bre4kf4st",
+    "position": "Full-stack developer (volunteer)",
+    "company": "Bre4kF4st",
+    "startDate": "2021-03-01",
+    "endDate": "2022-10-01",
+    "location": null,
+    "description": "Built a merch shop and a tournament planner with React, Socket.IO, Node.js and Express. The shop has since closed."
+  },
+  {
+    "id": "career-serverwerknet",
+    "position": "Developer",
+    "company": "ServerwerkNET",
+    "startDate": "2018-01-01",
+    "endDate": "2020-12-01",
+    "location": null,
+    "description": "Development organisation. I built the SGID system there."
+  },
+  {
+    "id": "career-playgs",
+    "position": "Founder",
+    "company": "PlayGS Netzwerk",
+    "startDate": "2017-01-01",
+    "endDate": "2019-12-01",
+    "location": null,
+    "description": "A Minecraft network with every game mode on one server, its own plugins, a shop and a TeamSpeak server. This is where I taught myself to code."
+  }
+]

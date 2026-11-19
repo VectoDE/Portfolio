@@ -36,8 +36,8 @@ Thank you for your interest in improving the Portfolio platform! This document c
    pnpm prisma:generate
    pnpm prisma:migrate
    ```
-5. Seed development data if helpful with the Prisma seed script (`prisma/seed.mjs`) from the command line. There is no HTTP seed endpoint.
-6. Launch the development server with `pnpm dev` and confirm you can sign in via the seeded credentials or newly registered account.
+5. Seed development data if helpful: set `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` in `.env` (the password must be 8 characters to 72 bytes) and run `node prisma/seed.mjs`. Without an existing admin the script creates one from these two values; it never generates or prints a password. There is no HTTP seed endpoint.
+6. Launch the development server with `pnpm dev` and sign in with `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD`, or with the first admin you registered (see *First-Time Setup* in the README).
 
 > **Tip:** The project writes uploaded media to `public/uploads/` and log files to `logs/`. Add both folders to your `.gitignore` or clean them before committing.
 

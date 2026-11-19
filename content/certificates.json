@@ -1,0 +1,314 @@
+[
+  {
+    "id": "cert-responsive-web-design-legacy-v8-about-300-hours-2024",
+    "name": "Responsive Web Design (Legacy V8, about 300 hours)",
+    "issuer": "freeCodeCamp",
+    "date": "2024-06-01",
+    "link": "https://www.freecodecamp.org/certification/vectode/responsive-web-design",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-react-js-ein-web-interface-entwickeln-2024",
+    "name": "React.js: Ein Web-Interface entwickeln",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/8316890e139e9ee84dac2b5a1f3ea742313405ed03db5a0f8cd815ae2d1a57c0",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-vue-js-lernen-2024",
+    "name": "Vue.js lernen",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/c356d7ad31b20a54a77fa7974ea771cc16a68bb670c894f9023fd38fa380873f",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-webtechniken-lernen-4-javascript-2024",
+    "name": "Webtechniken lernen 4: JavaScript",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/e022cabee112be8be253cb5b327e3f2337ce63d0eb7aa05292547fa869fa94a4",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-webtechniken-lernen-3-responsive-css-layouts-mit-media-queries-flexbox-und-grid-2024",
+    "name": "Webtechniken lernen 3: Responsive CSS-Layouts mit Media Queries, Flexbox und Grid",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/0218b627cfc9b8627d819870787bf129ad3fdcc64ab27ac1b2fad327843034b2",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-webtechniken-lernen-2-css-grundlagen-2024",
+    "name": "Webtechniken lernen 2: CSS-Grundlagen",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/0ff6d7e2b2a908173c1482e8b2e44dce6c43928b1271375cf29e7f2e3324595b",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-webtechniken-lernen-1-html-2024",
+    "name": "Webtechniken lernen 1: HTML",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/0449b01c9aa6690d194c06dfcf9ac853abe3051ff1a03e79cef21cc742a8b81c",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-grundlagen-der-webprogrammierung-meine-erste-website-2024",
+    "name": "Grundlagen der Webprogrammierung: Meine erste Website",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/f47b61d11d2dbfdefb9374ba527ed2c51c5ca6cec9d538d12a01ca4f02070412",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-rest-apis-lernen-2024",
+    "name": "REST APIs lernen",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/REST%20APIs%20lernen%20-%20LinkedIn%20Zertifikat.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-graphql-2023",
+    "name": "GraphQL",
+    "issuer": "Programming Hub",
+    "date": "2023-08-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/GraphQL.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-javascript-advanced-2023",
+    "name": "JavaScript Advanced",
+    "issuer": "Programming Hub",
+    "date": "2023-07-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/JavaScript%20Advanced.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-javascript-2023",
+    "name": "JavaScript",
+    "issuer": "Programming Hub",
+    "date": "2023-07-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/JavaScript.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-laravel-2023",
+    "name": "Laravel",
+    "issuer": "Programming Hub",
+    "date": "2023-07-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Laravel.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-php-2023",
+    "name": "PHP",
+    "issuer": "Programming Hub",
+    "date": "2023-06-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/PHP.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-java-2023",
+    "name": "Java",
+    "issuer": "Programming Hub",
+    "date": "2023-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Java.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-programming-fundamentals-2023",
+    "name": "Programming Fundamentals",
+    "issuer": "Programming Hub",
+    "date": "2023-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Fundamentals.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-bulma-css-2023",
+    "name": "Bulma CSS",
+    "issuer": "Programming Hub",
+    "date": "2023-02-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Bulma%20CSS.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-next-js-2023",
+    "name": "Next.js",
+    "issuer": "Programming Hub",
+    "date": "2023-02-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/NextJS.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-building-a-website-2023",
+    "name": "Building a Website",
+    "issuer": "Programming Hub",
+    "date": "2023-02-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Building%20a%20Website%202.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-css-2023",
+    "name": "CSS",
+    "issuer": "Programming Hub",
+    "date": "2023-02-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/CSS.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-building-a-website-2021",
+    "name": "Building a Website",
+    "issuer": "Programming Hub",
+    "date": "2021-12-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Building%20a%20Website.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-html-advanced-2021",
+    "name": "HTML Advanced",
+    "issuer": "Programming Hub",
+    "date": "2021-12-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/HTML%20Advanced.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-html-2021",
+    "name": "HTML",
+    "issuer": "Programming Hub",
+    "date": "2021-12-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/HTML.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-node-js-2021",
+    "name": "Node.js",
+    "issuer": "Programming Hub",
+    "date": "2021-12-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/NodeJS.pdf",
+    "group": "Web development"
+  },
+  {
+    "id": "cert-microsoft-teams-grundkurs-pmi-1-75-pdus-2024",
+    "name": "Microsoft Teams Grundkurs (PMI: 1.75 PDUs)",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Microsoft%20Teams%20Grundkurs%20-%20LinkedIn%20Zertifikat.pdf",
+    "group": "Infrastructure and tools"
+  },
+  {
+    "id": "cert-git-2023",
+    "name": "Git",
+    "issuer": "Programming Hub",
+    "date": "2023-08-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/GIT.pdf",
+    "group": "Infrastructure and tools"
+  },
+  {
+    "id": "cert-linux-2023",
+    "name": "Linux",
+    "issuer": "Programming Hub",
+    "date": "2023-05-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Linux.pdf",
+    "group": "Infrastructure and tools"
+  },
+  {
+    "id": "cert-ipv4-networking-2023",
+    "name": "IPv4 & Networking",
+    "issuer": "Programming Hub",
+    "date": "2023-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/IPv4%20%26%20Networking.pdf",
+    "group": "Infrastructure and tools"
+  },
+  {
+    "id": "cert-it-basics-2023",
+    "name": "IT Basics",
+    "issuer": "Programming Hub",
+    "date": "2023-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/IT%20Basics.pdf",
+    "group": "Infrastructure and tools"
+  },
+  {
+    "id": "cert-digital-marketing-advanced-2025",
+    "name": "Digital Marketing Advanced",
+    "issuer": "Programming Hub",
+    "date": "2025-01-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Digital%20Marketing%20Advanced.pdf",
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-digital-marketing-2024",
+    "name": "Digital Marketing",
+    "issuer": "Programming Hub",
+    "date": "2024-11-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Digital%20Marketing.pdf",
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-steuergrundlagen-für-selbstständige-kleinunternehmer-innen-und-gründer-innen-2024",
+    "name": "Steuergrundlagen für Selbstständige, Kleinunternehmer:innen und Gründer:innen",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-04-01",
+    "link": "https://www.linkedin.com/learning/certificates/5994c51b00031eee9ee54b46054039a852f1b8f2ad32582699e2d6bc07a0dce7",
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-growth-hacking-2024",
+    "name": "Growth Hacking",
+    "issuer": "Programming Hub",
+    "date": "2024-03-01",
+    "link": null,
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-rechtsgrundlagen-industrie-4-0-und-internet-of-things-iot-2024",
+    "name": "Rechtsgrundlagen: Industrie 4.0 und Internet of Things (IoT)",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/cdd0c587e2e94280324522277ae37cb636e95cd67fbb3233a3886a7d9c512986",
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-seo-2023",
+    "name": "SEO",
+    "issuer": "Programming Hub",
+    "date": "2023-02-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/SEO.pdf",
+    "group": "Marketing, business and law"
+  },
+  {
+    "id": "cert-professionell-netzwerken-pmi-2024",
+    "name": "Professionell netzwerken (PMI)",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/8edc2fd2aa2c4cc3ffefcadef97bd9230e74141197e614d1eadda7b00c0def88",
+    "group": "Communication"
+  },
+  {
+    "id": "cert-schlagfertigkeit-nie-wieder-sprachlos-2024",
+    "name": "Schlagfertigkeit: Nie wieder sprachlos",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://github.com/VectoDE/VectoDE/blob/main/certificates/Schlagfertigkeit%20-%20nie%20wieder%20Sprachlos%20-%20LinkedIn%20Zertifikat.pdf",
+    "group": "Communication"
+  },
+  {
+    "id": "cert-die-7-schlimmsten-kommunikationsfehler-2024",
+    "name": "Die 7 schlimmsten Kommunikationsfehler",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/dab8bb262fd871a38cccad4046be2f4456082cee67e409d45f39337eae8b322d",
+    "group": "Communication"
+  },
+  {
+    "id": "cert-small-talk-und-netzwerken-2-unterschätzte-karriere-booster-2024",
+    "name": "Small Talk und Netzwerken: 2 unterschätzte Karriere-Booster",
+    "issuer": "LinkedIn Learning",
+    "date": "2024-03-01",
+    "link": "https://www.linkedin.com/learning/certificates/799b9d01f2736f2764ad164ccf0f76f1f369922add62534f312c534aac641469",
+    "group": "Communication"
+  }
+]
