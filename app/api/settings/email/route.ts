@@ -2,7 +2,6 @@ import { NextResponse } from "next/server"
 
 import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
-import { sendTestEmail } from "@/lib/email"
 
 // GET /api/settings/email - Get email settings
 export async function GET(_req: Request) {
@@ -91,57 +90,6 @@ export async function POST(req: Request) {
     })
   } catch (error) {
     console.error("Error updating email settings:", error)
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
-  }
-}
-
-interface TestRouteParams {
-  params: Promise<{
-    test: string
-  }>
-}
-
-// POST /api/settings/email/test - Send test email
-export async function PUT(req: Request, { params }: TestRouteParams) {
-  const { test } = await params
-
-  if (test !== "test") {
-    return NextResponse.json({ error: "Invalid endpoint" }, { status: 404 })
-  }
-
-  try {
-    const auth = await requireAdmin()
-
-    if (!auth.ok) {
-      return auth.response
-    }
-
-    const data = await req.json()
-    const { email } = data
-
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 })
-    }
-
-    const result = await sendTestEmail(email)
-
-    if (result.success) {
-      return NextResponse.json({
-        success: true,
-        message: "Test email sent successfully",
-      })
-    } else {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Failed to send test email",
-          error: result.error,
-        },
-        { status: 500 },
-      )
-    }
-  } catch (error) {
-    console.error("Error sending test email:", error)
     return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
   }
 }
