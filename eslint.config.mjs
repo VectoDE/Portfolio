@@ -7,7 +7,16 @@ import tseslint from "typescript-eslint"
 
 export default [
   {
-    ignores: [".next/**", "node_modules/**", "dist/**"],
+    ignores: [".next/**", "node_modules/**", "dist/**", "out/**", "build/**", "coverage/**", "public/**"],
+  },
+  {
+    // Config files and scripts at the root run in Node.
+    files: ["**/*.{mjs,cjs}"],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
   },
   nextPlugin.configs.recommended,
   js.configs.recommended,
