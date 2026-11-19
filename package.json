@@ -17,6 +17,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "validate": "pnpm lint && pnpm typecheck",
+    "test": "node --test --experimental-strip-types \"tests/**/*.test.ts\"",
     "prisma:generate": "prisma generate",
     "prisma:push": "prisma db push",
     "prisma:migrate": "prisma migrate dev",
