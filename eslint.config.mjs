@@ -25,7 +25,6 @@ export default [
       },
     },
     plugins: {
-      "@next/next": nextPlugin,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
