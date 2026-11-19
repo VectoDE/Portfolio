@@ -3,6 +3,7 @@ import { getServerSession } from "next-auth"
 import type { Session } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
+import { decideAuthz } from "@/lib/authz-decision"
 import prisma from "@/lib/db"
 
 export const ADMIN_ROLE = "Admin"
@@ -28,16 +29,40 @@ function isAuthenticatedSession(session: Session | null): session is Authenticat
 }
 
 /**
- * Resolves the current session. Returns a ready-made 401 response when nobody is signed in.
+ * Resolves the session and loads the account behind it in a single query, so the role
+ * check below does not need a second lookup.
  */
-export async function requireSession(): Promise<AuthzResult> {
+async function authorize(requiredRole?: string): Promise<AuthzResult> {
   const session = await getServerSession(authOptions)
 
   if (!isAuthenticatedSession(session)) {
     return unauthorized()
   }
 
+  const account = await prisma.user.findUnique({
+    where: { id: session.user.id },
+    select: { id: true, role: true },
+  })
+
+  const decision = decideAuthz(account, requiredRole)
+
+  if (decision === "unauthorized") {
+    return unauthorized()
+  }
+
+  if (decision === "forbidden") {
+    return forbidden()
+  }
+
   return { ok: true, session }
+}
+
+/**
+ * Resolves the current session. Returns a ready-made 401 response when nobody is signed in
+ * or when the account behind the session token has been deleted.
+ */
+export async function requireSession(): Promise<AuthzResult> {
+  return authorize()
 }
 
 /**
@@ -56,18 +81,8 @@ export async function isAdminSession(session: AuthenticatedSession): Promise<boo
 
 /**
  * Resolves the current session and requires the admin role.
- * Returns a ready-made 401 response without a session and 403 for any other role.
+ * Returns a ready-made 401 response without a session or account and 403 for any other role.
  */
 export async function requireAdmin(): Promise<AuthzResult> {
-  const result = await requireSession()
-
-  if (!result.ok) {
-    return result
-  }
-
-  if (!(await isAdminSession(result.session))) {
-    return forbidden()
-  }
-
-  return result
+  return authorize(ADMIN_ROLE)
 }
