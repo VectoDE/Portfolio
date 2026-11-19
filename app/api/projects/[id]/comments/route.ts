@@ -8,7 +8,9 @@ import { getProjectComments } from "@/lib/engagement"
 
 const commentSchema = z.object({
   content: z
-    .string({ required_error: "Comment text is required" })
+    .string({
+      error: (issue) => (issue.input === undefined ? "Comment text is required" : undefined),
+    })
     .trim()
     .min(3, "Comments must be at least 3 characters long")
     .max(600, "Comments cannot exceed 600 characters"),
@@ -55,7 +57,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     const parsed = commentSchema.safeParse(body)
 
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.errors[0]?.message }, { status: 400 })
+      return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 })
     }
 
     const projectExists = await prisma.project.findUnique({
