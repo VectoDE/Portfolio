@@ -14,6 +14,7 @@ import { CodeBlock } from "@/components/code-block"
 import { ProjectFeedback } from "@/components/project-feedback"
 import { ShareProject } from "@/components/share-project"
 import { getSiteUrl, siteProfile } from "@/lib/site"
+import { pageMetadata } from "@/lib/seo"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
@@ -29,7 +30,7 @@ export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
   const { id } = await params
   if (!id) {
     return {
-      title: "Project Not Found | Tim Hauke",
+      title: "Project not found",
       description: "The requested project could not be found",
     }
   }
@@ -37,45 +38,19 @@ export async function generateMetadata({ params }: Readonly<ProjectPageProps>) {
 
   if (!project) {
     return {
-      title: "Project Not Found | Tim Hauke",
+      title: "Project not found",
       description: "The requested project could not be found",
     }
   }
 
-  const canonical = getSiteUrl(`/projects/${project.id}`)
-  const imageUrl = project.imageUrl || `${getSiteUrl()}/placeholder.jpg`
-
   return {
-    title: `${project.title} | Tim Hauke`,
-    description: project.description,
-    alternates: {
-      canonical,
-    },
-    keywords: [
-      project.title,
-      "Tim Hauke projects",
-      ...project.technologies.split(", ").map((tech) => tech.trim()),
-    ],
-    openGraph: {
+    ...pageMetadata({
+      title: project.title,
+      description: project.description,
+      path: `/projects/${project.id}`,
       type: "article",
-      url: canonical,
-      title: `${project.title} | Tim Hauke`,
-      description: project.description,
-      images: [
-        {
-          url: imageUrl,
-          width: 1200,
-          height: 630,
-          alt: `${project.title} preview image`,
-        },
-      ],
-    },
-    twitter: {
-      card: "summary_large_image",
-      title: `${project.title} | Tim Hauke`,
-      description: project.description,
-      images: [imageUrl],
-    },
+    }),
+    keywords: [project.title, ...project.technologies.split(",").map((tech) => tech.trim())],
   }
 }
 
@@ -96,28 +71,31 @@ export default async function ProjectPage({ params }: Readonly<ProjectPageProps>
   ])
 
   const projectUrl = getSiteUrl(`/projects/${project.id}`)
-  const imageUrl = project.imageUrl || `${getSiteUrl()}/placeholder.jpg`
+  const imageUrl = project.imageUrl || getSiteUrl("/opengraph-image")
   const structuredData = {
     "@context": "https://schema.org",
-    "@type": "CreativeWork",
+    "@type": project.githubUrl ? "SoftwareSourceCode" : "CreativeWork",
     name: project.title,
+    ...(project.githubUrl ? { codeRepository: project.githubUrl } : {}),
+    ...(project.link ? { sameAs: project.link } : {}),
     description: project.description,
     url: projectUrl,
     image: imageUrl,
     isPartOf: {
       "@type": "CreativeWorkSeries",
-      name: "Tim Hauke Portfolio Projects",
+      name: "Projects by Tim Hauke",
       url: getSiteUrl("/projects"),
     },
     author: {
       "@type": "Person",
+      "@id": `${getSiteUrl()}/#person`,
       name: siteProfile.name,
       url: getSiteUrl(),
     },
     datePublished: new Date(project.createdAt).toISOString(),
     dateModified: new Date(project.updatedAt).toISOString(),
     inLanguage: "en",
-    keywords: project.technologies.split(", ").map((tech) => tech.trim()),
+    keywords: project.technologies.split(",").map((tech) => tech.trim()),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",

@@ -1,4 +1,4 @@
-const defaultSiteUrl = "https://www.hauknetz.de"
+const defaultSiteUrl = "https://portfolio-phi-one-95.vercel.app"
 
 export function getSiteUrl(path = "") {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL
@@ -21,9 +21,9 @@ export function getSiteUrl(path = "") {
 
 export const siteProfile = {
   name: "Tim Hauke",
-  title: "Full Stack Developer",
+  title: "Full-stack developer",
   defaultDescription:
-    "Full stack developer portfolio showcasing projects, technical skills, case studies, and newsletter updates.",
+    "Tim Hauke, self-taught full-stack developer from Itzehoe and founder of UplyTech. He builds websites, web apps, APIs and Discord bots and hosts them for clients.",
   locale: "en_US",
-  twitterHandle: "@TimHauke",
+  twitterHandle: "@vecto_de",
 }

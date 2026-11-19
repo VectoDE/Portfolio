@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import Link from "next/link"
 import { CheckCircle, Inbox, MailPlus, ShieldCheck, Sparkles, Users } from "lucide-react"
 
@@ -9,20 +11,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
-export const metadata: Metadata = {
-  title: "Newsletter Hub",
+export const metadata: Metadata = pageMetadata({
+  title: "Newsletter",
   description:
-    "Subscribe to project updates, manage your notifications, and access an instant unsubscribe link in one place.",
-  openGraph: {
-    title: "Tim Hauke Newsletter Hub",
-    description:
-      "Stay up to date with new projects, articles, and behind-the-scenes notes—or manage your subscription in seconds.",
-    url: "/newsletter",
-  },
-  alternates: {
-    canonical: "/newsletter",
-  },
-}
+    "A short email from Tim Hauke when a project launches or changes a lot. Unsubscribe with one click.",
+  path: "/newsletter",
+})
 
 export default function NewsletterPage() {
   return (

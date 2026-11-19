@@ -1,14 +1,17 @@
 import type { Metadata } from "next"
 
+import { pageMetadata } from "@/lib/seo"
+
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Impressum",
-  description: "Anbieterkennzeichnung gemäß § 5 TMG und § 55 RStV für das Portfolio von Tim Hauke.",
-}
+  description: "Anbieterkennzeichnung für die Website von Tim Hauke.",
+  path: "/impressum",
+})
 
 const sections = [
   {
@@ -60,7 +63,7 @@ export default function ImprintPage() {
     <div className="flex min-h-screen flex-col">
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
-        <main id="main" className="flex-1 py-16">
+        <main id="main" lang="de" className="flex-1 py-16">
           <AnimatedSection className="container space-y-10 px-4 md:px-6">
             <header className="space-y-4 text-center">
               <p className="text-sm uppercase tracking-wider text-primary">Rechtliche Hinweise</p>

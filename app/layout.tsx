@@ -1,8 +1,9 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from "next"
 import { Gloock, Onest } from "next/font/google"
-import Script from "next/script"
 
+import { profile } from "@/lib/content"
+import { ogImage } from "@/lib/seo"
 import { getSiteUrl, siteProfile } from "@/lib/site"
 import { Providers } from "@/components/providers"
 
@@ -31,47 +32,43 @@ export const metadata: Metadata = {
   metadataBase,
   applicationName: siteName,
   title: {
-    default: `${siteName} | Full Stack Developer`,
+    default: `${siteName} | ${siteProfile.title}`,
     template: `%s | ${siteName}`,
   },
   description: siteDescription,
   keywords: [
     "Tim Hauke",
-    "full stack developer",
-    "Next.js portfolio",
-    "web development projects",
-    "TypeScript engineer",
-    "frontend developer",
-    "backend developer",
+    "VectoDE",
+    "UplyTech",
+    "full-stack developer",
+    "web developer Itzehoe",
+    "Next.js developer",
+    "TypeScript",
+    "Discord bot developer",
   ],
-  authors: [{ name: siteName }],
+  authors: [{ name: siteName, url: metadataBase.origin }],
   creator: siteName,
   publisher: siteName,
   category: "technology",
   alternates: {
     canonical: "/",
   },
-  icons: {
-    icon: [
-      { url: "/placeholder-logo.svg", type: "image/svg+xml" },
-      { url: "/placeholder-logo.png", type: "image/png" },
-    ],
-    apple: "/placeholder-logo.png",
-    shortcut: "/placeholder-logo.png",
-  },
   openGraph: {
     type: "website",
-    locale: "en_US",
-    url: metadataBase.origin,
-    title: `${siteName} | Full Stack Developer`,
+    locale: siteProfile.locale,
+    url: "/",
+    title: `${siteName} | ${siteProfile.title}`,
     description: siteDescription,
     siteName,
+    images: [ogImage],
   },
   twitter: {
     card: "summary_large_image",
+    site: siteProfile.twitterHandle,
     creator: siteProfile.twitterHandle,
-    title: `${siteName} | Full Stack Developer`,
+    title: `${siteName} | ${siteProfile.title}`,
     description: siteDescription,
+    images: [ogImage.url],
   },
   robots: {
     index: true,
@@ -94,7 +91,7 @@ export const metadata: Metadata = {
   },
   appleWebApp: {
     capable: true,
-    statusBarStyle: "black-translucent",
+    statusBarStyle: "default",
     title: siteName,
   },
 }
@@ -103,79 +100,47 @@ export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0C1424" }, { color: "#F7F9FC" }],
 }
 
+const personId = `${metadataBase.origin}/#person`
+
+// Only public, professional data: no street address, birth date or phone number.
 const structuredData = {
   "@context": "https://schema.org",
   "@graph": [
     {
       "@type": "Person",
-      name: siteName,
+      "@id": personId,
+      name: profile.name,
+      alternateName: profile.handle,
       url: metadataBase.origin,
-      jobTitle: "Full Stack Developer",
-      image: `${metadataBase.origin}/placeholder-logo.png`,
-      sameAs: ["https://www.linkedin.com/in/tim-hauke-b3b24b2b5/", "https://github.com/VectoDE"],
-      contactPoint: {
-        "@type": "ContactPoint",
-        email: "contact@uplytech.de",
-        contactType: "customer support",
-        availableLanguage: ["English", "German"],
-      },
+      jobTitle: profile.jobTitle,
+      description: siteDescription,
+      image: `${metadataBase.origin}/images/tim-hauke/square-1024.webp`,
+      email: `mailto:${profile.contact.email}`,
+      address: { "@type": "PostalAddress", addressLocality: "Itzehoe", addressCountry: "DE" },
+      knowsLanguage: ["de", "en"],
+      knowsAbout: [
+        "TypeScript",
+        "Next.js",
+        "React",
+        "Node.js",
+        "Python",
+        "Go",
+        "Docker",
+        "Cloudflare",
+        "Discord bots",
+      ],
+      founder: { "@type": "Organization", name: "UplyTech", url: "https://www.uplytech.de" },
+      sameAs: profile.links.filter((link) => link.label !== "UplyTech").map((link) => link.url),
     },
     {
       "@type": "WebSite",
+      "@id": `${metadataBase.origin}/#website`,
       name: siteName,
       url: metadataBase.origin,
       inLanguage: "en",
       description: siteDescription,
-      potentialAction: {
-        "@type": "SearchAction",
-        target: `${metadataBase.origin}/projects?search={search_term_string}`,
-        "query-input": "required name=search_term_string",
-      },
-    },
-    {
-      "@type": "WebPage",
-      name: `${siteName} | Full Stack Developer Portfolio`,
-      url: metadataBase.origin,
-      description: siteDescription,
-      breadcrumb: {
-        "@id": `${metadataBase.origin}#breadcrumb`,
-      },
-    },
-    {
-      "@type": "BreadcrumbList",
-      "@id": `${metadataBase.origin}#breadcrumb`,
-      itemListElement: [
-        {
-          "@type": "ListItem",
-          position: 1,
-          name: "Home",
-          item: metadataBase.origin,
-        },
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Projects",
-          item: `${metadataBase.origin}/projects`,
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: "Contact",
-          item: `${metadataBase.origin}/contact`,
-        },
-        {
-          "@type": "ListItem",
-          position: 4,
-          name: "Newsletter",
-          item: `${metadataBase.origin}/newsletter`,
-        },
-        {
-          "@type": "ListItem",
-          position: 5,
-          name: "Unsubscribe",
-          item: `${metadataBase.origin}/unsubscribe`,
-        },
-      ],
+      author: { "@id": personId },
+      publisher: { "@id": personId },
     },
   ],
 }
@@ -193,9 +158,11 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <Providers>{children}</Providers>
-        <Script id="structured-data" type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </Script>
+        {/* Rendered on the server so crawlers see it in the HTML; next/script would inject it later. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
+        />
       </body>
     </html>
   )

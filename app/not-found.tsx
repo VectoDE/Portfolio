@@ -12,8 +12,7 @@ export default function NotFound() {
         <p className="text-sm text-muted-foreground">Error 404</p>
         <h1 className="font-display mt-2 text-5xl md:text-6xl">This page does not exist</h1>
         <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
-          The link may be old or mistyped. The projects and the about page are good places to
-          continue.
+          The link may be old or mistyped. Try the start page or browse the projects.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
           <Button asChild>

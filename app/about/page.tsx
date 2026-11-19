@@ -1,4 +1,6 @@
 import type { Metadata } from "next"
+
+import { pageMetadata } from "@/lib/seo"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
@@ -11,13 +13,13 @@ import { Portrait } from "@/components/portrait"
 import { SectionHeading } from "@/components/section-heading"
 import { profile } from "@/lib/content"
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "About",
   description:
-    "Tim Hauke is a self-taught full-stack developer from Itzehoe and founder of UplyTech. Career, stack, certificates and how to reach him.",
-  alternates: { canonical: "/about" },
-  openGraph: { type: "profile", url: "/about" },
-}
+    "Tim Hauke, self-taught full-stack developer from Itzehoe and founder of UplyTech: career, stack, certificates and contact details.",
+  path: "/about",
+  type: "profile",
+})
 
 export default function AboutPage() {
   return (
@@ -87,7 +89,7 @@ export default function AboutPage() {
             <SectionHeading
               id="stack-heading"
               title="Stack"
-              description="Everything here is in my own code, public or private. Outlined entries are my first choice on client work."
+              description="Everything listed here appears in my own code, public or private. Outlined entries are my first choice for client work."
             />
             <div className="mt-10">
               <SkillsShowcase />
@@ -104,7 +106,7 @@ export default function AboutPage() {
             <SectionHeading
               id="certificates-heading"
               title="Certificates"
-              description="Online courses from freeCodeCamp, LinkedIn Learning and Programming Hub. Where a course offers a public check, the link goes there; otherwise it opens the PDF."
+              description="Online courses from freeCodeCamp, LinkedIn Learning and Programming Hub. Links go to a public verification page where one exists, otherwise to the PDF."
             />
             <div className="mt-10 max-w-4xl">
               <CertificatesShowcase limit={0} />
