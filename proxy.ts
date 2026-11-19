@@ -3,7 +3,7 @@ import { getToken } from "next-auth/jwt"
 import { withAuth } from "next-auth/middleware"
 
 export default withAuth(
-  async function middleware(req) {
+  async function proxy(req) {
     const token = await getToken({
       req,
       secret: process.env.NEXTAUTH_SECRET,
