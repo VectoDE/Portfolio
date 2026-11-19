@@ -7,6 +7,7 @@ settings:
 overrides:
   cookie: ^0.7.2
   '@prisma/config>deepmerge-ts': ^8.0.2
+  effect: ^3.22.1
 
 importers:
 
@@ -20,7 +21,7 @@ importers:
         version: 2.11.3(@prisma/client@6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3))(nodemailer@10.6.0)
       '@hookform/resolvers':
         specifier: ^5.9.2
-        version: 5.9.2(@standard-schema/spec@1.1.0)(effect@3.21.0)(react-hook-form@7.92.0(@types/react@19.3.0)(react@18.3.1))(zod@4.6.7)
+        version: 5.9.2(@standard-schema/spec@1.1.0)(effect@3.22.5)(react-hook-form@7.92.0(@types/react@19.3.0)(react@18.3.1))(zod@4.6.7)
       '@prisma/client':
         specifier: 6.19.3
         version: 6.19.3(prisma@6.19.3(typescript@6.0.3))(typescript@6.0.3)
@@ -471,7 +472,7 @@ packages:
       class-transformer: '>=0.4.0'
       class-validator: '>=0.12.0'
       computed-types: ^1.0.0
-      effect: ^3.10.3
+      effect: ^3.22.1
       fluentvalidation-ts: ^3.0.0
       fp-ts: ^2.7.0
       io-ts: ^2.0.0
@@ -2077,8 +2078,8 @@ packages:
   draco3d@1.5.9:
     resolution: {integrity: sha512-MqC0eAfW5gPATGY3GABIyFWpHwdDGAyewTdek5R/e+mhI9ZDUMKb2mTDkTMUW0+Vm7an+ThEMUop3+svS72Uug==}
 
-  effect@3.21.0:
-    resolution: {integrity: sha512-PPN80qRokCd1f015IANNhrwOnLO7GrrMQfk4/lnZRE/8j7UPWrNNjPV0uBrZutI/nHzernbW+J0hdqQysHiSnQ==}
+  effect@3.22.5:
+    resolution: {integrity: sha512-AdIU4llI19BzhJ4xUBZix7kS8oiYSlCsJ61j3UM3UyJw9ecDrsrrweDFm/Ku1nHbJWMLoynK+1Me4it3Zkmjpw==}
 
   electron-to-chromium@1.5.490:
     resolution: {integrity: sha512-I0dPyEsiaYAlbGJlr0SdRRGSWk9BpOz8AIo/4f93A6bAGuN3YafmT71rpss72SA05isaAkcAOYcW0F0H48om4Q==}
@@ -3648,13 +3649,13 @@ snapshots:
 
   '@floating-ui/utils@0.2.12': {}
 
-  '@hookform/resolvers@5.9.2(@standard-schema/spec@1.1.0)(effect@3.21.0)(react-hook-form@7.92.0(@types/react@19.3.0)(react@18.3.1))(zod@4.6.7)':
+  '@hookform/resolvers@5.9.2(@standard-schema/spec@1.1.0)(effect@3.22.5)(react-hook-form@7.92.0(@types/react@19.3.0)(react@18.3.1))(zod@4.6.7)':
     dependencies:
       '@standard-schema/utils': 0.3.0
       react-hook-form: 7.92.0(@types/react@19.3.0)(react@18.3.1)
     optionalDependencies:
       '@standard-schema/spec': 1.1.0
-      effect: 3.21.0
+      effect: 3.22.5
       zod: 4.6.7
 
   '@humanfs/core@0.19.2':
@@ -3884,7 +3885,7 @@ snapshots:
     dependencies:
       c12: 3.1.0
       deepmerge-ts: 8.0.2
-      effect: 3.21.0
+      effect: 3.22.5
       empathic: 2.0.0
     transitivePeerDependencies:
       - magicast
@@ -5202,7 +5203,7 @@ snapshots:
 
   draco3d@1.5.9: {}
 
-  effect@3.21.0:
+  effect@3.22.5:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
