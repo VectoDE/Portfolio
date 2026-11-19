@@ -1,7 +1,7 @@
 [
   {
     "id": "career-uplytech",
-    "position": "Founder and developer",
+    "position": "Founder",
     "company": "UplyTech",
     "startDate": "2021-01-01",
     "endDate": "Present",
@@ -39,10 +39,10 @@
     "id": "career-serverwerknet",
     "position": "Developer",
     "company": "ServerwerkNET",
-    "startDate": "2024-07-01",
-    "endDate": "2024-07-01",
+    "startDate": "2018-06-01",
+    "endDate": "2018-06-01",
     "location": null,
-    "description": "Member of an Austrian development team. I wrote their SGID system and its API on commission."
+    "description": "Member of an Austrian development team. In mid-2018 I wrote their SGID system, a Vue.js web system with its API."
   },
   {
     "id": "career-playgs",

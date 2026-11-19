@@ -1,5 +1,6 @@
 import type { Metadata } from "next"
 
+import { operatorFromEnv } from "@/lib/impressum.mjs"
 import { pageMetadata } from "@/lib/seo"
 
 import { MainNav } from "@/components/main-nav"
@@ -10,105 +11,94 @@ import { AnimatedList } from "@/components/animated-list"
 export const metadata: Metadata = pageMetadata({
   title: "Datenschutzerklärung",
   description:
-    "Wie diese Website personenbezogene Daten verarbeitet: Kontaktformular, Newsletter, Konten und Cookies.",
+    "Welche Daten diese Website verarbeitet: Hosting, Kontaktformular, Newsletter, Konten und die optionale Besuchsstatistik.",
   path: "/privacy",
 })
+
+const operator = operatorFromEnv(process.env)
+
+const controller = operator
+  ? [
+      `${operator.name}, ${operator.street}, ${operator.postalCity}, ${operator.country}.`,
+      `E-Mail: ${operator.email}. Alternativ erreichen Sie mich über das Kontaktformular.`,
+    ]
+  : [
+      "Platzhalter: Die Angaben zum Verantwortlichen sind in dieser Umgebung nicht hinterlegt (Umgebungsvariablen IMPRESSUM_NAME, IMPRESSUM_STRASSE, IMPRESSUM_PLZ_ORT und IMPRESSUM_EMAIL). Die veröffentlichte Website zeigt hier Name, Anschrift und E-Mail-Adresse.",
+    ]
 
 const sections = [
   {
     title: "1. Verantwortlicher",
     content: [
-      "Tim Hauke, Hauknetz, 25524 Itzehoe, Deutschland.",
-      "E-Mail: timhauke@uplytech.de | Telefon: +49 172 6166860.",
-      "Für sämtliche Fragen rund um Datenschutz und Informationssicherheit können Sie sich jederzeit an die oben genannten Kontaktdaten wenden.",
+      ...controller,
+      "Ich betreibe diese Website als Privatperson. Einen Datenschutzbeauftragten gibt es nicht, weil keine Pflicht dazu besteht.",
     ],
   },
   {
-    title: "2. Allgemeine Hinweise zur Datenverarbeitung",
+    title: "2. Hosting und Server-Logs",
     content: [
-      "Wir verarbeiten personenbezogene Daten ausschließlich gemäß den Vorgaben der Datenschutz-Grundverordnung (DSGVO), des Telekommunikation-Telemedien-Datenschutz-Gesetzes (TTDSG) sowie der einschlägigen Spezialgesetze. Die Verarbeitung erfolgt nur, sofern eine gesetzliche Erlaubnisnorm (Art. 6 Abs. 1 DSGVO) vorliegt.",
-      "Technische und organisatorische Maßnahmen (TOM) gemäß Art. 32 DSGVO orientieren sich am anerkannten Stand der Technik, insbesondere den BSI IT-Grundschutz-Bausteinen, den Kontrollen der ISO/IEC 27001 sowie den OWASP Top 10 Richtlinien für Webanwendungen.",
+      "Die Website läuft bei Vercel Inc., 440 N Barranca Ave #4133, Covina, CA 91723, USA. Bei jedem Aufruf verarbeitet Vercel technisch notwendige Daten: IP-Adresse, Zeitpunkt, aufgerufene Adresse, Referrer und Browserkennung. Ohne diese Daten kann die Seite nicht ausgeliefert und nicht vor Angriffen geschützt werden.",
+      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer sicheren, erreichbaren Website). Vercel ist nach eigenen Angaben unter dem EU-US Data Privacy Framework zertifiziert (Art. 45 DSGVO) und nutzt zusätzlich die Standardvertragsklauseln der EU-Kommission. Wie lange Vercel Logdaten aufbewahrt, regelt Vercel selbst.",
     ],
   },
   {
-    title: "3. Bereitstellung der Website und Server-Logs",
+    title: "3. Schutz vor Missbrauch",
     content: [
-      "Beim Aufruf dieser Website verarbeitet unser Hosting-Provider automatisch Verbindungsdaten (Browsertyp, Betriebssystem, Referrer-URL, Datum/Uhrzeit des Zugriffs, IP-Adresse).",
-      "Die IP-Adresse wird vor der Speicherung mittels SHA-256 Hash (mit optionalem Salt) pseudonymisiert, sodass kein direkter Personenbezug mehr besteht.",
-      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Bereitstellung und Sicherheit der Website). Logdaten werden spätestens nach 30 Tagen gelöscht, sofern keine sicherheitsrelevante Auswertung erforderlich ist.",
+      "Die Schnittstellen für die Besuchsstatistik und für Fehlermeldungen aus dem Browser begrenzen die Zahl der Anfragen je IP-Adresse. Dafür wird die IP-Adresse für die Dauer des Zeitfensters im Arbeitsspeicher des Servers oder in einem Redis-Zwischenspeicher gehalten und danach automatisch verworfen. Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Schutz vor Missbrauch).",
     ],
   },
   {
-    title: "4. Kontaktanfragen",
+    title: "4. Kontaktformular",
     content: [
-      "Über das Kontaktformular erhobene Daten (Name, E-Mail-Adresse, Betreff, Nachricht) werden ausschließlich zur Bearbeitung Ihrer Anfrage und etwaiger Anschlussfragen verarbeitet.",
-      "Die Eingabe des Formulars setzt eine ausdrückliche Einwilligung (Art. 6 Abs. 1 lit. a DSGVO) voraus. Darüber hinaus erfolgt die Verarbeitung zur Durchführung vorvertraglicher Maßnahmen (Art. 6 Abs. 1 lit. b DSGVO).",
-      "Nach Abschluss der Anfrage werden die Daten spätestens nach 6 Monaten gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten entgegenstehen.",
+      "Wenn Sie mir schreiben, speichere ich Name, E-Mail-Adresse, Betreff und Nachricht in der Datenbank der Website und bekomme eine Benachrichtigung per E-Mail. Ich nutze die Angaben nur, um Ihre Anfrage zu beantworten.",
+      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, wenn es um ein mögliches Projekt oder eine Stelle geht, sonst Art. 6 Abs. 1 lit. f DSGVO (Beantwortung Ihrer Nachricht). Ich lösche die Anfrage, wenn sie erledigt ist und keine gesetzliche Aufbewahrungspflicht besteht.",
     ],
   },
   {
-    title: "5. Newsletter und Nutzerkonten",
+    title: "5. Newsletter",
     content: [
-      "Falls Sie sich für Updates registrieren oder ein Benutzerkonto anlegen, verarbeiten wir Ihre Angaben zur Erfüllung des Vertrages (Art. 6 Abs. 1 lit. b DSGVO).",
-      "Sie können Ihre Einwilligung in Marketing-Kommunikation jederzeit widerrufen. Für Pflichtmitteilungen (z. B. Sicherheitsrelevantes) bleibt Art. 6 Abs. 1 lit. c und lit. f DSGVO maßgeblich.",
+      "Für den Newsletter speichere ich Ihre E-Mail-Adresse und die gewählten Themen. Die Anmeldung gilt erst, wenn Sie den Link in der Bestätigungsmail anklicken (Double-Opt-in). Rechtsgrundlage ist Ihre Einwilligung nach Art. 6 Abs. 1 lit. a DSGVO.",
+      "Jede Ausgabe enthält einen Abmeldelink. Nach der Abmeldung lösche ich Ihre Adresse aus dem Verteiler.",
     ],
   },
   {
-    title: "6. Cookies & Tracking nach TTDSG",
+    title: "6. Benutzerkonten",
     content: [
-      "Wir setzen nur essenzielle Cookies, funktionale Einstellungen sowie – nach Ihrer ausdrücklichen Einwilligung – Analyse- und Marketing-Cookies ein.",
-      'Nicht-essenzielle Cookies werden erst nach Opt-in über das Cookie-Banner geladen (Art. 6 Abs. 1 lit. a DSGVO i. V. m. § 25 Abs. 1 TTDSG). Die Präferenzen können jederzeit über den Link "Cookie-Einstellungen" im Footer geändert werden.',
-      "Essenzielle Cookies stützen sich auf § 25 Abs. 2 TTDSG und Art. 6 Abs. 1 lit. f DSGVO, da sie für den Betrieb der Website zwingend erforderlich sind.",
+      "Die Anmeldung ist für die Verwaltung der Website gedacht; eine freie Registrierung ist in der Regel abgeschaltet. Für ein Konto speichere ich E-Mail-Adresse, Name, Benutzername und das Passwort als bcrypt-Hash, nie im Klartext. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.",
     ],
   },
   {
-    title: "7. Analyse der Website",
+    title: "7. E-Mail-Versand",
     content: [
-      "Seitenaufrufe werden ausschließlich nach vorheriger Einwilligung ausgewertet. Dabei speichern wir nur pseudonymisierte Informationen (gehashte IP-Adresse, User-Agent, Referrer, aufgerufene URL).",
-      "Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO (Einwilligung). Die Auswertung dient der Optimierung des Angebots gemäß OWASP-Empfehlungen zur sicheren Konfiguration.",
-      "Daten werden nach 13 Monaten aggregiert und spätestens nach 24 Monaten gelöscht oder anonymisiert.",
+      "Bestätigungen, Benachrichtigungen und der Newsletter gehen über einen SMTP-Dienstleister (Auftragsverarbeiter nach Art. 28 DSGVO) hinaus. Er erhält dafür Empfängeradresse und Inhalt der jeweiligen E-Mail.",
     ],
   },
   {
-    title: "8. IT-Sicherheit und Meldungen gemäß NIS-2 / IT-Sicherheitsgesetz",
+    title: "8. Speicherung im Browser und Besuchsstatistik",
     content: [
-      "Wir betreiben ein Informationssicherheits-Managementsystem, das sich an ISO/IEC 27001 und den BSI IT-Grundschutz-Kompendien orientiert.",
-      "Sicherheitsvorfälle werden gemäß gesetzlichen Meldepflichten bewertet und – sofern meldepflichtig – unverzüglich an die zuständigen Behörden (z. B. BSI) gemeldet.",
-      "Technische Maßnahmen umfassen regelmäßige Penetrationstests, Härtung der Serverkonfiguration, Zugriffsbeschränkungen nach dem Need-to-know-Prinzip, Verschlüsselung ruhender und übertragener Daten sowie kontinuierliches Monitoring.",
+      "Notwendig und immer aktiv: das Sitzungscookie nach einer Anmeldung (ein signiertes Token, gelöscht beim Abmelden oder nach Ablauf), Ihre Wahl zwischen hellem und dunklem Design und Ihre Cookie-Entscheidung (beides im lokalen Speicher des Browsers). Rechtsgrundlage ist § 25 Abs. 2 Nr. 2 TDDDG, weil die Website diese Angaben für die von Ihnen gewünschten Funktionen braucht.",
+      "Nur mit Ihrer Einwilligung: eine eigene Besuchsstatistik. Gezählt werden aufgerufene Seite, Referrer, Browserkennung und die IP-Adresse als Hash (SHA-256 mit geheimem Salt); die IP-Adresse selbst wird nicht gespeichert. Die Daten bleiben in der Datenbank dieser Website und gehen an niemanden weiter. Rechtsgrundlage sind § 25 Abs. 1 TDDDG und Art. 6 Abs. 1 lit. a DSGVO.",
+      'Ihre Entscheidung gilt 7 Tage, danach fragt die Website erneut. Sie können sie jederzeit über „Cookie-Einstellungen“ im Footer ändern oder widerrufen.',
+      "Es gibt keine Werbung, kein Tracking durch Dritte und keine Social-Media-Plugins. Die Schriften sind auf dem eigenen Server eingebunden; beim Laden der Seite geht keine Anfrage an Google oder andere Schriftanbieter.",
     ],
   },
   {
-    title: "9. Empfänger und Drittlandtransfers",
+    title: "9. Empfänger",
     content: [
-      "Ihre Daten werden ausschließlich innerhalb der Europäischen Union verarbeitet. Eine Übermittlung in Drittländer findet nicht statt, sofern nicht ausdrücklich angegeben und nur unter Einhaltung der Art. 44 ff. DSGVO.",
-      "Externe Dienstleister (z. B. Hosting, E-Mail) wurden datenschutzkonform beauftragt und vertraglich auf Vertraulichkeit, TOMs sowie Datenschutzstandards verpflichtet.",
+      "Personenbezogene Daten erhalten nur die genannten Dienstleister für Hosting, Datenbank und E-Mail-Versand, jeweils im Rahmen eines Vertrags zur Auftragsverarbeitung. Ich verkaufe keine Daten und gebe sie nicht für Werbung weiter.",
     ],
   },
   {
     title: "10. Ihre Rechte",
     content: [
-      "Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung (Art. 17 DSGVO), Einschränkung (Art. 18 DSGVO), Datenübertragbarkeit (Art. 20 DSGVO) sowie Widerspruch (Art. 21 DSGVO).",
-      "Sie können erteilte Einwilligungen jederzeit mit Wirkung für die Zukunft widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt unberührt.",
-      "Beschwerden richten Sie an die zuständige Aufsichtsbehörde: Unabhängiges Landeszentrum für Datenschutz Schleswig-Holstein (ULD).",
+      "Sie haben das Recht auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16), Löschung (Art. 17), Einschränkung der Verarbeitung (Art. 18), Datenübertragbarkeit (Art. 20) und Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f (Art. 21). Eine Einwilligung können Sie jederzeit für die Zukunft widerrufen.",
+      "Sie können sich bei einer Datenschutzaufsichtsbehörde beschweren, zum Beispiel beim Unabhängigen Landeszentrum für Datenschutz Schleswig-Holstein (ULD), Holstenstraße 98, 24103 Kiel.",
+      "Eine automatisierte Entscheidung oder Profilbildung nach Art. 22 DSGVO findet nicht statt.",
     ],
   },
   {
-    title: "11. Pflicht zur Bereitstellung",
-    content: [
-      "Die Bereitstellung personenbezogener Daten ist für die Nutzung bestimmter Funktionen (z. B. Kontaktformular, Login) erforderlich. Ohne diese Angaben kann der jeweilige Dienst nicht genutzt werden.",
-    ],
-  },
-  {
-    title: "12. Automatisierte Entscheidungsfindung",
-    content: [
-      "Es findet keine automatisierte Entscheidungsfindung einschließlich Profiling gemäß Art. 22 DSGVO statt.",
-    ],
-  },
-  {
-    title: "13. Aktualität",
-    content: [
-      "Diese Datenschutzerklärung wurde zuletzt am 1. Mai 2024 aktualisiert. Wir passen die Inhalte regelmäßig an, sobald neue gesetzliche oder technische Entwicklungen dies erfordern.",
-    ],
+    title: "11. Stand",
+    content: ["19. November 2026."],
   },
 ]
 
@@ -125,10 +115,7 @@ export default function PrivacyPolicyPage() {
                 Datenschutzerklärung
               </h1>
               <p className="mx-auto max-w-3xl text-base text-muted-foreground sm:text-lg">
-                Wir legen großen Wert auf Transparenz und Sicherheit bei der Verarbeitung Ihrer
-                personenbezogenen Daten. Nachfolgend informieren wir Sie umfassend über sämtliche
-                Verarbeitungsprozesse im Sinne der DSGVO, des TTDSG, der NIS-2-Richtlinie sowie der
-                anerkannten Sicherheitsstandards.
+                Welche Daten diese Website verarbeitet, wozu und auf welcher Rechtsgrundlage.
               </p>
             </header>
 

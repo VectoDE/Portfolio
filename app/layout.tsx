@@ -65,8 +65,6 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    site: siteProfile.twitterHandle,
-    creator: siteProfile.twitterHandle,
     title: `${siteName} | ${siteProfile.title}`,
     description: siteDescription,
     images: [ogImage.url],
@@ -131,6 +129,7 @@ const structuredData = {
         "Discord bots",
       ],
       founder: { "@type": "Organization", name: "UplyTech", url: "https://www.uplytech.de" },
+      alumniOf: { "@type": "EducationalOrganization", name: "RBZ Itzehoe", address: { "@type": "PostalAddress", addressLocality: "Itzehoe", addressCountry: "DE" } },
       sameAs: profile.links.filter((link) => link.label !== "UplyTech").map((link) => link.url),
     },
     {
