@@ -60,9 +60,17 @@ On an empty database, `POST /api/register` accepts exactly one address: the valu
 - `ADMIN_BOOTSTRAP_EMAIL` unset or empty: the first registration is refused with `403`.
 - A different address: refused with `403`.
 - Both cases return the same message as a closed registration, so a caller cannot tell whether the instance is still waiting for its first admin.
+- Malformed JSON and missing fields get the same `403` while the database is empty. Other validations, such as `400` for a password shorter than 8 characters, only run after the address matched.
+- Database conflicts are answered without details: Prisma `P2034` (serialization conflict or deadlock) as `409`, `P2002` (unique constraint) as the generic `403`. The log records only the error code and a short reason, never the error object.
 - The decision is repeated inside the serializable transaction that creates the account, so concurrent first registrations cannot both become admin.
 
 Once any account exists, `ADMIN_BOOTSTRAP_EMAIL` has no effect; `ALLOW_REGISTRATION` alone decides, and new accounts are always `Member`. `ADMIN_BOOTSTRAP_EMAIL` is separate from `ADMIN_EMAIL`, which only sets the recipient of contact notifications.
+
+### Initial Setup After Deployment
+
+1. Register the admin account with the `ADMIN_BOOTSTRAP_EMAIL` address right after the deploy.
+2. Sign in and confirm the admin dashboard is available. The setup is only finished once this works.
+3. If the bootstrap address is publicly known, for example because it is the contact address on the site, make the instance publicly reachable only after steps 1 and 2. Until then anyone who knows the address could create the first account.
 
 ## Hardening Checklist
 

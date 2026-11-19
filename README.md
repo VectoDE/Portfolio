@@ -173,7 +173,15 @@ A fresh installation has no accounts. To stop strangers from claiming a newly de
 2. Open `/register` and sign up with exactly that address. Case and surrounding spaces do not matter. The account receives the admin role.
 3. Optionally remove `ADMIN_BOOTSTRAP_EMAIL` afterwards. It only matters while the database has no accounts.
 
-If `ADMIN_BOOTSTRAP_EMAIL` is missing or empty, or a different address is used, the first registration is refused with `403` and the same message as a closed registration. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
+If `ADMIN_BOOTSTRAP_EMAIL` is missing or empty, or a different address is used, the first registration is refused with `403` and the same message as a closed registration. While the database is empty this also applies to malformed JSON and missing fields; the usual `400` checks (for example a password shorter than 8 characters) only run once the address matches. The server log records why (`Initial registration refused: ...`) without logging the submitted address. The check is repeated inside the database transaction, so two parallel first registrations cannot both succeed.
+
+#### Right after the first deploy
+
+Do the first-time setup immediately after deploying, before you share the URL:
+
+1. Register with the `ADMIN_BOOTSTRAP_EMAIL` address as described above.
+2. Sign in with the new account and check that the admin dashboard opens. Only then is the setup complete.
+3. If the bootstrap address is public, for example because it is also the contact address shown on the site, keep the instance unreachable from the internet (private preview, IP allow list, maintenance page or no public DNS yet) until steps 1 and 2 are done. Otherwise anyone who knows the address can race you to the first account.
 
 ### Running the App
 
