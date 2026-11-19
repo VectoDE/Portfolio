@@ -21,7 +21,8 @@ import {
 } from "../lib/password-policy.ts"
 
 const BOOTSTRAP = "owner@example.com"
-const TOKEN = "4f1c2b9e7d6a5c3b8e0f1a2d3c4b5a6978e1d2c3b4a5f6e7"
+// Fixed test value, not a secret.
+const TOKEN = "4f1c2b9e7d6a5c3b8e0f1a2d3c4b5a6978e1d2c3b4a5f6e7" // gitleaks:allow
 const withToken = { bootstrapToken: TOKEN, providedToken: TOKEN }
 
 describe("decideRegistration on an empty database", () => {
