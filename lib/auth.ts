@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 
 import prisma from "@/lib/db"
+import { readSecret } from "@/lib/env"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -81,6 +82,7 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  // Kein Fallback: Ohne NEXTAUTH_SECRET bricht NextAuth in Produktion ab (fail closed).
-  secret: process.env.NEXTAUTH_SECRET,
+  // Kein Fallback (fail closed): Fehlt NEXTAUTH_SECRET, lehnen die Auth-Route,
+  // requireSession() und die Middleware ab; NextAuth selbst bricht in Produktion ab.
+  secret: readSecret("NEXTAUTH_SECRET"),
 }

@@ -48,7 +48,7 @@ Third-party services (hosting, SMTP providers, analytics vendors, etc.) are out 
 
 ## Data Handling & Privacy
 
-- Visitor analytics (`PageView`, `Analytics`) hash IP addresses with `IP_HASH_SALT` before persistence to limit personal data exposure.
+- Visitor analytics (`PageView`, `Analytics`) hash IP addresses with `IP_HASH_SALT` before persistence to limit personal data exposure. Without the salt no hash is stored at all, because an unsalted hash of an IPv4 address is reversible.
 - Contact form submissions store names, emails, and messages for follow-up. Administrators should purge or anonymise old messages according to their compliance obligations.
 - Uploaded media is stored on disk at `public/uploads/`. Restrict filesystem permissions in production and prefer object storage for long-term deployments.
 - Email settings and credentials are persisted in `EmailSettings`. Rotate secrets regularly and restrict database access.
@@ -58,6 +58,7 @@ Third-party services (hosting, SMTP providers, analytics vendors, etc.) are out 
 Before deploying to production, review the following safeguards:
 
 - Generate strong values for `NEXTAUTH_SECRET`, `IP_HASH_SALT`, SMTP credentials, and database passwords. Store them securely.
+- `NEXTAUTH_SECRET` and `IP_HASH_SALT` have no built-in fallback (`lib/env.ts`). A missing `NEXTAUTH_SECRET` makes authentication fail closed with a `500` and a log entry naming the variable; a missing `IP_HASH_SALT` disables IP hashing.
 - Serve all traffic over HTTPS and configure trusted reverse proxies so `x-forwarded-for` headers are reliable.
 - Limit dashboard access to trusted operators. Consider additional identity providers or IP allowlists when possible.
 - Enable rate limiting and CAPTCHA or similar protections on the public contact form if exposed to untrusted traffic.

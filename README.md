@@ -113,7 +113,7 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | --- | --- | --- |
 | `DATABASE_URL` | MySQL connection string consumed by Prisma. Overrides the development default in `prisma/schema.prisma`. | `mysql://user:password@localhost:3306/portfolio` |
 | `NEXTAUTH_URL` | Absolute URL used by NextAuth for callbacks. | `http://localhost:3000` |
-| `NEXTAUTH_SECRET` | Secret used to sign NextAuth JWTs. Generate with `openssl rand -hex 32`. | `f4d1...` |
+| `NEXTAUTH_SECRET` | **Required, no fallback.** Secret used to sign NextAuth JWTs. Generate with `openssl rand -hex 32`. If it is missing, the auth route and every session-protected API answer `500`, the middleware redirects to the error page, and the server log names the variable. The check runs per request, so `next build` does not need it. | `f4d1...` |
 | `NEXT_PUBLIC_APP_URL` | Public base URL surfaced in emails and share links. | `http://localhost:3000` |
 | `NEXT_PUBLIC_ENABLE_ANALYTICS` | Enable (`true`) or disable (`false`) client-side page view tracking. | `true` |
 | `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` | Optional verification token injected into `<meta name="google-site-verification">`. | `abc123` |
@@ -123,7 +123,7 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ADMIN_EMAIL` | Default administrative contact for inbound contact alerts. | `admin@example.com` |
 | `SEND_AUTO_REPLY` | Set to `true` to send automatic acknowledgements for contact submissions. | `false` |
 | `ETHEREAL_EMAIL`, `ETHEREAL_PASSWORD` | Optional Ethereal credentials for development previews (fallback transport). | `user@ethereal.email`, `pass` |
-| `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
+| `IP_HASH_SALT` | **Required for visitor hashing, no fallback.** Secret salt combined with visitor IPs before hashing analytics records. If it is missing, page views are still counted but no IP hash is stored (an unsalted SHA-256 of an IPv4 address can be reversed by brute force), and the server log reports the missing variable once. | `openssl rand -hex 32` |
 | `ALLOW_REGISTRATION` | Self-service sign-up. Off unless set to `true`. While it is off, only the very first account can register (it becomes the admin); every later attempt receives `403`. | `false` |
 | `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
 | `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |

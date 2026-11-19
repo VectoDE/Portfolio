@@ -2,11 +2,15 @@ import { NextResponse } from "next/server"
 import { getToken } from "next-auth/jwt"
 import { withAuth } from "next-auth/middleware"
 
+import { readSecret } from "@/lib/env"
+
 export default withAuth(
   async function middleware(req) {
+    // Kein Fallback: Fehlt NEXTAUTH_SECRET, leitet withAuth bereits vor diesem
+    // Aufruf auf die Fehlerseite um (error=Configuration), es gibt keine Session.
     const token = await getToken({
       req,
-      secret: process.env.NEXTAUTH_SECRET,
+      secret: readSecret("NEXTAUTH_SECRET"),
     })
     const isAuth = !!token
     const isAuthPage =

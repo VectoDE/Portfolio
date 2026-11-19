@@ -4,6 +4,7 @@ import type { Session } from "next-auth"
 
 import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
+import { readSecret, reportMissingSecret } from "@/lib/env"
 
 export const ADMIN_ROLE = "Admin"
 
@@ -23,6 +24,13 @@ function forbidden(): AuthzResult {
   return { ok: false, response: NextResponse.json({ error: "Forbidden" }, { status: 403 }) }
 }
 
+function misconfigured(): AuthzResult {
+  return {
+    ok: false,
+    response: NextResponse.json({ error: "Server configuration error" }, { status: 500 }),
+  }
+}
+
 function isAuthenticatedSession(session: Session | null): session is AuthenticatedSession {
   return typeof session?.user?.id === "string" && session.user.id.length > 0
 }
@@ -31,6 +39,12 @@ function isAuthenticatedSession(session: Session | null): session is Authenticat
  * Resolves the current session. Returns a ready-made 401 response when nobody is signed in.
  */
 export async function requireSession(): Promise<AuthzResult> {
+  // Fail closed: Ohne NEXTAUTH_SECRET lässt sich keine Session verlässlich prüfen.
+  if (!readSecret("NEXTAUTH_SECRET")) {
+    reportMissingSecret("NEXTAUTH_SECRET")
+    return misconfigured()
+  }
+
   const session = await getServerSession(authOptions)
 
   if (!isAuthenticatedSession(session)) {
