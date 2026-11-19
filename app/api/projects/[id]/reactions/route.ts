@@ -76,7 +76,7 @@ export async function POST(req: Request, { params }: RouteParams) {
     const parsed = reactionSchema.safeParse(body)
 
     if (!parsed.success) {
-      return NextResponse.json({ error: parsed.error.errors[0]?.message }, { status: 400 })
+      return NextResponse.json({ error: parsed.error.issues[0]?.message }, { status: 400 })
     }
 
     const projectExists = await prisma.project.findUnique({
