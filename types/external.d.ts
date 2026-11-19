@@ -32,7 +32,7 @@ declare module "socket.io" {
   export interface ServerOptions {
     path?: string
     cors?: {
-      origin?: string | string[]
+      origin?: boolean | string | string[]
     }
   }
 
@@ -89,15 +89,5 @@ declare module "bullmq" {
   export class Worker<Data = unknown, Name extends string = string> {
     constructor(name: Name, processor: (job: Job<Data>) => Promise<unknown>, opts?: WorkerOptions)
     on(event: "error", handler: (error: Error) => void): this
-  }
-}
-
-declare module "ioredis" {
-  export interface RedisOptions {
-    [key: string]: unknown
-  }
-
-  export default class IORedis {
-    constructor(url?: string, options?: RedisOptions)
   }
 }
