@@ -121,7 +121,6 @@
   "pnpm": {
     "overrides": {
       "cookie": "^0.7.2",
-      "next>postcss": "^8.5.33",
       "@prisma/config>deepmerge-ts": "^8.0.2"
     }
   },
