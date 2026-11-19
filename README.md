@@ -127,8 +127,6 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
-| `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
-| `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
 
 > **Tip:** Whenever you introduce a new environment variable, document it in this table and surface an onboarding default inside the relevant API route.
 
@@ -150,16 +148,7 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 
 ### Optional: Seed Sample Content
 
-A helper endpoint populates a development database with an admin account and sample content. It is disabled in production (`NODE_ENV=production`) and whenever `SEED_TOKEN` is not set; in both cases it answers `404`.
-
-1. Set `SEED_TOKEN` in your local `.env`. Optionally set `SEED_ADMIN_PASSWORD`.
-2. Start the dev server with `pnpm dev` and run:
-
-   ```bash
-   curl -X POST http://localhost:3000/api/seed -H "x-seed-token: $SEED_TOKEN"
-   ```
-
-The endpoint creates an `admin@example.com` account with the admin role, alongside demo projects, certificates, skills, and career entries. If `SEED_ADMIN_PASSWORD` is unset, the response contains a generated password once; store it, it is not shown again.
+There is no HTTP seed endpoint; `/api/seed` was removed because it is needless attack surface. Sample content is loaded with the Prisma seed script (`prisma/seed.mjs`) from the command line, never through the running app.
 
 ### User Registration
 
