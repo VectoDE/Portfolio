@@ -103,7 +103,7 @@ export function AccountProfileForm({ user }: Readonly<AccountProfileFormProps>) 
   }
 
   return (
-    <Card className="bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <Card className="">
       <CardHeader className="flex flex-row items-center gap-4">
         <Avatar className="h-16 w-16">
           <AvatarImage src={imageUrl || undefined} alt={name || "User avatar"} />

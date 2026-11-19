@@ -104,7 +104,7 @@ export function AccountAnnouncementPreferences() {
   }
 
   return (
-    <Card className="bg-background/70 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <Card className="">
       <form onSubmit={handleSubmit}>
         <CardHeader>
           <CardTitle className="text-2xl font-semibold">Announcement preferences</CardTitle>
@@ -126,7 +126,9 @@ export function AccountAnnouncementPreferences() {
             label="New certifications"
             description="Emails when new qualifications or recognitions are published."
             checked={state.newCertificates}
-            onCheckedChange={(checked) => setState((prev) => ({ ...prev, newCertificates: checked }))}
+            onCheckedChange={(checked) =>
+              setState((prev) => ({ ...prev, newCertificates: checked }))
+            }
             disabled={isLoading}
           />
           <PreferenceToggle
@@ -165,7 +167,14 @@ interface PreferenceToggleProps {
   disabled?: boolean
 }
 
-function PreferenceToggle({ id, label, description, checked, onCheckedChange, disabled }: Readonly<PreferenceToggleProps>) {
+function PreferenceToggle({
+  id,
+  label,
+  description,
+  checked,
+  onCheckedChange,
+  disabled,
+}: Readonly<PreferenceToggleProps>) {
   return (
     <div className="flex items-start justify-between gap-4 rounded-xl border border-border/60 bg-background/40 p-4">
       <div className="space-y-1">

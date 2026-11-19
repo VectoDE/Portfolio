@@ -146,15 +146,14 @@ export function CookieBanner() {
     <>
       {/* Main Cookie Banner */}
       {showBanner && !showDetails && (
-        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background border-t shadow-lg">
+        <div className="fixed bottom-0 left-0 right-0 z-50 p-4 bg-background border-t">
           <div className="container mx-auto max-w-7xl">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex-1">
-                <h3 className="text-lg font-semibold mb-2">We value your privacy</h3>
+                <h2 className="mb-2 font-sans text-lg font-semibold">Cookies on this site</h2>
                 <p className="text-sm text-muted-foreground">
-                  We use cookies to enhance your browsing experience, serve personalized ads or
-                  content, and analyze our traffic. By clicking "Accept All", you consent to our use
-                  of cookies.
+                  Necessary cookies keep the site working. Analytics cookies are only set if you
+                  allow them, and you can change your choice at any time under Cookie settings.
                 </p>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 mt-4 md:mt-0">

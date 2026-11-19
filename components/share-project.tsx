@@ -56,7 +56,7 @@ export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProject
 
   return (
     <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-      <Button onClick={handleShare} className="gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700">
+      <Button onClick={handleShare} className="gap-2">
         <Share2 className="h-4 w-4" />
         Share project
       </Button>
@@ -65,7 +65,11 @@ export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProject
         {hasCopied ? "Copied" : "Copy link"}
       </Button>
       <div className="flex flex-wrap gap-2">
-        <Button asChild variant="ghost" className="text-sm text-muted-foreground hover:text-primary">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
           <Link
             href={`https://twitter.com/intent/tweet?text=${encodedMessage}`}
             target="_blank"
@@ -74,7 +78,11 @@ export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProject
             X / Twitter
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="text-sm text-muted-foreground hover:text-primary">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
           <Link
             href={`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`}
             target="_blank"
@@ -83,7 +91,11 @@ export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProject
             LinkedIn
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="text-sm text-muted-foreground hover:text-primary">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
           <Link
             href={`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`}
             target="_blank"
@@ -92,7 +104,11 @@ export function ShareProject({ projectTitle, projectUrl }: Readonly<ShareProject
             Facebook
           </Link>
         </Button>
-        <Button asChild variant="ghost" className="text-sm text-muted-foreground hover:text-primary">
+        <Button
+          asChild
+          variant="ghost"
+          className="text-sm text-muted-foreground hover:text-primary"
+        >
           <Link
             href={`https://wa.me/?text=${encodedMessage}`}
             target="_blank"

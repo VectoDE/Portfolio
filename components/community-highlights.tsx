@@ -14,23 +14,24 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
   const { totalComments, totalReactions, memberCount, topProjects, latestComment } = highlights
 
   return (
-    <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
+    <section className="w-full py-12 md:py-24 lg:py-32 bg-muted/40">
       <div className="container px-4 md:px-6">
         <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
           <div className="space-y-2">
-            <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-              Community momentum
-            </h2>
-            <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-              Join a focused builder community. Share feedback, celebrate launches, and keep discussions constructive.
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-display">Community momentum</h2>
+            <p className="mx-auto max-w-2xl text-muted-foreground md:text-xl">
+              Join a focused builder community. Share feedback, celebrate launches, and keep
+              discussions constructive.
             </p>
           </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-3">
-          <Card className="border border-purple-200 dark:border-purple-900/50 bg-background/80 backdrop-blur">
+          <Card className="border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Comments shared</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Comments shared
+              </CardTitle>
               <MessageCircle className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
@@ -41,9 +42,11 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
             </CardContent>
           </Card>
 
-          <Card className="border border-purple-200 dark:border-purple-900/50 bg-background/80 backdrop-blur">
+          <Card className="border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Reactions logged</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Reactions logged
+              </CardTitle>
               <ThumbsUp className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
@@ -54,9 +57,11 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
             </CardContent>
           </Card>
 
-          <Card className="border border-purple-200 dark:border-purple-900/50 bg-background/80 backdrop-blur">
+          <Card className="border border-border bg-card">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Community members</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Community members
+              </CardTitle>
               <Users className="h-5 w-5 text-primary" />
             </CardHeader>
             <CardContent>
@@ -69,7 +74,7 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
         </div>
 
         <div className="mt-12 grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
-          <Card className="border border-purple-200 dark:border-purple-900/50 bg-background/80 backdrop-blur">
+          <Card className="border border-border bg-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Sparkles className="h-5 w-5 text-primary" />
@@ -83,7 +88,10 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
                 </p>
               ) : (
                 topProjects.map((project) => (
-                  <div key={project.id} className="rounded-lg border border-border/60 bg-background/60 p-4">
+                  <div
+                    key={project.id}
+                    className="rounded-lg border border-border/60 bg-background/60 p-4"
+                  >
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <div>
                         <Link
@@ -97,7 +105,8 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
                         </p>
                       </div>
                       <Badge variant="secondary" className="shrink-0">
-                        Updated {formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}
+                        Updated{" "}
+                        {formatDistanceToNow(new Date(project.updatedAt), { addSuffix: true })}
                       </Badge>
                     </div>
                     <div className="mt-4 flex flex-wrap gap-4 text-sm text-muted-foreground">
@@ -114,7 +123,7 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
             </CardContent>
           </Card>
 
-          <Card className="border border-purple-200 dark:border-purple-900/50 bg-background/80 backdrop-blur">
+          <Card className="border border-border bg-card">
             <CardHeader>
               <CardTitle>Latest community activity</CardTitle>
             </CardHeader>
@@ -123,9 +132,11 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
                 <div className="space-y-4">
                   <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-left">
                     <p className="text-sm text-muted-foreground">
-                      “{latestComment.content.length > 180
+                      “
+                      {latestComment.content.length > 180
                         ? `${latestComment.content.slice(0, 177)}...`
-                        : latestComment.content}”
+                        : latestComment.content}
+                      ”
                     </p>
                   </div>
                   <div className="space-y-1 text-sm text-muted-foreground">
@@ -134,14 +145,23 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
                         {latestComment.authorName ?? "Community member"}
                       </span>{" "}
                       on{" "}
-                      <Link href={`/projects/${latestComment.projectId}`} className="text-primary underline-offset-4 hover:underline">
+                      <Link
+                        href={`/projects/${latestComment.projectId}`}
+                        className="text-primary underline-offset-4 hover:underline"
+                      >
                         {latestComment.projectTitle}
                       </Link>
                     </p>
-                    <p>Shared {formatDistanceToNow(new Date(latestComment.createdAt), { addSuffix: true })}</p>
+                    <p>
+                      Shared{" "}
+                      {formatDistanceToNow(new Date(latestComment.createdAt), { addSuffix: true })}
+                    </p>
                   </div>
                   <div className="pt-2">
-                    <Link href="/register" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+                    <Link
+                      href="/register"
+                      className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                    >
                       Create a free profile to join the conversation →
                     </Link>
                   </div>
@@ -149,7 +169,10 @@ export function CommunityHighlights({ highlights }: Readonly<CommunityHighlights
               ) : (
                 <div className="space-y-3 text-sm text-muted-foreground">
                   <p>No comments yet—your feedback can shape the roadmap.</p>
-                  <Link href="/register" className="text-sm font-medium text-primary underline-offset-4 hover:underline">
+                  <Link
+                    href="/register"
+                    className="text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
                     Register now and leave the first comment →
                   </Link>
                 </div>

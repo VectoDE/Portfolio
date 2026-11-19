@@ -1,24 +1,25 @@
-"use client"
-
 import type { ReactNode } from "react"
-import { motion } from "framer-motion"
 
 interface AnimatedSectionProps {
   children: ReactNode
+  /** Kept for call-site compatibility; sections no longer animate on scroll. */
   delay?: number
   className?: string
+  id?: string
+  "aria-labelledby"?: string
 }
 
-export function AnimatedSection({ children, delay = 0, className }: Readonly<AnimatedSectionProps>) {
+// Sections render statically: scroll-triggered fade-ins hid content until it was
+// scrolled into view and added motion without telling the reader anything.
+export function AnimatedSection({
+  children,
+  className,
+  id,
+  "aria-labelledby": labelledBy,
+}: Readonly<AnimatedSectionProps>) {
   return (
-    <motion.section
-      className={className}
-      initial={{ opacity: 0, y: 16 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-80px" }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
-    >
+    <section className={className} id={id} aria-labelledby={labelledBy}>
       {children}
-    </motion.section>
+    </section>
   )
 }
