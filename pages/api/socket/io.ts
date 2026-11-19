@@ -18,7 +18,9 @@ export default function handler(req: NextApiRequest, res: NextApiResponseServerI
     const io = new IOServer(res.socket.server, {
       path: "/api/socket/io",
       cors: {
-        origin: process.env.NEXT_PUBLIC_SITE_URL || "*",
+        // Without a configured site URL only same-origin clients may connect; never fall back
+        // to "*", which would let any website open a realtime connection.
+        origin: process.env.NEXT_PUBLIC_SITE_URL || false,
       },
     })
 

@@ -3,6 +3,8 @@ import { createHash } from "crypto"
 
 import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { PAGEVIEW_RATE_LIMIT } from "@/lib/rate-limit"
+import { checkRateLimit, rateLimitExceeded } from "@/lib/rate-limit-store"
 
 type DateRangeFilter = {
   gte?: Date
@@ -16,6 +18,12 @@ interface PageViewWhereInput {
 
 export async function POST(req: Request) {
   try {
+    const rateLimit = await checkRateLimit(req, PAGEVIEW_RATE_LIMIT)
+
+    if (!rateLimit.allowed) {
+      return rateLimitExceeded(rateLimit)
+    }
+
     const data = await req.json()
     const { path, userAgent, referrer, consentGranted } = data
 

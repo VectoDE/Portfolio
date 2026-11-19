@@ -5,6 +5,7 @@ import type { PrismaClient } from "@prisma/client"
 
 import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { validatePassword } from "@/lib/password-policy"
 
 const REGISTRATION_CLOSED_MESSAGE = "Registration is currently closed."
 
@@ -38,11 +39,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Please provide a valid email address" }, { status: 400 })
     }
 
-    if (password.length < 8) {
-      return NextResponse.json(
-        { error: "Password must be at least 8 characters long" },
-        { status: 400 },
-      )
+    const passwordError = validatePassword(password)
+
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 })
     }
 
     // Check if user already exists
