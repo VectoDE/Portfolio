@@ -37,7 +37,14 @@ async function resolveOwner(prisma) {
     throw new Error("No admin account found. Set SEED_OWNER_EMAIL to create the owner account for the content.")
   }
 
-  const password = process.env.SEED_OWNER_PASSWORD || randomBytes(32).toString("base64url")
+  const given = process.env.SEED_OWNER_PASSWORD
+  if (given && given.length < 8) {
+    throw new Error("SEED_OWNER_PASSWORD must be at least 8 characters, as for registration.")
+  }
+  if (!given) {
+    console.warn("SEED_OWNER_PASSWORD not set: the owner account gets a random password and cannot log in until it is reset in the database.")
+  }
+  const password = given || randomBytes(32).toString("base64url")
   const profile = await readContent("profile")
   return prisma.user.create({
     data: {

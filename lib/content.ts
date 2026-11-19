@@ -35,8 +35,16 @@ export function isDatabaseConfigured(): boolean {
  * configured or the read throws. An empty result from a reachable database is
  * returned as is, so content removed in the dashboard stays removed.
  */
+let missingDatabaseWarned = false
+
 export async function withContentFallback<T>(read: () => Promise<T>, fallback: () => T, label: string): Promise<T> {
   if (!isDatabaseConfigured()) {
+    // Previews run without a database on purpose. In production the same
+    // state usually means a missing env var, so say so once per process.
+    if (process.env.NODE_ENV === "production" && process.env.VERCEL_ENV === "production" && !missingDatabaseWarned) {
+      missingDatabaseWarned = true
+      console.warn("DATABASE_URL is not set in production, public pages show static content")
+    }
     return fallback()
   }
 
