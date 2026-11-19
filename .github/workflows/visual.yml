@@ -126,6 +126,7 @@ jobs:
           # The base commit has no seed script yet, so both targets use the head content.
           rm -rf content && cp -r ../head/content content
           cp ../head/prisma/seed.mjs prisma/seed.mjs
+          cp ../head/lib/password-policy.mjs lib/password-policy.mjs
           node prisma/seed.mjs
 
       - name: Build
