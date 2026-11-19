@@ -1,8 +1,10 @@
-import type { Prisma } from "@prisma/client"
-
 // Fields that the API may return for each model. Owner references (userId) and relations
 // stay out on purpose, so a public endpoint never reveals account identifiers.
 // Keep this module free of runtime imports: the unit tests load it without dependencies.
+// The Prisma namespace types are not available here (types/prisma.d.ts shims @prisma/client),
+// so the shape is checked as a plain select map. The unit test guards against leaking fields.
+
+type SelectMap = Readonly<Record<string, true>>
 
 export const careerPublicSelect = {
   id: true,
@@ -15,7 +17,7 @@ export const careerPublicSelect = {
   location: true,
   createdAt: true,
   updatedAt: true,
-} as const satisfies Prisma.CareerSelect
+} as const satisfies SelectMap
 
 export const certificatePublicSelect = {
   id: true,
@@ -26,7 +28,7 @@ export const certificatePublicSelect = {
   imageUrl: true,
   createdAt: true,
   updatedAt: true,
-} as const satisfies Prisma.CertificateSelect
+} as const satisfies SelectMap
 
 export const skillPublicSelect = {
   id: true,
@@ -37,4 +39,4 @@ export const skillPublicSelect = {
   iconName: true,
   createdAt: true,
   updatedAt: true,
-} as const satisfies Prisma.SkillSelect
+} as const satisfies SelectMap
