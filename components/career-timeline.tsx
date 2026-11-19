@@ -1,48 +1,44 @@
 import { Suspense } from "react"
+
 import { getAllCareerEntries } from "@/lib/career"
 import { CareerTimelineSkeleton } from "@/components/skeletons/career-timeline-skeleton"
-import type { Career } from "@/types/database"
+
+function period(start: Date | string, end: Date | string | null) {
+  // Content only records years reliably, so the timeline shows years.
+  const from = new Date(start).getUTCFullYear()
+  const to = !end || end === "Present" ? "today" : new Date(end).getUTCFullYear()
+  return from === to ? String(from) : `${from}–${to}`
+}
 
 async function CareerTimelineContent() {
   const careerEntries = await getAllCareerEntries()
 
+  if (careerEntries.length === 0) {
+    return <p className="text-muted-foreground">No roles listed yet.</p>
+  }
+
   return (
-    <div className="relative mx-auto max-w-3xl">
-      {/* Timeline line */}
-      <div className="absolute left-1/2 top-0 h-full w-0.5 -translate-x-1/2 bg-gradient-to-b from-purple-600 to-blue-600"></div>
-
-      {careerEntries.map((entry: Career, index) => {
-        const isEven = index % 2 === 0
-        // Content only records years reliably, so the timeline shows years.
-        const startDate = new Date(entry.startDate).getUTCFullYear()
-        const endDate =
-          entry.endDate === "Present" || !entry.endDate ? "today" : new Date(entry.endDate).getUTCFullYear()
-
-        return (
-          <div key={entry.id} className="relative mb-12">
-            {/* Timeline dot */}
-            <div className="absolute left-1/2 top-6 h-4 w-4 -translate-x-1/2 rounded-full bg-primary"></div>
-
-            {/* Content */}
-            <div className={`flex ${isEven ? "flex-row" : "flex-row-reverse"} items-start`}>
-              <div className="w-1/2"></div>
-              <div className={`w-1/2 ${isEven ? "pl-8" : "pr-8"}`}>
-                <div className="rounded-lg bg-background/60 backdrop-blur-sm border border-primary/20 p-4 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <h3 className="text-lg font-bold">{entry.position}</h3>
-                  <p className="text-primary font-medium">{entry.company}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {startDate === endDate ? startDate : `${startDate}–${endDate}`}
-                  </p>
-                  <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-                    {entry.description}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      })}
-    </div>
+    <ol className="relative max-w-3xl border-l-2 border-border pl-6 sm:pl-8">
+      {careerEntries.map((entry) => (
+        <li key={entry.id} className="relative pb-10 last:pb-0">
+          <span
+            className="absolute -left-[calc(1.5rem+7px)] top-1.5 h-3 w-3 border-2 border-primary bg-background sm:-left-[calc(2rem+7px)]"
+            aria-hidden="true"
+          />
+          <p className="text-sm text-muted-foreground">{period(entry.startDate, entry.endDate)}</p>
+          <h3 className="mt-1 text-lg font-semibold">{entry.position}</h3>
+          <p className="font-medium text-primary">
+            {entry.company}
+            {entry.location ? (
+              <span className="font-normal text-muted-foreground">, {entry.location}</span>
+            ) : null}
+          </p>
+          <p className="mt-2 max-w-prose leading-relaxed text-muted-foreground">
+            {entry.description}
+          </p>
+        </li>
+      ))}
+    </ol>
   )
 }
 

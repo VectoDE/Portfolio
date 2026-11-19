@@ -1,17 +1,30 @@
 import Link from "next/link"
+
 import { Button } from "@/components/ui/button"
+import { MainNav } from "@/components/main-nav"
+import { SiteFooter } from "@/components/site-footer"
 
 export default function NotFound() {
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen px-4 text-center">
-      <h1 className="text-6xl font-bold">404</h1>
-      <h2 className="mt-4 text-2xl font-medium">Page Not Found</h2>
-      <p className="mt-2 text-muted-foreground">
-        The page you are looking for doesn't exist or has been moved.
-      </p>
-      <Link href="/" className="mt-8">
-        <Button>Return Home</Button>
-      </Link>
+    <div className="flex min-h-screen flex-col">
+      <MainNav />
+      <main id="main" className="container flex flex-1 flex-col justify-center px-4 py-20 md:px-6">
+        <p className="text-sm text-muted-foreground">Error 404</p>
+        <h1 className="font-display mt-2 text-5xl md:text-6xl">This page does not exist</h1>
+        <p className="mt-4 max-w-xl text-lg leading-relaxed text-muted-foreground">
+          The link may be old or mistyped. The projects and the about page are good places to
+          continue.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-3">
+          <Button asChild>
+            <Link href="/">Go to the start page</Link>
+          </Button>
+          <Button asChild variant="outline">
+            <Link href="/projects">See projects</Link>
+          </Button>
+        </div>
+      </main>
+      <SiteFooter />
     </div>
   )
 }

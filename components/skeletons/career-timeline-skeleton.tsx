@@ -18,7 +18,7 @@ export function CareerTimelineSkeleton() {
             <div className={`flex ${isEven ? "flex-row" : "flex-row-reverse"} items-start`}>
               <div className="w-1/2"></div>
               <div className={`w-1/2 ${isEven ? "pl-8" : "pr-8"}`}>
-                <div className="rounded-lg bg-background/60 backdrop-blur-sm border border-muted p-4">
+                <div className="rounded-lg bg-card border border-muted p-4">
                   <Skeleton className="h-5 w-3/4 mb-2" />
                   <Skeleton className="h-4 w-1/2 mb-2" />
                   <Skeleton className="h-3 w-1/3 mb-3" />

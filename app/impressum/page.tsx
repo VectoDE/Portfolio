@@ -2,7 +2,6 @@ import type { Metadata } from "next"
 
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
-import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
 
@@ -19,7 +18,7 @@ const sections = [
       { label: "Unternehmensname", value: "Hauknetz" },
       { label: "Adresse", value: "Ludwig-Braun-Straße 42, 25524 Itzehoe, Deutschland" },
       { label: "Telefon", value: "+49 172 6166860" },
-      { label: "E-Mail", value: "tim.hauke@hauknetz.de" },
+      { label: "E-Mail", value: "timhauke@uplytech.de" },
     ],
   },
   {
@@ -59,20 +58,16 @@ const sections = [
 export default function ImprintPage() {
   return (
     <div className="flex min-h-screen flex-col">
-      <BackgroundGradientAnimation
-        firstColor="rgba(125, 39, 255, 0.08)"
-        secondColor="rgba(0, 87, 255, 0.08)"
-        thirdColor="rgba(0, 214, 242, 0.08)"
-      />
       <div className="relative z-10 flex min-h-screen flex-col">
         <MainNav />
-        <main className="flex-1 py-16">
+        <main id="main" className="flex-1 py-16">
           <AnimatedSection className="container space-y-10 px-4 md:px-6">
             <header className="space-y-4 text-center">
               <p className="text-sm uppercase tracking-wider text-primary">Rechtliche Hinweise</p>
               <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Impressum</h1>
               <p className="mx-auto max-w-3xl text-base text-muted-foreground sm:text-lg">
-                Angaben nach dem Telemediengesetz (TMG) und Rundfunkstaatsvertrag (RStV) für den Betreiber dieser Website.
+                Angaben nach dem Telemediengesetz (TMG) und Rundfunkstaatsvertrag (RStV) für den
+                Betreiber dieser Website.
               </p>
             </header>
 
@@ -80,7 +75,7 @@ export default function ImprintPage() {
               {sections.map((section) => (
                 <article
                   key={section.title}
-                  className="space-y-4 rounded-xl border border-border/60 bg-background/80 p-6 shadow-sm backdrop-blur"
+                  className="space-y-4 rounded-xl border border-border/60 bg-background/80 p-6 shadow-sm"
                 >
                   <h2 className="text-2xl font-semibold text-primary/90">{section.title}</h2>
                   {section.rows ? (

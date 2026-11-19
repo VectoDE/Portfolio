@@ -1,11 +1,26 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from "next"
+import { Gloock, Onest } from "next/font/google"
 import Script from "next/script"
 
 import { getSiteUrl, siteProfile } from "@/lib/site"
 import { Providers } from "@/components/providers"
 
 import "./globals.css"
+
+// Typefaces of the VectoDE profile artwork, both under the SIL Open Font License.
+// next/font downloads them at build time and serves them from this site.
+const fontSans = Onest({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-sans",
+  display: "swap",
+})
+const fontDisplay = Gloock({
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  variable: "--font-display",
+  display: "swap",
+})
 
 const metadataBase = new URL(getSiteUrl())
 
@@ -85,7 +100,7 @@ export const metadata: Metadata = {
 }
 
 export const viewport: Viewport = {
-  themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#09090b" }, { color: "#ffffff" }],
+  themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0C1424" }, { color: "#F7F9FC" }],
 }
 
 const structuredData = {
@@ -97,13 +112,10 @@ const structuredData = {
       url: metadataBase.origin,
       jobTitle: "Full Stack Developer",
       image: `${metadataBase.origin}/placeholder-logo.png`,
-      sameAs: [
-        "https://www.linkedin.com/in/tim-hauke-b3b24b2b5/",
-        "https://github.com/VectoDE",
-      ],
+      sameAs: ["https://www.linkedin.com/in/tim-hauke-b3b24b2b5/", "https://github.com/VectoDE"],
       contactPoint: {
         "@type": "ContactPoint",
-        email: "tim.hauke@hauknetz.de",
+        email: "contact@uplytech.de",
         contactType: "customer support",
         availableLanguage: ["English", "German"],
       },
@@ -174,7 +186,11 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html
+      lang="en"
+      className={`${fontSans.variable} ${fontDisplay.variable}`}
+      suppressHydrationWarning
+    >
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <Providers>{children}</Providers>
         <Script id="structured-data" type="application/ld+json">

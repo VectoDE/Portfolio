@@ -54,7 +54,7 @@ export default function UnsubscribeClient() {
           setPreferences(data.preferences)
         }
         setMessage(
-          "Choose to unsubscribe immediately or fine-tune the topics you still want to receive."
+          "Choose to unsubscribe immediately or fine-tune the topics you still want to receive.",
         )
         setStatus("ready")
       } catch (error) {
@@ -133,7 +133,7 @@ export default function UnsubscribeClient() {
   }
 
   return (
-    <Card className="border border-purple-200 dark:border-purple-800 bg-background/60 backdrop-blur-sm">
+    <Card className="border border-border bg-card">
       <CardHeader>
         <CardTitle className="text-2xl">Manage Newsletter Subscription</CardTitle>
         {subscriberEmail && <CardDescription>Email: {subscriberEmail}</CardDescription>}
@@ -283,11 +283,11 @@ export default function UnsubscribeClient() {
         )}
 
         {(status === "success" || status === "error") && (
-          <Link href="/" passHref>
-            <Button variant="outline" className="w-full">
+          <Button asChild variant="outline" className="w-full">
+            <Link href="/" passHref>
               Return to Homepage
-            </Button>
-          </Link>
+            </Link>
+          </Button>
         )}
       </CardFooter>
     </Card>

@@ -19,7 +19,7 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>
 
-export function NewsletterForm() {
+export function NewsletterForm({ showIntro = true }: Readonly<{ showIntro?: boolean }>) {
   const [isLoading, setIsLoading] = useState(false)
   const { toast } = useToast()
 
@@ -66,12 +66,14 @@ export function NewsletterForm() {
 
   return (
     <div className="w-full max-w-md mx-auto">
-      <div className="text-center mb-4">
-        <h3 className="text-lg font-medium">Subscribe to my newsletter</h3>
-        <p className="text-sm text-muted-foreground">
-          Get notified about new projects, skills, and career updates
-        </p>
-      </div>
+      {showIntro ? (
+        <div className="text-center mb-4">
+          <h3 className="text-lg font-medium">Subscribe to my newsletter</h3>
+          <p className="text-sm text-muted-foreground">
+            Get notified about new projects, skills, and career updates
+          </p>
+        </div>
+      ) : null}
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">

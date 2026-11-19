@@ -1,323 +1,140 @@
+import type { Metadata } from "next"
 import Link from "next/link"
-import { ArrowRight, BookOpenCheck, FileCode2, Globe, HeartHandshake, Target, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
-import { BackgroundGradientAnimation } from "@/components/ui/background-gradient-animation"
 import { CareerTimeline } from "@/components/career-timeline"
-import { AnimatedSection } from "@/components/animated-section"
-import { AnimatedList } from "@/components/animated-list"
+import { CertificatesShowcase } from "@/components/certificates-showcase"
+import { SkillsShowcase } from "@/components/skills-showcase"
 import { Portrait } from "@/components/portrait"
+import { SectionHeading } from "@/components/section-heading"
+import { profile } from "@/lib/content"
 
-export const metadata = {
-  title: "About | Tim Hauke",
-  description: "Learn more about Tim Hauke, Full Stack Developer",
-  openGraph: {
-    title: "About | Tim Hauke",
-    description: "Learn more about Tim Hauke, Full Stack Developer",
-    url: "/about",
-    type: "profile",
-  },
-  alternates: {
-    canonical: "/about",
-  },
+export const metadata: Metadata = {
+  title: "About",
+  description:
+    "Tim Hauke is a self-taught full-stack developer from Itzehoe and founder of UplyTech. Career, stack, certificates and how to reach him.",
+  alternates: { canonical: "/about" },
+  openGraph: { type: "profile", url: "/about" },
 }
 
 export default function AboutPage() {
   return (
-    <div className="flex flex-col min-h-screen">
-      <BackgroundGradientAnimation
-        firstColor="rgba(125, 39, 255, 0.2)"
-        secondColor="rgba(0, 87, 255, 0.2)"
-        thirdColor="rgba(0, 214, 242, 0.2)"
-      />
+    <div className="flex min-h-screen flex-col">
+      <MainNav />
 
-      <div className="relative z-10">
-        <MainNav />
-
-        <main className="flex-1">
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                <div className="space-y-2">
-                  <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    About Me
-                  </h1>
-                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
-                    Full stack developer from Itzehoe, Germany, spotlighting the people and missions behind every digital
-                    product I build.
-                  </p>
-                </div>
+      <main id="main" className="flex-1">
+        <section className="container px-4 py-12 md:px-6 md:py-20">
+          <div className="grid gap-12 md:grid-cols-[minmax(0,20rem)_1fr] md:gap-16 lg:grid-cols-[minmax(0,24rem)_1fr]">
+            <div className="mx-auto w-full max-w-[16rem] md:max-w-none">
+              <div className="inspector-frame">
+                <Portrait
+                  sizes="(min-width: 1024px) 384px, (min-width: 768px) 320px, 256px"
+                  className="aspect-[4/5] bg-white"
+                />
+                <span className="inspector-handle" aria-hidden="true" />
               </div>
-
-              <AnimatedList className="grid gap-10 md:grid-cols-2 md:gap-16" stagger={0.14}>
-                <div>
-                  <Portrait
-                    sizes="(min-width: 768px) 45vw, 90vw"
-                    className="mx-auto aspect-[4/5] max-w-md rounded-2xl border border-border bg-white"
-                  />
-                </div>
-                <div className="flex flex-col justify-center space-y-6">
-                  <div className="space-y-2">
-                    <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                      My Journey
-                    </h2>
-                    <p className="text-gray-500 md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed dark:text-gray-400">
-                      I'm a passionate full stack developer with over 10 years of experience building web applications. I
-                      specialise in modern TypeScript tooling, React ecosystems, and scalable backend infrastructures that stay
-                      maintainable long after handover.
-                    </p>
-                    <p className="text-gray-500 md:text-lg/relaxed lg:text-base/relaxed xl:text-lg/relaxed dark:text-gray-400">
-                      My projects weave together strategy, design, and engineering. Whether it's a sports club managing
-                      thousands of members or a startup validating its first product, I translate complex requirements into
-                      approachable digital experiences.
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold">Education</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Secondary School Certificate
-                      <br />
-                      RBZ Itzehoe, 2020-2021
-                    </p>
-                  </div>
-                  <div className="space-y-2">
-                    <h3 className="text-xl font-bold">Professional Experience</h3>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      I've worked with startups, clubs, and associations, helping them develop scalable and maintainable web
-                      applications. My focus is on creating exceptional user experiences with clean, efficient code.
-                    </p>
-                    <p className="text-gray-500 dark:text-gray-400">
-                      Outside of delivering client projects, I mentor aspiring developers, produce technical documentation, and
-                      contribute to open-source initiatives that keep European tech communities thriving.
-                    </p>
-                  </div>
-                  <AnimatedList className="grid gap-4 sm:grid-cols-2" initialDelay={0.1}>
-                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                      <CardContent className="p-4 space-y-2">
-                        <Users className="h-6 w-6 text-primary" />
-                        <h4 className="text-lg font-semibold">People-first mindset</h4>
-                        <p className="text-sm text-muted-foreground">
-                          I design workshops, onboarding flows, and documentation that empower teams and volunteers alike.
-                        </p>
-                      </CardContent>
-                    </Card>
-                    <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                      <CardContent className="p-4 space-y-2">
-                        <Globe className="h-6 w-6 text-primary" />
-                        <h4 className="text-lg font-semibold">International collaboration</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Working across borders taught me to balance localisation, accessibility, and compliance from day one.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  </AnimatedList>
-                </div>
-              </AnimatedList>
             </div>
-          </AnimatedSection>
-
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    Career Timeline
-                  </h2>
-                  <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                    My professional journey in the tech industry
-                  </p>
-                </div>
+            <div className="max-w-2xl">
+              <h1 className="font-display text-5xl md:text-6xl">About me</h1>
+              <div className="mt-6 space-y-4 text-lg leading-relaxed">
+                {profile.about.map((paragraph) => (
+                  <p key={paragraph}>{paragraph}</p>
+                ))}
               </div>
+              <dl className="mt-10 grid gap-x-8 gap-y-5 border-t pt-6 sm:grid-cols-2">
+                <div>
+                  <dt className="text-sm text-muted-foreground">Based in</dt>
+                  <dd className="mt-1 font-medium">{profile.location}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Languages</dt>
+                  <dd className="mt-1 font-medium">{profile.languages.join(", ")}</dd>
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Education</dt>
+                  {profile.education.map((entry) => (
+                    <dd key={entry.title} className="mt-1 font-medium">
+                      {entry.title}, {entry.institution} ({entry.period})
+                    </dd>
+                  ))}
+                </div>
+                <div>
+                  <dt className="text-sm text-muted-foreground">Open to</dt>
+                  <dd className="mt-1 font-medium">{profile.availability}</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </section>
 
+        <section id="career" aria-labelledby="career-heading" className="border-t bg-card">
+          <div className="container px-4 py-16 md:px-6 md:py-24">
+            <SectionHeading
+              id="career-heading"
+              title="Career"
+              description="Projects, clubs and teams since 2017."
+            />
+            <div className="mt-10">
               <CareerTimeline />
             </div>
-          </AnimatedSection>
+          </div>
+        </section>
 
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    Skills & Expertise
-                  </h2>
-                  <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                    Here are some of the technologies and tools I work with
-                  </p>
-                </div>
-              </div>
-
-              <AnimatedList className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3 mt-8" initialDelay={0.08}>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center space-y-2">
-                      <FileCode2 className="h-12 w-12 text-primary" />
-                      <h3 className="text-xl font-bold">Frontend Development</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-center">
-                        React, Next.js, TypeScript, Tailwind CSS, PHP, HTML/CSS
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center space-y-2">
-                      <FileCode2 className="h-12 w-12 text-primary" />
-                      <h3 className="text-xl font-bold">Backend Development</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-center">
-                        Node.js, Express, TypeScript, PHP, C++, REST APIs, Prisma
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6">
-                    <div className="flex flex-col items-center space-y-2">
-                      <FileCode2 className="h-12 w-12 text-primary" />
-                      <h3 className="text-xl font-bold">Database & DevOps</h3>
-                      <p className="text-gray-500 dark:text-gray-400 text-center">
-                        PostgreSQL, MongoDB, MySQL, Docker, CI/CD, Git
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </AnimatedList>
+        <section id="stack" aria-labelledby="stack-heading" className="border-t">
+          <div className="container px-4 py-16 md:px-6 md:py-24">
+            <SectionHeading
+              id="stack-heading"
+              title="Stack"
+              description="Everything here is in my own code, public or private. Outlined entries are my first choice on client work."
+            />
+            <div className="mt-10">
+              <SkillsShowcase />
             </div>
-          </AnimatedSection>
+          </div>
+        </section>
 
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    Values I bring to every collaboration
-                  </h2>
-                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
-                    My approach combines technical craftsmanship with empathy for the people relying on the final product.
-                  </p>
-                </div>
-              </div>
-
-              <AnimatedList className="grid gap-6 md:grid-cols-3" initialDelay={0.08}>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6 space-y-3">
-                    <Target className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Purpose-driven planning</h3>
-                    <p className="text-sm text-muted-foreground">
-                      I align development roadmaps with the goals of your members, customers, and partners so success feels
-                      tangible for everyone involved.
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6 space-y-3">
-                    <HeartHandshake className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Transparent collaboration</h3>
-                    <p className="text-sm text-muted-foreground">
-                      From weekly demos to accessible documentation, I keep every stakeholder informed and empowered to make
-                      confident decisions.
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg hover:shadow-xl transition-all duration-300">
-                  <CardContent className="p-6 space-y-3">
-                    <BookOpenCheck className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Continuous learning</h3>
-                    <p className="text-sm text-muted-foreground">
-                      I invest in ongoing education, share lessons publicly, and bring that knowledge into every engagement I
-                      lead.
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedList>
+        <section
+          id="certificates"
+          aria-labelledby="certificates-heading"
+          className="border-t bg-card"
+        >
+          <div className="container px-4 py-16 md:px-6 md:py-24">
+            <SectionHeading
+              id="certificates-heading"
+              title="Certificates"
+              description="Online courses from freeCodeCamp, LinkedIn Learning and Programming Hub. Where a course offers a public check, the link goes there; otherwise it opens the PDF."
+            />
+            <div className="mt-10 max-w-4xl">
+              <CertificatesShowcase limit={0} />
             </div>
-          </AnimatedSection>
+          </div>
+        </section>
 
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center mb-12">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    Beyond the screen
-                  </h2>
-                  <p className="mx-auto max-w-[760px] text-gray-500 md:text-xl dark:text-gray-400">
-                    I believe great products reflect their communities, so I stay close to grassroots initiatives and creative
-                    circles.
-                  </p>
-                </div>
-              </div>
-
-              <AnimatedList className="grid gap-8 md:grid-cols-3" initialDelay={0.08}>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                  <CardContent className="p-6 space-y-2 text-left">
-                    <Users className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Community mentorship</h3>
-                    <p className="text-sm text-muted-foreground">
-                      I mentor students and junior developers, helping them navigate real-world projects and contribute to
-                      open-source safely.
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                  <CardContent className="p-6 space-y-2 text-left">
-                    <Globe className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Local initiatives</h3>
-                    <p className="text-sm text-muted-foreground">
-                      In Itzehoe, I collaborate with associations to digitalise workflows and showcase the people keeping our
-                      region vibrant.
-                    </p>
-                  </CardContent>
-                </Card>
-                <Card className="bg-background/60 backdrop-blur-sm border-primary/20 shadow-lg">
-                  <CardContent className="p-6 space-y-2 text-left">
-                    <FileCode2 className="h-8 w-8 text-primary" />
-                    <h3 className="text-xl font-semibold">Story-driven writing</h3>
-                    <p className="text-sm text-muted-foreground">
-                      I publish case studies and technical deep dives that celebrate collaborators while demystifying the code
-                      powering their success.
-                    </p>
-                  </CardContent>
-                </Card>
-              </AnimatedList>
+        <section aria-labelledby="contact-heading" className="border-t">
+          <div className="container flex flex-col gap-6 px-4 py-16 md:flex-row md:items-end md:justify-between md:px-6 md:py-24">
+            <div className="max-w-2xl">
+              <h2 id="contact-heading" className="font-display text-4xl md:text-5xl">
+                Get in touch
+              </h2>
+              <p className="mt-3 text-lg leading-relaxed text-muted-foreground">
+                {profile.contact.note}
+              </p>
             </div>
-          </AnimatedSection>
-
-          <AnimatedSection className="w-full py-12 md:py-24 lg:py-32 bg-muted/30 backdrop-blur-sm">
-            <div className="container px-4 md:px-6">
-              <div className="flex flex-col items-center justify-center space-y-4 text-center">
-                <div className="space-y-2">
-                  <h2 className="text-3xl font-bold tracking-tighter sm:text-4xl bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-                    Let's Connect
-                  </h2>
-                  <p className="mx-auto max-w-[700px] text-gray-500 md:text-xl dark:text-gray-400">
-                    I'm always open to discussing new projects, creative ideas, or opportunities to
-                    be part of your vision.
-                  </p>
-                </div>
-                <AnimatedList className="flex flex-wrap items-center justify-center gap-4 mt-8" stagger={0.1}>
-                  <Link href="/contact">
-                    <Button className="gap-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 transition-all duration-300">
-                      Contact Me <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                  <Link href="/projects">
-                    <Button
-                      variant="outline"
-                      className="gap-1 border-purple-600/50 hover:border-purple-600 transition-all duration-300"
-                    >
-                      View My Work <ArrowRight className="h-4 w-4" />
-                    </Button>
-                  </Link>
-                </AnimatedList>
-              </div>
+            <div className="flex flex-wrap gap-3">
+              <Button asChild size="lg">
+                <Link href="/contact">Write a message</Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/projects">See projects</Link>
+              </Button>
             </div>
-          </AnimatedSection>
-        </main>
+          </div>
+        </section>
+      </main>
 
-        <SiteFooter />
-      </div>
+      <SiteFooter />
     </div>
   )
 }

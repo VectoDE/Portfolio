@@ -3,26 +3,28 @@
 @tailwind utilities;
 
 @layer base {
+  /* Palette from the VectoDE profile artwork (github.com/VectoDE/VectoDE, svgkit.py).
+     Text colours are tuned to at least 7:1 on their backgrounds (WCAG AAA). */
   :root {
-    --background: 0 0% 100%;
-    --foreground: 240 10% 3.9%;
+    --background: 216 45% 98%; /* #F7F9FC */
+    --foreground: 220 50% 9%; /* #0C1424 */
     --card: 0 0% 100%;
-    --card-foreground: 240 10% 3.9%;
+    --card-foreground: 220 50% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 240 10% 3.9%;
-    --primary: 262 83.3% 57.8%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 4.8% 95.9%;
-    --secondary-foreground: 240 5.9% 10%;
-    --muted: 240 4.8% 95.9%;
-    --muted-foreground: 240 3.8% 46.1%;
-    --accent: 240 4.8% 95.9%;
-    --accent-foreground: 240 5.9% 10%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 5.9% 90%;
-    --input: 240 5.9% 90%;
-    --ring: 262 83.3% 57.8%;
+    --popover-foreground: 220 50% 9%;
+    --primary: 217 80% 38%; /* #134FAE, 7.2:1 on background */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 216 42% 95%; /* #EEF2F8 */
+    --secondary-foreground: 220 50% 9%;
+    --muted: 216 42% 95%;
+    --muted-foreground: 216 22% 32%; /* #404E64, 8:1 on background */
+    --accent: 216 89% 93%; /* #DCE9FD */
+    --accent-foreground: 220 50% 9%;
+    --destructive: 0 72% 42%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 215 33% 85%;
+    --input: 215 25% 62%;
+    --ring: 217 80% 38%;
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
@@ -36,25 +38,25 @@
   }
 
   .dark {
-    --background: 240 10% 3.9%;
-    --foreground: 0 0% 98%;
-    --card: 240 10% 3.9%;
-    --card-foreground: 0 0% 98%;
-    --popover: 240 10% 3.9%;
-    --popover-foreground: 0 0% 98%;
-    --primary: 262 83.3% 57.8%;
-    --primary-foreground: 0 0% 98%;
-    --secondary: 240 3.7% 15.9%;
-    --secondary-foreground: 0 0% 98%;
-    --muted: 240 3.7% 15.9%;
-    --muted-foreground: 240 5% 64.9%;
-    --accent: 240 3.7% 15.9%;
-    --accent-foreground: 0 0% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 240 3.7% 15.9%;
-    --input: 240 3.7% 15.9%;
-    --ring: 262 83.3% 57.8%;
+    --background: 220 50% 9%; /* #0C1424 */
+    --foreground: 217 62% 96%; /* #EEF3FB */
+    --card: 219 51% 12%; /* #0F1A2E */
+    --card-foreground: 217 62% 96%;
+    --popover: 219 51% 12%;
+    --popover-foreground: 217 62% 96%;
+    --primary: 214 100% 72%; /* #70AEFF, 8:1 on background */
+    --primary-foreground: 220 50% 9%;
+    --secondary: 219 50% 15%; /* #132039 */
+    --secondary-foreground: 217 62% 96%;
+    --muted: 219 50% 15%;
+    --muted-foreground: 217 30% 70%; /* #9CADC9, 8:1 on background */
+    --accent: 217 61% 22%; /* #16305A */
+    --accent-foreground: 217 62% 96%;
+    --destructive: 0 75% 62%;
+    --destructive-foreground: 220 50% 9%;
+    --border: 219 40% 22%; /* #22324F */
+    --input: 219 30% 40%;
+    --ring: 214 100% 72%;
 
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
@@ -72,7 +74,20 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background font-sans text-foreground;
+    font-feature-settings: "ss01";
+  }
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+  p {
+    text-wrap: pretty;
+  }
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
@@ -125,7 +140,52 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-slide-in {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}
+
+/* Selection frame around the portrait, after the frame in the profile artwork. */
+.inspector-frame {
+  position: relative;
+  outline: 1.5px solid hsl(var(--primary));
+  outline-offset: 6px;
+}
+.inspector-frame::before,
+.inspector-frame::after,
+.inspector-frame > .inspector-handle::before,
+.inspector-frame > .inspector-handle::after {
+  content: "";
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background: hsl(var(--background));
+  border: 1.5px solid hsl(var(--primary));
+  z-index: 1;
+}
+.inspector-frame::before {
+  top: -11px;
+  left: -11px;
+}
+.inspector-frame::after {
+  top: -11px;
+  right: -11px;
+}
+.inspector-frame > .inspector-handle::before {
+  bottom: -11px;
+  left: -11px;
+}
+.inspector-frame > .inspector-handle::after {
+  bottom: -11px;
+  right: -11px;
+}
+.inspector-handle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }

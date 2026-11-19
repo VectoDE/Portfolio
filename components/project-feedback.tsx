@@ -12,11 +12,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/components/ui/use-toast"
-import type {
-  PublicProjectComment,
-  ReactionSummary,
-  ReactionType,
-} from "@/types/database"
+import type { PublicProjectComment, ReactionSummary, ReactionType } from "@/types/database"
 
 interface ProjectFeedbackProps {
   projectId: string
@@ -53,7 +49,11 @@ const reactionLabels: Record<ReactionType, { label: string; icon: ReactNode }> =
   },
 }
 
-export function ProjectFeedback({ projectId, initialComments, initialReactions }: Readonly<ProjectFeedbackProps>) {
+export function ProjectFeedback({
+  projectId,
+  initialComments,
+  initialReactions,
+}: Readonly<ProjectFeedbackProps>) {
   const { data: session } = useSession()
   const { toast } = useToast()
   const [comment, setComment] = useState("")
@@ -67,12 +67,13 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
     fallbackData: { comments: initialComments },
   })
 
-  const {
-    data: reactions,
-    mutate: mutateReactions,
-  } = useSWR<ReactionSummary>(`/api/projects/${projectId}/reactions`, fetcher, {
-    fallbackData: initialReactions,
-  })
+  const { data: reactions, mutate: mutateReactions } = useSWR<ReactionSummary>(
+    `/api/projects/${projectId}/reactions`,
+    fetcher,
+    {
+      fallbackData: initialReactions,
+    },
+  )
 
   const orderedComments = useMemo(() => commentsData?.comments ?? [], [commentsData])
 
@@ -114,7 +115,9 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
       toast({
         title: "Something went wrong",
         description:
-          error instanceof Error ? error.message : "We couldn't save your comment. Please try again.",
+          error instanceof Error
+            ? error.message
+            : "We couldn't save your comment. Please try again.",
         variant: "destructive",
       })
     } finally {
@@ -152,7 +155,7 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
 
   return (
     <div className="space-y-6">
-      <Card className="border-primary/20 bg-background/60 backdrop-blur-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle className="flex items-center justify-between text-xl">
             Community feedback{" "}
@@ -187,7 +190,10 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
           </div>
           {!session?.user && (
             <p className="text-sm text-muted-foreground">
-              <Link href="/register" className="font-medium text-primary underline-offset-4 hover:underline">
+              <Link
+                href="/register"
+                className="font-medium text-primary underline-offset-4 hover:underline"
+              >
                 Create a free account
               </Link>{" "}
               or sign in to leave reactions and comments.
@@ -196,7 +202,7 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
         </CardContent>
       </Card>
 
-      <Card className="border-primary/20 bg-background/60 backdrop-blur-sm">
+      <Card className="">
         <CardHeader>
           <CardTitle>Comments</CardTitle>
         </CardHeader>
@@ -242,7 +248,7 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
                 No comments yet. Be the first to share your perspective!
               </p>
             )}
-            {orderedComments.length > 0 && (
+            {orderedComments.length > 0 &&
               orderedComments.map((item) => (
                 <div key={item.id} className="rounded-md border border-border bg-background/80 p-4">
                   <div className="flex items-center justify-between text-sm">
@@ -253,10 +259,11 @@ export function ProjectFeedback({ projectId, initialComments, initialReactions }
                       })}
                     </span>
                   </div>
-                  <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">{item.content}</p>
+                  <p className="mt-2 text-sm text-muted-foreground whitespace-pre-line">
+                    {item.content}
+                  </p>
                 </div>
-              ))
-            )}
+              ))}
           </div>
         </CardContent>
       </Card>
