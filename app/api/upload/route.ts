@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server"
+import { randomUUID } from "node:crypto"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
-import { v4 as uuidv4 } from "uuid"
 
 import { isAdminSession, requireSession } from "@/lib/authz"
 import prisma from "@/lib/db"
@@ -52,7 +52,7 @@ export async function POST(req: Request) {
     await mkdir(uploadsDir, { recursive: true })
 
     const originalName = file.name || "upload"
-    const fileName = `${uuidv4()}${fileExtension}`
+    const fileName = `${randomUUID()}${fileExtension}`
     const filePath = path.join(uploadsDir, fileName)
 
     const buffer = Buffer.from(await file.arrayBuffer())
