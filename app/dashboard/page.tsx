@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
 import { authOptions } from "@/lib/auth"
+import { requireDashboardAdmin } from "@/lib/dashboard-guard"
 import prisma from "@/lib/db"
 
 // Import the necessary types
@@ -279,22 +280,9 @@ function ContactStatusBadge({ status }: Readonly<{ status: string }>) {
 }
 
 async function getStats() {
+  // Layout and page render in parallel, so check the admin role here before any query.
   const session = await getServerSession(authOptions)
-
-  if (!session?.user?.id) {
-    return {
-      projects: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
-      certificates: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
-      skills: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
-      career: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
-      contacts: { count: 0, change: 0, percentage: 0 } as StatsWithChange,
-      featuredProjects: [] as Project[],
-      recentContacts: [] as Contact[],
-      contactStatusBreakdown: [] as { status: string; count: number }[],
-    }
-  }
-
-  const userId = session.user.id
+  const userId = await requireDashboardAdmin(session)
 
   // Get stats with 30-day changes
   const [

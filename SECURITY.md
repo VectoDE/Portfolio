@@ -55,29 +55,31 @@ Third-party services (hosting, SMTP providers, analytics vendors, etc.) are out 
 
 ## First-Time Setup
 
-On an empty database, `POST /api/register` accepts exactly one address: the value of `ADMIN_BOOTSTRAP_EMAIL`, compared after trimming and lowercasing. That account becomes the admin. The behaviour is fail closed:
+On an empty database, `POST /api/register` accepts exactly one address, the value of `ADMIN_BOOTSTRAP_EMAIL` (compared after trimming and lowercasing), and only together with the secret in `ADMIN_BOOTSTRAP_TOKEN` (body field `bootstrapToken`, surrounding spaces ignored). The token is compared in constant time over SHA-256 digests, so neither its content nor its length shows in the response time. Both checks always run. That account becomes the admin. The behaviour is fail closed:
 
-- `ADMIN_BOOTSTRAP_EMAIL` unset or empty: the first registration is refused with `403`.
-- A different address: refused with `403`.
-- Both cases return the same message as a closed registration, so a caller cannot tell whether the instance is still waiting for its first admin.
-- Malformed JSON and missing fields get the same `403` while the database is empty. Other validations, such as `400` for a password shorter than 8 characters, only run after the address matched.
+- `ADMIN_BOOTSTRAP_EMAIL` unset or empty, or `ADMIN_BOOTSTRAP_TOKEN` unset, empty or shorter than 32 characters: the first registration is refused with `403`.
+- A different address or a missing or wrong token: refused with `403`.
+- All cases return the same message as a closed registration, so a caller cannot tell whether the instance is still waiting for its first admin or which check failed.
+- Malformed JSON and missing fields get the same `403` while the database is empty. Other validations, such as `400` for a password shorter than 8 characters, only run after address and token matched.
 - Database conflicts are answered without details: Prisma `P2034` (serialization conflict or deadlock) as `409`, `P2002` (unique constraint) as the generic `403` during the first registration and as `409` `Registration could not be completed.` when registration is open. The log records only the error code and a short reason, never the error object.
 - The request body is limited to 16 KB and always read (up to that limit) before any decision, in every branch. A `Content-Length` above the limit is refused without reading; a longer stream is cancelled once the counter passes the limit. While the database is empty or registration is closed, an oversized body gets the same `403`; only open registration answers `413`. This keeps a large or slowly sent body from revealing an unclaimed instance through response timing.
 - The decision is repeated inside the serializable transaction that creates the account, so concurrent first registrations cannot both become admin.
 
-Once any account exists, `ADMIN_BOOTSTRAP_EMAIL` has no effect; `ALLOW_REGISTRATION` alone decides, and new accounts are always `Member`. `ADMIN_BOOTSTRAP_EMAIL` is separate from `ADMIN_EMAIL`, which only sets the recipient of contact notifications.
+> **Upgrading an instance that has no account yet:** since `ADMIN_BOOTSTRAP_TOKEN` was introduced, an empty instance stays closed until the token is set as well. Setting only `ADMIN_BOOTSTRAP_EMAIL` is no longer enough. Instances that already have an account are not affected.
+
+Once any account exists, `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_BOOTSTRAP_TOKEN` have no effect; `ALLOW_REGISTRATION` alone decides, and new accounts are always `Member`. `ADMIN_BOOTSTRAP_EMAIL` is separate from `ADMIN_EMAIL`, which only sets the recipient of contact notifications.
 
 ### Initial Setup After Deployment
 
-1. Register the admin account with the `ADMIN_BOOTSTRAP_EMAIL` address right after the deploy.
+1. Register the admin account with the `ADMIN_BOOTSTRAP_EMAIL` address and the `ADMIN_BOOTSTRAP_TOKEN` right after the deploy.
 2. Sign in and confirm the admin dashboard is available. The setup is only finished once this works.
-3. If the bootstrap address is publicly known, for example because it is the contact address on the site, make the instance publicly reachable only after steps 1 and 2. Until then anyone who knows the address could create the first account.
+3. Remove `ADMIN_BOOTSTRAP_TOKEN` from the environment. The address is often public (for example the contact address on the site); the token is the part that must stay secret until the first account exists.
 
 ## Hardening Checklist
 
 Before deploying to production, review the following safeguards:
 
-- Set `ADMIN_BOOTSTRAP_EMAIL` to the operator's address before the instance is publicly reachable, create the admin account, then optionally remove the variable. Keep `ALLOW_REGISTRATION` off unless members should sign up themselves.
+- Set `ADMIN_BOOTSTRAP_EMAIL` to the operator's address and `ADMIN_BOOTSTRAP_TOKEN` to a random secret of at least 32 characters before the instance is publicly reachable, create the admin account, then remove the token. Keep `ALLOW_REGISTRATION` off unless members should sign up themselves.
 - Generate strong values for `NEXTAUTH_SECRET`, `IP_HASH_SALT`, SMTP credentials, and database passwords. Store them securely.
 - Serve all traffic over HTTPS and configure trusted reverse proxies so `x-forwarded-for` headers are reliable.
 - Limit dashboard access to trusted operators. Consider additional identity providers or IP allowlists when possible.
