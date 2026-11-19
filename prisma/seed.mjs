@@ -4,16 +4,17 @@
 //   node prisma/seed.mjs --update   also overwrite existing entries with the JSON content
 //
 // Content is attached to the first admin account. Without any account the script
-// creates one from SEED_OWNER_EMAIL (required) and SEED_OWNER_PASSWORD (optional;
-// without it the account gets a random password and cannot sign in).
-// Nothing here is random except that fallback password.
-import { randomBytes } from "node:crypto"
+// creates one from SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD; both are required then,
+// and the password must pass the registration rule (lib/password-policy.mjs).
+// The script never generates or prints a password.
 import { readFile } from "node:fs/promises"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 import { PrismaClient } from "@prisma/client"
 import bcrypt from "bcryptjs"
+
+import { validatePassword } from "../lib/password-policy.mjs"
 
 const ADMIN_ROLE = "Admin"
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
@@ -32,19 +33,19 @@ async function resolveOwner(prisma) {
   const admin = await prisma.user.findFirst({ where: { role: ADMIN_ROLE }, orderBy: { createdAt: "asc" } })
   if (admin) return admin
 
-  const email = process.env.SEED_OWNER_EMAIL?.trim().toLowerCase()
+  const email = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase()
   if (!email) {
-    throw new Error("No admin account found. Set SEED_OWNER_EMAIL to create the owner account for the content.")
+    throw new Error("No admin account found. Set SEED_ADMIN_EMAIL and SEED_ADMIN_PASSWORD to create the admin account for the content.")
   }
 
-  const given = process.env.SEED_OWNER_PASSWORD
-  if (given && given.length < 8) {
-    throw new Error("SEED_OWNER_PASSWORD must be at least 8 characters, as for registration.")
+  const password = process.env.SEED_ADMIN_PASSWORD
+  if (!password) {
+    throw new Error("No admin account found and SEED_ADMIN_PASSWORD is not set. Set it to the password for the new admin account.")
   }
-  if (!given) {
-    console.warn("SEED_OWNER_PASSWORD not set: the owner account gets a random password and cannot log in until it is reset in the database.")
+  const passwordError = validatePassword(password)
+  if (passwordError) {
+    throw new Error(`SEED_ADMIN_PASSWORD: ${passwordError}`)
   }
-  const password = given || randomBytes(32).toString("base64url")
   const profile = await readContent("profile")
   return prisma.user.create({
     data: {

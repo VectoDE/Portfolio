@@ -26,9 +26,12 @@ Rules:
 
 ```bash
 pnpm exec prisma db push
-SEED_OWNER_EMAIL=you@example.com node prisma/seed.mjs            # create missing entries
-SEED_OWNER_EMAIL=you@example.com node prisma/seed.mjs --update   # overwrite with the JSON
+node prisma/seed.mjs            # create missing entries
+node prisma/seed.mjs --update   # overwrite with the JSON
 ```
 
-The content is attached to the first admin account. `SEED_OWNER_EMAIL` is only used when
-no admin exists yet; without `SEED_OWNER_PASSWORD` that account gets a random password.
+The content is attached to the first admin account. If no admin exists yet, the script
+creates one from `SEED_ADMIN_EMAIL` and `SEED_ADMIN_PASSWORD` (set both in `.env` or the
+shell). It stops with an error when either is missing or the password breaks the
+registration rule (at least 8 characters, at most 72 bytes in UTF-8). It never generates
+or prints a password.

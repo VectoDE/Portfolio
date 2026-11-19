@@ -117,8 +117,11 @@ jobs:
         working-directory: site
         env:
           DATABASE_URL: ${{ env.E2E_DATABASE_URL }}
-          SEED_OWNER_EMAIL: ci-owner@example.invalid
+          SEED_ADMIN_EMAIL: ci-admin@example.invalid
         run: |
+          # Throwaway account in a disposable CI database; the password is never printed.
+          SEED_ADMIN_PASSWORD="$(openssl rand -base64 24)"
+          export SEED_ADMIN_PASSWORD
           pnpm exec prisma db push --skip-generate --accept-data-loss
           # The base commit has no seed script yet, so both targets use the head content.
           rm -rf content && cp -r ../head/content content
