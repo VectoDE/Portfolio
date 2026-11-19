@@ -1,6 +1,6 @@
 # Portfolio Platform
 
-A production-ready personal portfolio and creator operations platform built with **Next.js 15**, **TypeScript**, and **Prisma**. The application delivers a polished public marketing site backed by an authenticated dashboard that manages projects, skills, certificates, career entries, newsletters, analytics, and inbound contact workflows. Email automation, granular subscription preferences, and engagement features (comments, reactions, and community highlights) are implemented end to end.
+A production-ready personal portfolio and creator operations platform built with **Next.js 16**, **TypeScript**, and **Prisma**. The application delivers a polished public marketing site backed by an authenticated dashboard that manages projects, skills, certificates, career entries, newsletters, analytics, and inbound contact workflows. Email automation, granular subscription preferences, and engagement features (comments, reactions, and community highlights) are implemented end to end.
 
 ## Table of Contents
 
@@ -66,7 +66,7 @@ The platform combines a story-driven marketing site with operational tooling for
 
 | Layer | Technologies |
 | --- | --- |
-| Framework | Next.js 15 (App Router), React 18 |
+| Framework | Next.js 16 (App Router), React 18 |
 | Language | TypeScript, modern ECMAScript |
 | Styling | Tailwind CSS, tailwind-merge, tailwindcss-animate |
 | UI & motion | Radix UI primitives, Framer Motion, React Resizable Panels, Sonner toasts |
@@ -90,7 +90,7 @@ The platform combines a story-driven marketing site with operational tooling for
 
 ### Prerequisites
 
-- **Node.js** ≥ 18.18.0
+- **Node.js** ≥ 20.9.0
 - **pnpm** ≥ 9.0.0 (enable with `corepack enable pnpm` if not installed)
 - **MySQL** 8.x (local instance, Docker container, or managed service such as PlanetScale)
 
