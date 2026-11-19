@@ -31,7 +31,7 @@ import { SiteFAQ } from "@/components/site-faq"
 import { getEngagementHighlights } from "@/lib/engagement"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
-import { HeroVisualizationBlock } from "@/components/hero-visualization-block"
+import { Portrait } from "@/components/portrait"
 
 export const metadata: Metadata = {
   title: "Full Stack Developer crafting modern web products",
@@ -125,8 +125,12 @@ export default async function Home() {
                     ))}
                   </AnimatedList>
                 </div>
-                <div className="order-1 lg:order-2">
-                  <HeroVisualizationBlock />
+                <div className="order-1 mx-auto w-full max-w-xs sm:max-w-sm lg:order-2 lg:max-w-md">
+                  <Portrait
+                    priority
+                    sizes="(min-width: 1024px) 448px, (min-width: 640px) 384px, 320px"
+                    className="aspect-[4/5] rounded-2xl border border-border bg-white"
+                  />
                 </div>
               </div>
             </div>
