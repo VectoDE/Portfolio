@@ -1,5 +1,8 @@
-// Pure registration decision behind POST /api/register. Kept free of imports so the unit
-// tests can load it without Next.js, NextAuth or Prisma.
+// Pure registration decision behind POST /api/register. Only imports other dependency-free
+// modules (with the .ts extension), so the unit tests can load it without Next.js, NextAuth or
+// Prisma.
+
+import { validatePassword } from "./password-policy.ts"
 
 export type RegistrationDecision =
   | { outcome: "create"; admin: boolean }
@@ -121,8 +124,13 @@ export function evaluateRegistrationRequest(input: RegistrationRequestInput): Re
     return { outcome: "invalid", error: "Email and password are required" }
   }
 
-  if (password.length < 8) {
-    return { outcome: "invalid", error: "Password must be at least 8 characters long" }
+  // Same rule as password changes (lib/password-policy.ts). It runs only here, after the
+  // bootstrap address matched, so on an empty or closed instance a weak or overlong password
+  // still gets the generic 403 like every other request.
+  const passwordError = validatePassword(password)
+
+  if (passwordError) {
+    return { outcome: "invalid", error: passwordError }
   }
 
   const name = field(input.body, "name")

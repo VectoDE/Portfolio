@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs"
 
 import { requireSession } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { validatePassword } from "@/lib/password-policy"
 
 // PUT /api/user/password - Update user password
 export async function PUT(req: Request) {
@@ -24,6 +25,12 @@ export async function PUT(req: Request) {
         { error: "Current password and new password are required" },
         { status: 400 },
       )
+    }
+
+    const passwordError = validatePassword(newPassword)
+
+    if (passwordError) {
+      return NextResponse.json({ error: passwordError }, { status: 400 })
     }
 
     const user = await prisma.user.findUnique({
