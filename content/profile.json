@@ -1,0 +1,42 @@
+{
+  "name": "Tim Hauke",
+  "handle": "VectoDE",
+  "jobTitle": "Full-stack developer",
+  "role": "Founder of UplyTech",
+  "location": "Itzehoe, Germany",
+  "codingSince": 2017,
+  "languages": ["German (native)", "English"],
+  "availability": "Open to client projects, freelance work and a permanent position. Remote, on site or hybrid.",
+  "summary": "I plan, build and run software for companies, from the first sketch to the server it runs on.",
+  "about": [
+    "I'm Tim, a self-taught full-stack developer from Itzehoe in northern Germany. I founded UplyTech, a community and project for development, design, video and marketing. There I build websites, web apps, APIs and custom software, and I host and maintain what I ship.",
+    "I started coding in 2017 and learned from YouTube tutorials. That led to PlayGS, a Minecraft network with its own plugins, a shop and a TeamSpeak server, which I ran until 2019. Most of my own projects began as fixes for my own problems, like a music bot for my Discord server or a script that redeploys apps when I push.",
+    "Right now most of my time goes into Tellersonne, a cooking app for iOS and Android."
+  ],
+  "services": [
+    "Company websites, web apps and dashboards, usually Next.js, React or Vue with a Node.js or Laravel backend",
+    "Custom software such as internal tools, admin panels, CLIs and Electron desktop apps",
+    "REST and GraphQL APIs with authentication, and Discord bots with their own web dashboard",
+    "Linux servers with Docker and Nginx, CI/CD on GitHub Actions, hosting and technical support",
+    "AI and automation: connecting tools and automating repetitive work",
+    "IT consulting when you need to pick a stack, scope a project or clean up an existing codebase"
+  ],
+  "education": [
+    { "title": "Secondary school certificate", "institution": "RBZ Itzehoe", "period": "2020–2021" }
+  ],
+  "contact": {
+    "email": "contact@uplytech.de",
+    "directEmail": "timhauke@uplytech.de",
+    "note": "Write in German or English."
+  },
+  "links": [
+    { "label": "GitHub", "url": "https://github.com/VectoDE" },
+    { "label": "LinkedIn", "url": "https://www.linkedin.com/in/tim-hauke-b3b24b2b5" },
+    { "label": "GitLab", "url": "https://gitlab.com/VectoDE" },
+    { "label": "UplyTech", "url": "https://www.uplytech.de" },
+    { "label": "DEV", "url": "https://dev.to/vectode" },
+    { "label": "YouTube", "url": "https://www.youtube.com/@vectode" },
+    { "label": "X", "url": "https://x.com/vecto_de" },
+    { "label": "Instagram", "url": "https://www.instagram.com/vecto_de" }
+  ]
+}

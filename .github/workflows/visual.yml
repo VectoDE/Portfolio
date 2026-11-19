@@ -1,0 +1,246 @@
+name: Visual and accessibility
+
+# Builds the site with the seed content from content/*.json, captures every public
+# page (1440 and 390 px, light and dark) and runs axe-core plus a keyboard focus check.
+# On pull requests the base commit is captured with the same content, and a compare
+# job writes pixel diffs. "head-no-db" runs without a database to cover the static
+# fallback that preview deployments use.
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: visual-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  E2E_DATABASE_URL: mysql://root:root@127.0.0.1:3306/portfolio
+
+jobs:
+  plan:
+    name: Plan targets
+    runs-on: ubuntu-latest
+    permissions: {}
+    outputs:
+      targets: ${{ steps.targets.outputs.targets }}
+    steps:
+      - id: targets
+        env:
+          EVENT: ${{ github.event_name }}
+        run: |
+          if [ "$EVENT" = "pull_request" ]; then
+            echo 'targets=["base","head","head-no-db"]' >> "$GITHUB_OUTPUT"
+          else
+            echo 'targets=["head","head-no-db"]' >> "$GITHUB_OUTPUT"
+          fi
+
+  capture:
+    name: Capture (${{ matrix.target }})
+    needs: plan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        target: ${{ fromJSON(needs.plan.outputs.targets) }}
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: portfolio
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -proot"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+    env:
+      NEXTAUTH_SECRET: visual-test-secret
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_ENABLE_ANALYTICS: "false"
+      IP_HASH_SALT: visual-test-salt
+      EMAIL_SERVER: smtp.example.com
+      EMAIL_PORT: "587"
+      EMAIL_USER: apikey
+      EMAIL_PASSWORD: smtp-password
+      EMAIL_FROM: Portfolio <noreply@example.com>
+      ADMIN_EMAIL: admin@example.com
+      SEND_AUTO_REPLY: "false"
+      NEXT_TELEMETRY_DISABLED: "1"
+    steps:
+      - name: Checkout head (scripts and content)
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: head
+          persist-credentials: false
+
+      - name: Checkout site source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          path: site
+          ref: ${{ matrix.target == 'base' && github.event.pull_request.base.sha || github.sha }}
+          persist-credentials: false
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@73e46992e05b19abd31f2f3c20e0e7370d762115 # v6.1.1
+        with:
+          version: 10.13.1
+
+      - name: Setup Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 20
+          cache: pnpm
+          cache-dependency-path: site/pnpm-lock.yaml
+
+      - name: Install dependencies
+        working-directory: site
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma client
+        working-directory: site
+        run: pnpm exec prisma generate
+
+      - name: Create schema and seed content
+        if: matrix.target != 'head-no-db'
+        working-directory: site
+        env:
+          DATABASE_URL: ${{ env.E2E_DATABASE_URL }}
+          SEED_OWNER_EMAIL: ci-owner@example.invalid
+        run: |
+          pnpm exec prisma db push --skip-generate --accept-data-loss
+          # The base commit has no seed script yet, so both targets use the head content.
+          rm -rf content && cp -r ../head/content content
+          cp ../head/prisma/seed.mjs prisma/seed.mjs
+          node prisma/seed.mjs
+
+      - name: Build
+        working-directory: site
+        env:
+          DATABASE_URL: ${{ matrix.target != 'head-no-db' && env.E2E_DATABASE_URL || '' }}
+        run: pnpm build
+
+      - name: Start server
+        working-directory: site
+        env:
+          DATABASE_URL: ${{ matrix.target != 'head-no-db' && env.E2E_DATABASE_URL || '' }}
+        run: |
+          nohup pnpm exec next start -p 3000 > "$RUNNER_TEMP/server.log" 2>&1 &
+          for i in $(seq 1 60); do
+            if curl -fsS -o /dev/null http://localhost:3000/; then exit 0; fi
+            sleep 2
+          done
+          cat "$RUNNER_TEMP/server.log"
+          exit 1
+
+      - name: Install Playwright
+        working-directory: head/e2e
+        run: |
+          npm install --no-audit --no-fund
+          npx playwright install --with-deps chromium
+
+      - name: Capture screenshots
+        working-directory: head/e2e
+        env:
+          BASE_URL: http://localhost:3000
+          OUT_DIR: ${{ runner.temp }}/out/shots
+        run: node screenshots.mjs
+
+      - name: Accessibility checks
+        id: a11y
+        continue-on-error: true
+        working-directory: head/e2e
+        env:
+          BASE_URL: http://localhost:3000
+          OUT_DIR: ${{ runner.temp }}/out/a11y
+        run: node a11y.mjs
+
+      - name: Job summary
+        if: always()
+        env:
+          TARGET: ${{ matrix.target }}
+        run: |
+          {
+            echo "## $TARGET"
+            echo
+            if [ -f "$RUNNER_TEMP/out/shots/report.json" ]; then
+              echo "Pages with horizontal overflow:"
+              jq -r '.[] | select(.horizontalOverflowPx > 0) | "- \(.file): \(.horizontalOverflowPx) px"' "$RUNNER_TEMP/out/shots/report.json"
+              echo
+              echo "Non-200 responses:"
+              jq -r '.[] | select(.status != 200) | "- \(.file): \(.status)"' "$RUNNER_TEMP/out/shots/report.json"
+              echo
+            fi
+            if [ -f "$RUNNER_TEMP/out/a11y/summary.md" ]; then
+              echo "### Accessibility"
+              cat "$RUNNER_TEMP/out/a11y/summary.md"
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+          cp "$RUNNER_TEMP/server.log" "$RUNNER_TEMP/out/server.log" 2>/dev/null || true
+
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-${{ matrix.target }}
+          path: ${{ runner.temp }}/out
+          retention-days: 30
+
+  compare:
+    name: Compare base and head
+    if: github.event_name == 'pull_request'
+    needs: capture
+    runs-on: ubuntu-latest
+    permissions: {}
+    steps:
+      - name: Download screenshots
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: visual-*
+          path: results
+
+      - name: Pixel diff
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y -qq imagemagick > /dev/null
+          mkdir -p diff
+          {
+            echo "## Pixel diff base -> head (fuzz 2 %)"
+            echo
+            echo "| Screenshot | Base | Head | Changed pixels | Share |"
+            echo "|---|---|---|---|---|"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for head in results/visual-head/shots/*.png; do
+            name=$(basename "$head")
+            base="results/visual-base/shots/$name"
+            if [ ! -f "$base" ]; then
+              echo "| $name | missing | present | n/a | n/a |" >> "$GITHUB_STEP_SUMMARY"
+              continue
+            fi
+            bw=$(identify -format %w "$base"); bh=$(identify -format %h "$base")
+            hw=$(identify -format %w "$head"); hh=$(identify -format %h "$head")
+            w=$(( bw > hw ? bw : hw )); h=$(( bh > hh ? bh : hh ))
+            convert "$base" -background magenta -extent "${w}x${h}" /tmp/base.png
+            convert "$head" -background magenta -extent "${w}x${h}" /tmp/head.png
+            ae=$(compare -metric AE -fuzz 2% /tmp/base.png /tmp/head.png "diff/$name" 2>&1 >/dev/null || true)
+            ae=${ae%% *}
+            share=$(awk -v a="$ae" -v t="$((w * h))" 'BEGIN { printf "%.2f %%", (a / t) * 100 }')
+            echo "| $name | ${bw}x${bh} | ${hw}x${hh} | $ae | $share |" >> "$GITHUB_STEP_SUMMARY"
+          done
+
+      - name: Upload diffs
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: visual-diff
+          path: diff
+          retention-days: 30

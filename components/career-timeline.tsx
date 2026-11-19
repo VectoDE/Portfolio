@@ -13,17 +13,10 @@ async function CareerTimelineContent() {
 
       {careerEntries.map((entry: Career, index) => {
         const isEven = index % 2 === 0
-        const startDate = new Date(entry.startDate).toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-        })
+        // Content only records years reliably, so the timeline shows years.
+        const startDate = new Date(entry.startDate).getUTCFullYear()
         const endDate =
-          entry.endDate === "Present" || !entry.endDate
-            ? "Present"
-            : new Date(entry.endDate).toLocaleDateString("en-US", {
-                year: "numeric",
-                month: "short",
-              })
+          entry.endDate === "Present" || !entry.endDate ? "today" : new Date(entry.endDate).getUTCFullYear()
 
         return (
           <div key={entry.id} className="relative mb-12">
@@ -38,7 +31,7 @@ async function CareerTimelineContent() {
                   <h3 className="text-lg font-bold">{entry.position}</h3>
                   <p className="text-primary font-medium">{entry.company}</p>
                   <p className="text-sm text-muted-foreground">
-                    {startDate} - {endDate}
+                    {startDate === endDate ? startDate : `${startDate}–${endDate}`}
                   </p>
                   <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
                     {entry.description}

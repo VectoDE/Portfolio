@@ -1,0 +1,639 @@
+[
+  {
+    "id": "skill-typescript",
+    "name": "TypeScript",
+    "category": "Languages",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-javascript",
+    "name": "JavaScript",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/ExpressJS-Template"
+  },
+  {
+    "id": "skill-python",
+    "name": "Python",
+    "category": "Languages",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-java",
+    "name": "Java",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-go",
+    "name": "Go",
+    "category": "Languages",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/ServerCommander"
+  },
+  {
+    "id": "skill-php",
+    "name": "PHP",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/PHP-API"
+  },
+  {
+    "id": "skill-dart",
+    "name": "Dart",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-bash",
+    "name": "Bash",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Linux-Server-Setup-Script"
+  },
+  {
+    "id": "skill-powershell",
+    "name": "PowerShell",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-batch",
+    "name": "Batch",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-sql",
+    "name": "SQL",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-pl-pgsql",
+    "name": "PL/pgSQL",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-html",
+    "name": "HTML",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/HTML-Template"
+  },
+  {
+    "id": "skill-css",
+    "name": "CSS",
+    "category": "Languages",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/HTML-Template"
+  },
+  {
+    "id": "skill-ejs",
+    "name": "EJS",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-mdx",
+    "name": "MDX",
+    "category": "Languages",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-react",
+    "name": "React",
+    "category": "Frontend",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-next-js",
+    "name": "Next.js",
+    "category": "Frontend",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-astro",
+    "name": "Astro",
+    "category": "Frontend",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-tailwind-css",
+    "name": "Tailwind CSS",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-vite",
+    "name": "Vite",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-three-js",
+    "name": "Three.js",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-react-three-fiber",
+    "name": "React Three Fiber",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-radix-ui",
+    "name": "Radix UI",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-shadcn-ui",
+    "name": "shadcn/ui",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-framer-motion",
+    "name": "Framer Motion",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-recharts",
+    "name": "Recharts",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-react-hook-form",
+    "name": "React Hook Form",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-zod",
+    "name": "Zod",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-zustand",
+    "name": "Zustand",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-swr",
+    "name": "SWR",
+    "category": "Frontend",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-tanstack-query",
+    "name": "TanStack Query",
+    "category": "Frontend",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-i18next",
+    "name": "i18next",
+    "category": "Frontend",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-vue",
+    "name": "Vue",
+    "category": "Frontend",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-flutter",
+    "name": "Flutter",
+    "category": "Mobile & Desktop",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-riverpod",
+    "name": "Riverpod",
+    "category": "Mobile & Desktop",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-nsis-installers",
+    "name": "NSIS installers",
+    "category": "Mobile & Desktop",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-node-js",
+    "name": "Node.js",
+    "category": "Backend & APIs",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-express",
+    "name": "Express",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-hono",
+    "name": "Hono",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-fastify",
+    "name": "Fastify",
+    "category": "Backend & APIs",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-fastapi",
+    "name": "FastAPI",
+    "category": "Backend & APIs",
+    "level": "Core",
+    "evidence": null
+  },
+  {
+    "id": "skill-pydantic",
+    "name": "Pydantic",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-socket-io",
+    "name": "Socket.IO",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-rest---openapi--swagger",
+    "name": "REST / OpenAPI (Swagger)",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-bullmq",
+    "name": "BullMQ",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-celery",
+    "name": "Celery",
+    "category": "Backend & APIs",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-pm2",
+    "name": "PM2",
+    "category": "Backend & APIs",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Self-Updater"
+  },
+  {
+    "id": "skill-postgresql",
+    "name": "PostgreSQL",
+    "category": "Databases",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-mysql",
+    "name": "MySQL",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-mariadb",
+    "name": "MariaDB",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-redis",
+    "name": "Redis",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-mongodb",
+    "name": "MongoDB",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-mongoose",
+    "name": "Mongoose",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-sqlite",
+    "name": "SQLite",
+    "category": "Databases",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-prisma",
+    "name": "Prisma",
+    "category": "Databases",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/Portfolio"
+  },
+  {
+    "id": "skill-sqlalchemy",
+    "name": "SQLAlchemy",
+    "category": "Databases",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-supabase",
+    "name": "Supabase",
+    "category": "Databases",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-cloudflare",
+    "name": "Cloudflare",
+    "category": "Cloud & Hosting",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-cloudflare-workers",
+    "name": "Cloudflare Workers",
+    "category": "Cloud & Hosting",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-github-pages",
+    "name": "GitHub Pages",
+    "category": "Cloud & Hosting",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-own-linux-servers",
+    "name": "Own Linux servers",
+    "category": "Cloud & Hosting",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-mailcow",
+    "name": "mailcow",
+    "category": "Cloud & Hosting",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-vercel-analytics",
+    "name": "Vercel Analytics",
+    "category": "Cloud & Hosting",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-docker",
+    "name": "Docker",
+    "category": "DevOps & CI/CD",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-docker-compose",
+    "name": "Docker Compose",
+    "category": "DevOps & CI/CD",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-kubernetes--k3s",
+    "name": "Kubernetes (k3s)",
+    "category": "DevOps & CI/CD",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-github-actions",
+    "name": "GitHub Actions",
+    "category": "DevOps & CI/CD",
+    "level": "Core",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-github-container-registry",
+    "name": "GitHub Container Registry",
+    "category": "DevOps & CI/CD",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-traefik",
+    "name": "Traefik",
+    "category": "DevOps & CI/CD",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Linux-Server-Setup-Script"
+  },
+  {
+    "id": "skill-nginx",
+    "name": "Nginx",
+    "category": "DevOps & CI/CD",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Linux-Server-Setup-Script"
+  },
+  {
+    "id": "skill-let-s-encrypt",
+    "name": "Let's Encrypt",
+    "category": "DevOps & CI/CD",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Linux-Server-Setup-Script"
+  },
+  {
+    "id": "skill-portainer",
+    "name": "Portainer",
+    "category": "DevOps & CI/CD",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-dependabot",
+    "name": "Dependabot",
+    "category": "DevOps & CI/CD",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectolynCloud"
+  },
+  {
+    "id": "skill-renovate",
+    "name": "Renovate",
+    "category": "DevOps & CI/CD",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-git-cliff",
+    "name": "git-cliff",
+    "category": "DevOps & CI/CD",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-vitest",
+    "name": "Vitest",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-playwright",
+    "name": "Playwright",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-axe-core",
+    "name": "axe-core",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-fast-check",
+    "name": "fast-check",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-testing-library",
+    "name": "Testing Library",
+    "category": "Testing",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-jest",
+    "name": "Jest",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-pytest",
+    "name": "pytest",
+    "category": "Testing",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-own-neural-network--utai",
+    "name": "Own neural network (UTAI)",
+    "category": "AI & Automation",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-mcp-server",
+    "name": "MCP server",
+    "category": "AI & Automation",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-retrieval-augmented-generation",
+    "name": "Retrieval-augmented generation",
+    "category": "AI & Automation",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/Notebook-LM-Klon"
+  },
+  {
+    "id": "skill-numpy",
+    "name": "NumPy",
+    "category": "AI & Automation",
+    "level": "Private code",
+    "evidence": null
+  },
+  {
+    "id": "skill-discord-js",
+    "name": "discord.js",
+    "category": "Bots & Integrations",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  },
+  {
+    "id": "skill-discord-py",
+    "name": "discord.py",
+    "category": "Bots & Integrations",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-lavalink",
+    "name": "Lavalink",
+    "category": "Bots & Integrations",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/VectoBeat"
+  },
+  {
+    "id": "skill-stripe",
+    "name": "Stripe",
+    "category": "Bots & Integrations",
+    "level": "Public code",
+    "evidence": "https://github.com/VectoDE/NodCord"
+  }
+]

@@ -65,7 +65,7 @@ async function SkillsContent() {
                   <div
                     key={skill.id}
                     className="flex items-center gap-1 rounded-full bg-background px-3 py-1 text-sm border border-primary/20"
-                    title={`${skill.level} - ${skill.years} years`}
+                    title={skill.level}
                   >
                     {SkillIconComponent && (
                       <SkillIconComponent className="h-3.5 w-3.5 mr-1 text-primary" />
