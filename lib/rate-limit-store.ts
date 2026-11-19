@@ -6,6 +6,7 @@ import {
   createMemoryRateLimiter,
   evaluateWindow,
   getClientIp,
+  RATE_LIMIT_REDIS_OPTIONS,
   rateLimitKey,
   type RateLimitPolicy,
   type RateLimitResult,
@@ -26,8 +27,9 @@ function getMemoryLimiter() {
 
 /**
  * Redis is only used when REDIS_URL is set explicitly. The connection fails fast instead of
- * queueing commands, so an unreachable Redis falls back to the in-memory limiter rather than
- * stalling the request.
+ * queueing commands and every command has a time limit (RATE_LIMIT_REDIS_OPTIONS), so an
+ * unreachable or hanging Redis falls back to the in-memory limiter rather than stalling the
+ * request.
  */
 function getRedis(): IORedis | null {
   if (!process.env.REDIS_URL) {
@@ -35,11 +37,7 @@ function getRedis(): IORedis | null {
   }
 
   if (!globalForRateLimit.rateLimitRedis) {
-    const redis = new IORedis(getRedisUrl(), {
-      enableOfflineQueue: false,
-      maxRetriesPerRequest: 1,
-      connectTimeout: 2_000,
-    })
+    const redis = new IORedis(getRedisUrl(), { ...RATE_LIMIT_REDIS_OPTIONS })
 
     // Connection errors surface as rejected commands in checkRateLimit; without a listener
     // ioredis would report every reconnect attempt as an unhandled error event.
