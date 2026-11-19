@@ -16,6 +16,7 @@ A production-ready personal portfolio and creator operations platform built with
   - [Environment Variables](#environment-variables)
   - [Database Setup](#database-setup)
   - [Optional: Seed Sample Content](#optional-seed-sample-content)
+  - [User Registration](#user-registration)
   - [Running the App](#running-the-app)
 - [Quality Assurance](#quality-assurance)
 - [Project Structure](#project-structure)
@@ -123,6 +124,9 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `SEND_AUTO_REPLY` | Set to `true` to send automatic acknowledgements for contact submissions. | `false` |
 | `ETHEREAL_EMAIL`, `ETHEREAL_PASSWORD` | Optional Ethereal credentials for development previews (fallback transport). | `user@ethereal.email`, `pass` |
 | `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
+| `ALLOW_REGISTRATION` | Self-service sign-up. Off unless set to `true`. While it is off, only the very first account can register (it becomes the admin); every later attempt receives `403`. | `false` |
+| `SEED_TOKEN` | Development only. Shared secret for the seed endpoint, sent in the `x-seed-token` header. Without it the endpoint answers `404`. | `openssl rand -hex 32` |
+| `SEED_ADMIN_PASSWORD` | Development only. Password for the seeded admin account. If unset, a random password is generated and returned once in the seed response. | *(empty)* |
 
 > **Tip:** Whenever you introduce a new environment variable, document it in this table and surface an onboarding default inside the relevant API route.
 
@@ -144,13 +148,20 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 
 ### Optional: Seed Sample Content
 
-A helper endpoint exists to populate the database with an admin user and representative content. After running `pnpm dev`, execute:
+A helper endpoint populates a development database with an admin account and sample content. It is disabled in production (`NODE_ENV=production`) and whenever `SEED_TOKEN` is not set; in both cases it answers `404`.
 
-```bash
-curl -X POST http://localhost:3000/api/seed
-```
+1. Set `SEED_TOKEN` in your local `.env`. Optionally set `SEED_ADMIN_PASSWORD`.
+2. Start the dev server with `pnpm dev` and run:
 
-The seeding script creates an `admin@example.com` user (password `password123`) alongside demo projects, certificates, skills, and career entries.
+   ```bash
+   curl -X POST http://localhost:3000/api/seed -H "x-seed-token: $SEED_TOKEN"
+   ```
+
+The endpoint creates an `admin@example.com` account with the admin role, alongside demo projects, certificates, skills, and career entries. If `SEED_ADMIN_PASSWORD` is unset, the response contains a generated password once; store it, it is not shown again.
+
+### User Registration
+
+Self-service registration is disabled by default. On a fresh installation the first account can always be created through `/register` and receives the admin role. After that, `/api/register` answers `403` unless `ALLOW_REGISTRATION=true` is set; accounts created that way get the `Member` role.
 
 ### Running the App
 
@@ -219,7 +230,7 @@ Key route handlers live under `app/api/*`:
 - `upload` – Authenticated media uploads with MIME/size guards and filesystem persistence.
 - `logger` – Client log forwarding to the Winston-based server logger.
 
-All endpoints enforce authentication where appropriate, validate inputs with Zod or manual guards, and surface descriptive error messages.
+Management endpoints require an authenticated account with the admin role (`lib/authz.ts`); endpoints for a signed-in user only touch that user's own data. All endpoints validate inputs with Zod or manual guards and surface descriptive error messages.
 
 ## Email & Newsletter Workflows
 

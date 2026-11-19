@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server"
 import { createHash } from "crypto"
 
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 type DateRangeFilter = {
@@ -50,6 +51,12 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const auth = await requireAdmin()
+
+    if (!auth.ok) {
+      return auth.response
+    }
+
     const { searchParams } = new URL(req.url)
     const path = searchParams.get("path")
     const period = searchParams.get("period") || "30" // Default to 30 days

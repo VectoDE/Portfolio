@@ -1,14 +1,50 @@
 import { NextResponse } from "next/server"
+import { createHash, randomBytes, timingSafeEqual } from "node:crypto"
 import bcrypt from "bcryptjs"
 
+import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
 
-export async function POST() {
+const SEED_ADMIN_EMAIL = "admin@example.com"
+const SEED_TOKEN_HEADER = "x-seed-token"
+
+function notFound() {
+  return NextResponse.json({ error: "Not found" }, { status: 404 })
+}
+
+function digest(value: string): Buffer {
+  return createHash("sha256").update(value, "utf8").digest()
+}
+
+function hasValidSeedToken(req: Request, expectedToken: string): boolean {
+  const providedToken = req.headers.get(SEED_TOKEN_HEADER)
+
+  if (!providedToken) {
+    return false
+  }
+
+  // Hashing both values gives equal-length buffers, as required by timingSafeEqual.
+  return timingSafeEqual(digest(providedToken), digest(expectedToken))
+}
+
+// POST /api/seed - Populate a development database with sample content.
+// Disabled in production and without a configured SEED_TOKEN.
+export async function POST(req: Request) {
+  if (process.env.NODE_ENV === "production") {
+    return notFound()
+  }
+
+  const seedToken = process.env.SEED_TOKEN
+
+  if (!seedToken || !hasValidSeedToken(req, seedToken)) {
+    return notFound()
+  }
+
   try {
     // Check if admin user already exists
     const existingUser = await prisma.user.findUnique({
       where: {
-        email: "admin@example.com",
+        email: SEED_ADMIN_EMAIL,
       },
     })
 
@@ -16,13 +52,18 @@ export async function POST() {
       return NextResponse.json({ message: "Seed data already exists" })
     }
 
+    const configuredPassword = process.env.SEED_ADMIN_PASSWORD
+    const generatedPassword = configuredPassword ? undefined : randomBytes(18).toString("base64url")
+    const adminPassword = generatedPassword ?? configuredPassword ?? ""
+
     // Create admin user
-    const hashedPassword = await bcrypt.hash("password123", 10)
+    const hashedPassword = await bcrypt.hash(adminPassword, 10)
     const user = await prisma.user.create({
       data: {
-        email: "admin@example.com",
+        email: SEED_ADMIN_EMAIL,
         password: hashedPassword,
         name: "Admin User",
+        role: ADMIN_ROLE,
       },
     })
 
@@ -157,7 +198,15 @@ export async function POST() {
       ],
     })
 
-    return NextResponse.json({ message: "Database seeded successfully" }, { status: 201 })
+    return NextResponse.json(
+      {
+        message: "Database seeded successfully",
+        email: SEED_ADMIN_EMAIL,
+        // Only returned once, when no SEED_ADMIN_PASSWORD was configured.
+        ...(generatedPassword ? { generatedPassword } : {}),
+      },
+      { status: 201 },
+    )
   } catch (error) {
     console.error("Error seeding database:", error)
     return NextResponse.json({ error: "Failed to seed database" }, { status: 500 })

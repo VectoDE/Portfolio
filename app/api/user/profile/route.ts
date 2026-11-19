@@ -1,17 +1,18 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
+import { requireSession } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 // GET /api/user/profile - Get user profile
 export async function GET(_req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireSession()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
 
@@ -80,11 +81,13 @@ async function normalizeUsername(username: unknown, userId: string): Promise<Use
 // PUT /api/user/profile - Update user profile
 export async function PUT(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireSession()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const data = await req.json()

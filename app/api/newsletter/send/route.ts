@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { sendEmail } from "@/lib/email"
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/lib/auth"
 
 // Definiere die erlaubten Content-Typen
 type ContentType = "project" | "certificate" | "skill" | "career"
@@ -17,10 +16,10 @@ const preferenceMap: Record<ContentType, "projects" | "certificates" | "skills" 
 
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     const body = await req.json()

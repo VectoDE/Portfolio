@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
-import { getServerSession } from "next-auth"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import {
   normalizeBoolean,
@@ -31,11 +30,13 @@ interface ProjectWhereInput {
 // GET /api/projects - Get all projects
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
 
@@ -101,11 +102,13 @@ export async function GET(req: Request) {
 // POST /api/projects - Create a new project
 export async function POST(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const data = await req.json()

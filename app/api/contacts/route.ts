@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
 import { z } from "zod"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { sendContactNotification, sendContactAutoReply } from "@/lib/email"
 
@@ -107,10 +106,10 @@ export async function POST(req: Request) {
 // GET /api/contacts - Get all contacts (protected)
 export async function GET(req: Request) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
 
     // Get query parameters

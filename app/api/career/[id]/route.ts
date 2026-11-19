@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 
 export const dynamic = "force-dynamic"
@@ -35,11 +34,13 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const { position, company, startDate, endDate, description, location, logoUrl } =
       await req.json()
@@ -82,11 +83,13 @@ export async function PUT(req: Request, { params }: RouteParams) {
 
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const { id } = await params
 

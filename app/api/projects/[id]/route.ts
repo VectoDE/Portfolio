@@ -1,9 +1,8 @@
 import { NextResponse } from "next/server"
 import { revalidatePath } from "next/cache"
-import { getServerSession } from "next-auth"
 import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library"
 
-import { authOptions } from "@/lib/auth"
+import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import {
   normalizeBoolean,
@@ -22,11 +21,13 @@ interface RouteParams {
 // GET /api/projects/[id] - Get a project by ID
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const { id: projectId } = await params
@@ -62,11 +63,13 @@ export async function GET(req: Request, { params }: RouteParams) {
 // PUT /api/projects/[id] - Update a project
 export async function PUT(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const { id: projectId } = await params
@@ -180,11 +183,13 @@ export async function PUT(req: Request, { params }: RouteParams) {
 // DELETE /api/projects/[id] - Delete a project
 export async function DELETE(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const auth = await requireAdmin()
 
-    if (!session?.user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    if (!auth.ok) {
+      return auth.response
     }
+
+    const { session } = auth
 
     const userId = session.user.id as string
     const { id: projectId } = await params
