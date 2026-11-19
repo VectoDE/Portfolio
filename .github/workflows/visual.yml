@@ -145,13 +145,13 @@ jobs:
           exit 1
 
       - name: Install Playwright
-        working-directory: head/e2e
+        working-directory: head/.github/e2e
         run: |
           npm install --no-audit --no-fund
           npx playwright install --with-deps chromium
 
       - name: Capture screenshots
-        working-directory: head/e2e
+        working-directory: head/.github/e2e
         env:
           BASE_URL: http://localhost:3000
           OUT_DIR: ${{ runner.temp }}/out/shots
@@ -160,7 +160,7 @@ jobs:
       - name: Accessibility checks
         id: a11y
         continue-on-error: true
-        working-directory: head/e2e
+        working-directory: head/.github/e2e
         env:
           BASE_URL: http://localhost:3000
           OUT_DIR: ${{ runner.temp }}/out/a11y
