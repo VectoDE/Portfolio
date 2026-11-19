@@ -2,6 +2,9 @@ import assert from "node:assert/strict"
 import { describe, it } from "node:test"
 
 import {
+  BOOTSTRAP_TOKEN_MIN_LENGTH,
+  bootstrapTokenFromBody,
+  bootstrapTokenMatches,
   classifyRegistrationError,
   decideRegistration,
   evaluateRegistrationRequest,
@@ -18,6 +21,9 @@ import {
 } from "../lib/password-policy.ts"
 
 const BOOTSTRAP = "owner@example.com"
+// Fixed test value, not a secret.
+const TOKEN = "4f1c2b9e7d6a5c3b8e0f1a2d3c4b5a6978e1d2c3b4a5f6e7" // gitleaks:allow
+const withToken = { bootstrapToken: TOKEN, providedToken: TOKEN }
 
 describe("decideRegistration on an empty database", () => {
   it("refuses the first account when ADMIN_BOOTSTRAP_EMAIL is missing", () => {
@@ -28,6 +34,7 @@ describe("decideRegistration on an empty database", () => {
           registrationEnabled,
           email: BOOTSTRAP,
           bootstrapEmail: undefined,
+          ...withToken,
         }),
         { outcome: "bootstrap-not-configured" },
       )
@@ -42,6 +49,7 @@ describe("decideRegistration on an empty database", () => {
           registrationEnabled: true,
           email: BOOTSTRAP,
           bootstrapEmail,
+          ...withToken,
         }),
         { outcome: "bootstrap-not-configured" },
       )
@@ -56,6 +64,7 @@ describe("decideRegistration on an empty database", () => {
           registrationEnabled: true,
           email,
           bootstrapEmail: BOOTSTRAP,
+          ...withToken,
         }),
         { outcome: "bootstrap-email-mismatch" },
       )
@@ -72,10 +81,105 @@ describe("decideRegistration on an empty database", () => {
 
     for (const [email, bootstrapEmail] of cases) {
       assert.deepEqual(
-        decideRegistration({ existingUsers: 0, registrationEnabled: false, email, bootstrapEmail }),
+        decideRegistration({ existingUsers: 0, registrationEnabled: false, email, bootstrapEmail, ...withToken }),
         { outcome: "create", admin: true },
       )
     }
+  })
+
+  it("refuses the first account while ADMIN_BOOTSTRAP_TOKEN is missing, blank or too short", () => {
+    const short = "x".repeat(BOOTSTRAP_TOKEN_MIN_LENGTH - 1)
+
+    for (const bootstrapToken of [undefined, "", "   ", short, `  ${short}  `]) {
+      assert.deepEqual(
+        decideRegistration({
+          existingUsers: 0,
+          registrationEnabled: true,
+          email: BOOTSTRAP,
+          bootstrapEmail: BOOTSTRAP,
+          bootstrapToken,
+          providedToken: bootstrapToken,
+        }),
+        { outcome: "bootstrap-not-configured" },
+      )
+    }
+  })
+
+  it("refuses the bootstrap address with a missing or wrong token", () => {
+    const wrong: unknown[] = [
+      undefined,
+      null,
+      "",
+      "   ",
+      42,
+      [TOKEN],
+      { token: TOKEN },
+      TOKEN.toUpperCase(),
+      TOKEN.slice(0, -1),
+      `${TOKEN}x`,
+      `x${TOKEN}`,
+    ]
+
+    for (const providedToken of wrong) {
+      assert.deepEqual(
+        decideRegistration({
+          existingUsers: 0,
+          registrationEnabled: false,
+          email: BOOTSTRAP,
+          bootstrapEmail: BOOTSTRAP,
+          bootstrapToken: TOKEN,
+          providedToken,
+        }),
+        { outcome: "bootstrap-token-mismatch" },
+      )
+    }
+  })
+
+  it("reports a wrong address before a wrong token", () => {
+    assert.deepEqual(
+      decideRegistration({
+        existingUsers: 0,
+        registrationEnabled: false,
+        email: "attacker@example.com",
+        bootstrapEmail: BOOTSTRAP,
+        bootstrapToken: TOKEN,
+        providedToken: "guess",
+      }),
+      { outcome: "bootstrap-email-mismatch" },
+    )
+  })
+
+  it("accepts the token with surrounding whitespace on either side", () => {
+    assert.deepEqual(
+      decideRegistration({
+        existingUsers: 0,
+        registrationEnabled: false,
+        email: BOOTSTRAP,
+        bootstrapEmail: BOOTSTRAP,
+        bootstrapToken: `\n${TOKEN} `,
+        providedToken: ` ${TOKEN}\t`,
+      }),
+      { outcome: "create", admin: true },
+    )
+  })
+})
+
+describe("bootstrapTokenMatches", () => {
+  it("is true only for the same non-empty token", () => {
+    assert.equal(bootstrapTokenMatches(TOKEN, TOKEN), true)
+    assert.equal(bootstrapTokenMatches(`${TOKEN}0`, TOKEN), false)
+    assert.equal(bootstrapTokenMatches("", ""), false)
+    assert.equal(bootstrapTokenMatches(undefined, ""), false)
+    assert.equal(bootstrapTokenMatches(123, "123"), false)
+  })
+})
+
+describe("bootstrapTokenFromBody", () => {
+  it("reads the bootstrapToken field of an object body", () => {
+    assert.equal(bootstrapTokenFromBody({ bootstrapToken: TOKEN }), TOKEN)
+    assert.equal(bootstrapTokenFromBody({}), undefined)
+    assert.equal(bootstrapTokenFromBody(undefined), undefined)
+    assert.equal(bootstrapTokenFromBody("x"), undefined)
   })
 })
 
@@ -104,6 +208,18 @@ describe("decideRegistration with existing accounts", () => {
       }
     }
   })
+
+  it("ignores a valid bootstrap address and token once an account exists", () => {
+    const bootstrap = { email: BOOTSTRAP, bootstrapEmail: BOOTSTRAP, ...withToken }
+
+    assert.deepEqual(decideRegistration({ existingUsers: 1, registrationEnabled: false, ...bootstrap }), {
+      outcome: "closed",
+    })
+    assert.deepEqual(decideRegistration({ existingUsers: 1, registrationEnabled: true, ...bootstrap }), {
+      outcome: "create",
+      admin: false,
+    })
+  })
 })
 
 describe("normalizeEmail", () => {
@@ -119,7 +235,7 @@ describe("normalizeEmail", () => {
 })
 
 describe("evaluateRegistrationRequest on an empty database", () => {
-  const base = { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP }
+  const base = { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, bootstrapToken: TOKEN }
 
   it("refuses every request without the bootstrap address before validating anything", () => {
     const bodies: unknown[] = [
@@ -132,6 +248,7 @@ describe("evaluateRegistrationRequest on an empty database", () => {
       { email: "attacker@example.com" },
       { email: "attacker@example.com", password: "short" },
       { email: 42, password: "long-enough-password" },
+      { email: "attacker@example.com", password: "long-enough-password", bootstrapToken: TOKEN },
     ]
 
     for (const body of bodies) {
@@ -143,21 +260,43 @@ describe("evaluateRegistrationRequest on an empty database", () => {
   })
 
   it("refuses everything while ADMIN_BOOTSTRAP_EMAIL is not configured", () => {
-    for (const body of [undefined, {}, { email: BOOTSTRAP, password: "long-enough-password" }]) {
+    for (const body of [
+      undefined,
+      {},
+      { email: BOOTSTRAP, password: "long-enough-password", bootstrapToken: TOKEN },
+    ]) {
       assert.deepEqual(evaluateRegistrationRequest({ ...base, bootstrapEmail: "", body }), {
+        outcome: "refuse",
+        decision: { outcome: "bootstrap-not-configured" },
+      })
+      assert.deepEqual(evaluateRegistrationRequest({ ...base, bootstrapToken: undefined, body }), {
         outcome: "refuse",
         decision: { outcome: "bootstrap-not-configured" },
       })
     }
   })
 
+  it("refuses the bootstrap address without the right token before validating anything", () => {
+    for (const bootstrapToken of [undefined, "", "wrong", TOKEN.slice(1)]) {
+      for (const password of [undefined, "short", "long-enough-password"]) {
+        assert.deepEqual(
+          evaluateRegistrationRequest({ ...base, body: { email: BOOTSTRAP, password, bootstrapToken } }),
+          { outcome: "refuse", decision: { outcome: "bootstrap-token-mismatch" } },
+        )
+      }
+    }
+  })
+
   it("validates the password only after the address matched", () => {
-    assert.deepEqual(evaluateRegistrationRequest({ ...base, body: { email: BOOTSTRAP } }), {
-      outcome: "invalid",
-      error: "Email and password are required",
-    })
     assert.deepEqual(
-      evaluateRegistrationRequest({ ...base, body: { email: BOOTSTRAP, password: "short" } }),
+      evaluateRegistrationRequest({ ...base, body: { email: BOOTSTRAP, bootstrapToken: TOKEN } }),
+      { outcome: "invalid", error: "Email and password are required" },
+    )
+    assert.deepEqual(
+      evaluateRegistrationRequest({
+        ...base,
+        body: { email: BOOTSTRAP, password: "short", bootstrapToken: TOKEN },
+      }),
       { outcome: "invalid", error: "Password must be at least 8 characters long" },
     )
   })
@@ -166,7 +305,12 @@ describe("evaluateRegistrationRequest on an empty database", () => {
     assert.deepEqual(
       evaluateRegistrationRequest({
         ...base,
-        body: { email: " Owner@Example.com ", password: "long-enough-password", name: "  Ada " },
+        body: {
+          email: " Owner@Example.com ",
+          password: "long-enough-password",
+          name: "  Ada ",
+          bootstrapToken: TOKEN,
+        },
       }),
       {
         outcome: "proceed",
@@ -224,32 +368,35 @@ describe("evaluateRegistrationRequest applies the shared password rule", () => {
 
   it("rejects too short and too long passwords with 400 once the request may proceed", () => {
     const allowed = [
-      { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, email: BOOTSTRAP },
+      { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, bootstrapToken: TOKEN, email: BOOTSTRAP },
       { existingUsers: 2, registrationEnabled: true, bootstrapEmail: BOOTSTRAP, email: "a@example.com" },
     ]
 
     for (const { email, ...input } of allowed) {
-      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: { email, password: "short" } }), {
+      const body = (password: string) => ({ email, password, bootstrapToken: TOKEN })
+      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: body("short") }), {
         outcome: "invalid",
         error: PASSWORD_TOO_SHORT_MESSAGE,
       })
-      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: { email, password: tooLong } }), {
+      assert.deepEqual(evaluateRegistrationRequest({ ...input, body: body(tooLong) }), {
         outcome: "invalid",
         error: PASSWORD_TOO_LONG_MESSAGE,
       })
-      assert.equal(
-        evaluateRegistrationRequest({ ...input, body: { email, password: "a".repeat(72) } }).outcome,
-        "proceed",
-      )
+      assert.equal(evaluateRegistrationRequest({ ...input, body: body("a".repeat(72)) }).outcome, "proceed")
     }
   })
 
   it("never reveals the password rule on an empty or closed instance", () => {
     const refused = [
       {
-        input: { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP },
+        input: { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, bootstrapToken: TOKEN },
         email: "attacker@example.com",
         decision: { outcome: "bootstrap-email-mismatch" },
+      },
+      {
+        input: { existingUsers: 0, registrationEnabled: false, bootstrapEmail: BOOTSTRAP, bootstrapToken: TOKEN },
+        email: BOOTSTRAP,
+        decision: { outcome: "bootstrap-token-mismatch" },
       },
       {
         input: { existingUsers: 0, registrationEnabled: true, bootstrapEmail: "" },
