@@ -5,7 +5,7 @@ import path from "node:path"
 
 import { chromium } from "playwright"
 
-import { initScript, pages, settle, themes, viewports } from "./pages.mjs"
+import { evaluateStable, initScript, pages, settle, themes, viewports } from "./pages.mjs"
 
 const baseUrl = process.env.BASE_URL ?? "http://localhost:3000"
 const outDir = process.env.OUT_DIR ?? "shots"
@@ -29,13 +29,18 @@ try {
         const file = `${entry.name}-${viewport.name}-${theme}.png`
         const response = await page.goto(baseUrl + entry.path, { waitUntil: "load", timeout: 60_000 })
         await settle(page)
-        const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth)
+        const overflow = await evaluateStable(
+          page,
+          () => document.documentElement.scrollWidth - window.innerWidth,
+          entry.path,
+        )
         await page.screenshot({ path: path.join(outDir, file), fullPage: true, animations: "disabled" })
         report.push({
           page: entry.name,
           viewport: viewport.name,
           theme,
           status: response?.status() ?? null,
+          finalUrl: page.url(),
           horizontalOverflowPx: overflow,
           file,
         })
