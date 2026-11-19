@@ -12,7 +12,7 @@ import { initScript, pages, settle, themes, viewports } from "./pages.mjs"
 
 const baseUrl = process.env.BASE_URL ?? "http://localhost:3000"
 const outDir = process.env.OUT_DIR ?? "a11y"
-const failTags = ["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"]
+const failTags = new Set(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
 
 await mkdir(outDir, { recursive: true })
 const browser = await chromium.launch()
@@ -53,8 +53,8 @@ try {
         const page = await context.newPage()
         await page.goto(baseUrl + entry.path, { waitUntil: "load", timeout: 60_000 })
         await settle(page)
-        const axe = await new AxeBuilder({ page }).withTags([...failTags, "wcag2aaa"]).analyze()
-        const blocking = axe.violations.filter((v) => v.tags.some((tag) => failTags.includes(tag)))
+        const axe = await new AxeBuilder({ page }).withTags([...failTags, "wcag2aaa", "wcag21aaa"]).analyze()
+        const blocking = axe.violations.filter((v) => v.tags.some((tag) => failTags.has(tag)))
         const aaa = axe.violations.filter((v) => !blocking.includes(v))
         const focus = viewport.name === "desktop" ? await checkKeyboard(page) : []
         failures += blocking.length + focus.length
