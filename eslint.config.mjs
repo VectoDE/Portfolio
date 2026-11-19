@@ -64,6 +64,35 @@ export default [
           ],
         },
       ],
+      // Fail closed: next-auth liest das Secret sonst selbst aus process.env und
+      // akzeptiert dabei auch einen leeren Wert. Sessions nur über lib/session.ts,
+      // Tokens nur in middleware.ts (dort mit geprüftem Secret).
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "next-auth",
+              importNames: ["getServerSession", "unstable_getServerSession"],
+              message: "Use getAppSession() from @/lib/session instead.",
+            },
+            {
+              name: "next-auth/next",
+              importNames: ["getServerSession", "unstable_getServerSession"],
+              message: "Use getAppSession() from @/lib/session instead.",
+            },
+            {
+              name: "next-auth/jwt",
+              importNames: ["getToken"],
+              message: "Only middleware.ts may call getToken, with the checked secret.",
+            },
+            {
+              name: "next-auth/middleware",
+              message: "withAuth reads the raw secret from process.env; see middleware.ts.",
+            },
+          ],
+        },
+      ],
       "@next/next/no-html-link-for-pages": "off",
       "@next/next/no-sync-scripts": "error",
       "@typescript-eslint/consistent-type-imports": [

@@ -58,7 +58,7 @@ Third-party services (hosting, SMTP providers, analytics vendors, etc.) are out 
 Before deploying to production, review the following safeguards:
 
 - Generate strong values for `NEXTAUTH_SECRET`, `IP_HASH_SALT`, SMTP credentials, and database passwords. Store them securely.
-- `NEXTAUTH_SECRET` and `IP_HASH_SALT` have no built-in fallback (`lib/env.ts`). A missing `NEXTAUTH_SECRET` makes authentication fail closed with a `500` and a log entry naming the variable; a missing `IP_HASH_SALT` disables IP hashing.
+- `NEXTAUTH_SECRET` and `IP_HASH_SALT` have no built-in fallback (`lib/env.ts`). A missing or whitespace-only `NEXTAUTH_SECRET` (or `AUTH_SECRET`, used only when `NEXTAUTH_SECRET` is unset) makes authentication fail closed with a `500` and a log entry naming the variable. Server code reads sessions only through `getAppSession()` in `lib/session.ts`, which checks the secret first; an ESLint rule blocks direct `getServerSession`, `getToken` and `withAuth` imports; a missing `IP_HASH_SALT` disables IP hashing.
 - Serve all traffic over HTTPS and configure trusted reverse proxies so `x-forwarded-for` headers are reliable.
 - Limit dashboard access to trusted operators. Consider additional identity providers or IP allowlists when possible.
 - Enable rate limiting and CAPTCHA or similar protections on the public contact form if exposed to untrusted traffic.

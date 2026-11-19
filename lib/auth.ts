@@ -82,7 +82,8 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  // Kein Fallback (fail closed): Fehlt NEXTAUTH_SECRET, lehnen die Auth-Route,
-  // requireSession() und die Middleware ab; NextAuth selbst bricht in Produktion ab.
+  // Kein Fallback (fail closed): Fehlt das Secret oder ist es leer, lehnen die Auth-Route,
+  // getAppSession() (lib/session.ts) und die Middleware ab, bevor next-auth den
+  // Rohwert aus process.env lesen kann.
   secret: readSecret("NEXTAUTH_SECRET"),
 }

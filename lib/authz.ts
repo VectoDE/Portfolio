@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import type { Session } from "next-auth"
 
-import { authOptions } from "@/lib/auth"
 import prisma from "@/lib/db"
-import { readSecret, reportMissingSecret } from "@/lib/env"
+import { AuthConfigurationError, getAppSession } from "@/lib/session"
 
 export const ADMIN_ROLE = "Admin"
 
@@ -39,13 +37,16 @@ function isAuthenticatedSession(session: Session | null): session is Authenticat
  * Resolves the current session. Returns a ready-made 401 response when nobody is signed in.
  */
 export async function requireSession(): Promise<AuthzResult> {
-  // Fail closed: Ohne NEXTAUTH_SECRET lässt sich keine Session verlässlich prüfen.
-  if (!readSecret("NEXTAUTH_SECRET")) {
-    reportMissingSecret("NEXTAUTH_SECRET")
-    return misconfigured()
+  // Fail closed: Ohne gültiges Secret lässt sich keine Session verlässlich prüfen.
+  let session: Session | null
+  try {
+    session = await getAppSession()
+  } catch (error) {
+    if (error instanceof AuthConfigurationError) {
+      return misconfigured()
+    }
+    throw error
   }
-
-  const session = await getServerSession(authOptions)
 
   if (!isAuthenticatedSession(session)) {
     return unauthorized()

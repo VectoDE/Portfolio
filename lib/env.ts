@@ -7,12 +7,16 @@
 
 export type RequiredSecretName = "NEXTAUTH_SECRET" | "IP_HASH_SALT"
 
+function describeVariable(variable: RequiredSecretName): string {
+  return variable === "NEXTAUTH_SECRET" ? "NEXTAUTH_SECRET (oder AUTH_SECRET)" : variable
+}
+
 export class MissingSecretError extends Error {
   readonly variable: RequiredSecretName
 
   constructor(variable: RequiredSecretName) {
     super(
-      `Die Umgebungsvariable ${variable} ist nicht gesetzt. ` +
+      `Die Umgebungsvariable ${describeVariable(variable)} ist nicht gesetzt oder leer. ` +
         "Ohne diesen Wert verweigert die Anwendung den Dienst (kein Fallback). " +
         "Siehe .env.example und README, Abschnitt Umgebungsvariablen.",
     )
@@ -21,9 +25,26 @@ export class MissingSecretError extends Error {
   }
 }
 
-/** Liefert den Wert oder `undefined`, wenn er fehlt oder nur aus Leerzeichen besteht. */
+/**
+ * Liest den Rohwert genauso aus wie next-auth 4: `NEXTAUTH_SECRET ?? AUTH_SECRET`.
+ * Ist `NEXTAUTH_SECRET` gesetzt (auch leer), gewinnt es, wie in next-auth.
+ */
+function readRawValue(variable: RequiredSecretName): string | undefined {
+  if (variable === "NEXTAUTH_SECRET") {
+    return process.env.NEXTAUTH_SECRET ?? process.env.AUTH_SECRET
+  }
+  return process.env[variable]
+}
+
+/**
+ * Liefert den Wert oder `undefined`, wenn er fehlt oder nur aus Leerzeichen besteht.
+ *
+ * Für `NEXTAUTH_SECRET` gilt dieselbe Auflösung wie in next-auth (`AUTH_SECRET` als
+ * Rückfall nur, wenn `NEXTAUTH_SECRET` gar nicht gesetzt ist). So kommen Auth-Route,
+ * Session-Prüfung und Middleware immer zum selben Ergebnis.
+ */
 export function readSecret(variable: RequiredSecretName): string | undefined {
-  const value = process.env[variable]
+  const value = readRawValue(variable)
   return value && value.trim().length > 0 ? value : undefined
 }
 

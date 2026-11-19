@@ -12,7 +12,6 @@ import {
   Mail,
   type LucideIcon,
 } from "lucide-react"
-import { getServerSession } from "next-auth"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -24,7 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { DashboardHeader } from "@/components/dashboard-header"
-import { authOptions } from "@/lib/auth"
+import { getAppSession } from "@/lib/session"
 import prisma from "@/lib/db"
 
 // Import the necessary types
@@ -279,7 +278,7 @@ function ContactStatusBadge({ status }: Readonly<{ status: string }>) {
 }
 
 async function getStats() {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
 
   if (!session?.user?.id) {
     return {
