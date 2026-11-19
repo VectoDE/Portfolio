@@ -97,7 +97,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.1.0",
     "@eslint/js": "^9.38.0",
-    "@next/eslint-plugin-next": "^15.5.29",
+    "@next/eslint-plugin-next": "^16.4.6",
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
