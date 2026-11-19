@@ -35,6 +35,7 @@ describe("sanitizeClientLogMessage", () => {
   it("replaces line breaks and control characters so no log line can be forged", () => {
     const result = sanitizeClientLogMessage("ok\r\n2026-01-01 00:00:00 error: forged\u2028x\u0007")
     assert.equal(result, "ok  2026-01-01 00:00:00 error: forged x")
+    // eslint-disable-next-line no-control-regex -- checks on purpose that control characters were removed
     assert.equal(/[\r\n\u2028\u0007]/.test(result ?? ""), false)
   })
 
@@ -48,6 +49,7 @@ describe("sanitizeClientLogMessage, Unicode", () => {
   it("removes bidi overrides, zero-width characters, BOM, NEL and ESC", () => {
     const input = "a\u202Eb\u2066c\u200Bd\uFEFFe\u0085f\u001b[31mg"
     const result = sanitizeClientLogMessage(input) ?? ""
+    // eslint-disable-next-line no-control-regex -- checks on purpose that control characters were removed
     assert.equal(/[\u202E\u2066\u200B\uFEFF\u0085\u001b]/.test(result), false)
     assert.equal(result, "a b c d e f [31mg")
   })
