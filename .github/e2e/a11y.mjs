@@ -53,7 +53,18 @@ try {
         const page = await context.newPage()
         await page.goto(baseUrl + entry.path, { waitUntil: "load", timeout: 60_000 })
         await settle(page)
-        const axe = await new AxeBuilder({ page }).withTags([...failTags, "wcag2aaa", "wcag21aaa"]).analyze()
+        let axe
+        try {
+          axe = await new AxeBuilder({ page }).withTags([...failTags, "wcag2aaa", "wcag21aaa"]).analyze()
+        } catch (error) {
+          // A page that keeps reloading cannot be audited; count it as a failure and go on.
+          const message = String(error).split(String.fromCharCode(10))[0]
+          console.log(`::error title=Accessibility check failed::${entry.path} (${viewport.name}, ${theme}): ${message}`)
+          failures += 1
+          results.push({ page: entry.name, viewport: viewport.name, theme, error: message })
+          await page.close()
+          continue
+        }
         const blocking = axe.violations.filter((v) => v.tags.some((tag) => failTags.has(tag)))
         const aaa = axe.violations.filter((v) => !blocking.includes(v))
         const focus = viewport.name === "desktop" ? await checkKeyboard(page) : []
