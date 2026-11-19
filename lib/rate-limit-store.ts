@@ -2,9 +2,11 @@ import IORedis from "ioredis"
 import { NextResponse } from "next/server"
 
 import {
+  createLogThrottle,
   createMemoryRateLimiter,
   evaluateWindow,
   getClientIp,
+  rateLimitKey,
   type RateLimitPolicy,
   type RateLimitResult,
 } from "@/lib/rate-limit"
@@ -13,6 +15,7 @@ import { getRedisUrl } from "@/lib/redis"
 const globalForRateLimit = globalThis as unknown as {
   rateLimitMemory?: ReturnType<typeof createMemoryRateLimiter>
   rateLimitRedis?: IORedis
+  rateLimitErrorLog?: ReturnType<typeof createLogThrottle>
 }
 
 function getMemoryLimiter() {
@@ -70,18 +73,45 @@ async function hitRedis(
   return evaluateWindow(count, policy.limit, ttl)
 }
 
+/**
+ * Client address of a request, normalized. x-vercel-forwarded-for is only read when the app runs
+ * on Vercel, which sets VERCEL=1 at build and run time; elsewhere a client could send it itself.
+ */
+export function getRequestIp(req: Request): string {
+  return getClientIp(req.headers, { trustVercelHeader: process.env.VERCEL === "1" })
+}
+
+/**
+ * Logs a failing Redis at most once per minute and instance. Otherwise an outage would write one
+ * error per request and bury everything else in the log. Only the message is logged, not the
+ * error object.
+ */
+function logStoreError(error: unknown) {
+  globalForRateLimit.rateLimitErrorLog ??= createLogThrottle()
+  const suppressed = globalForRateLimit.rateLimitErrorLog.take()
+
+  if (suppressed === null) {
+    return
+  }
+
+  const message = error instanceof Error ? error.message : String(error)
+  const repeats = suppressed > 0 ? ` (${suppressed} further failures since the last report)` : ""
+
+  console.error(`Rate limit store unavailable, using in-memory fallback: ${message}${repeats}`)
+}
+
 export async function checkRateLimit(
   req: Request,
   policy: RateLimitPolicy,
 ): Promise<RateLimitResult> {
-  const key = getClientIp(req.headers)
+  const key = rateLimitKey(getRequestIp(req))
   const redis = getRedis()
 
   if (redis) {
     try {
       return await hitRedis(redis, key, policy)
     } catch (error) {
-      console.error("Rate limit store unavailable, using in-memory fallback:", error)
+      logStoreError(error)
     }
   }
 

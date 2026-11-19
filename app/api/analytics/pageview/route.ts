@@ -4,7 +4,7 @@ import { createHash } from "crypto"
 import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
 import { PAGEVIEW_RATE_LIMIT } from "@/lib/rate-limit"
-import { checkRateLimit, rateLimitExceeded } from "@/lib/rate-limit-store"
+import { checkRateLimit, getRequestIp, rateLimitExceeded } from "@/lib/rate-limit-store"
 
 type DateRangeFilter = {
   gte?: Date
@@ -35,8 +35,9 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid path" }, { status: 400 })
     }
 
-    const forwarded = req.headers.get("x-forwarded-for")
-    const ip = forwarded ? forwarded.split(/, /)[0] : null
+    // Same address as the rate limit uses; the first x-forwarded-for entry could be forged.
+    const clientIp = getRequestIp(req)
+    const ip = clientIp === "unknown" ? null : clientIp
     const ipHash = ip
       ? createHash("sha256").update(`${process.env.IP_HASH_SALT ?? ""}${ip}`).digest("hex")
       : null
