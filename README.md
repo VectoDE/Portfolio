@@ -124,6 +124,7 @@ Create a `.env` (or `.env.local`) at the project root. The following variables a
 | `ADMIN_EMAIL` | Default administrative contact for inbound contact alerts. | `admin@example.com` |
 | `SEND_AUTO_REPLY` | Set to `true` to send automatic acknowledgements for contact submissions. | `false` |
 | `ETHEREAL_EMAIL`, `ETHEREAL_PASSWORD` | Optional Ethereal credentials for development previews (fallback transport). | `user@ethereal.email`, `pass` |
+| `LOG_TO_FILE` | Server logs go to `logs/*.log` unless the app runs on Vercel, Netlify or AWS Lambda, where only the console is used. `false` turns file logs off, `true` forces them on. | *(empty)* |
 | `IP_HASH_SALT` | Secret salt combined with visitor IPs before hashing analytics records. | `super-secret-salt` |
 | `ALLOW_REGISTRATION` | Self-service sign-up once at least one account exists. Off unless set to `true`; while it is off, every attempt receives `403`. Accounts created this way get the `Member` role. | `false` |
 | `ADMIN_BOOTSTRAP_EMAIL` | Email address of the first admin. On an empty database only this address can register (compared after trimming, case-insensitive) and the account becomes the admin. Unset or empty keeps the first registration closed (`403`). | `you@example.com` |
@@ -265,7 +266,7 @@ Management endpoints require an authenticated account with the admin role (`lib/
 
 - `lib/track-pageview.ts` sends anonymised page view events to `POST /api/analytics/pageview`, hashing IP addresses with `IP_HASH_SALT` to protect visitor privacy.
 - Aggregated metrics (totals, unique visitors, time windows) are exposed via `GET /api/analytics/pageview` and rendered in dashboard charts.
-- The Winston logger in `lib/logger.ts` writes to rotating files under `logs/` and to the console during development. Client-originated logs can be forwarded to the `logger` API for investigation.
+- The Winston logger in `lib/logger.ts` writes to files under `logs/` (not rotated; rotate them with the host, e.g. logrotate) and to the console during development. On Vercel, Netlify and AWS Lambda it only writes to the console (see `LOG_TO_FILE`). Client-originated logs can be forwarded to the `logger` API for investigation.
 
 ## Deployment Notes
 
