@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import { z } from "zod"
 
-import { authOptions } from "@/lib/auth"
+import { getAppSession } from "@/lib/session"
 import prisma from "@/lib/db"
 import { getProjectComments } from "@/lib/engagement"
 
@@ -41,7 +40,7 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAppSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })

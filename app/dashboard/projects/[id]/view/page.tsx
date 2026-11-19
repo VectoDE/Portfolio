@@ -1,7 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
 import { redirect, notFound } from "next/navigation"
-import { getServerSession } from "next-auth"
 import { ArrowLeft, ExternalLink, Pencil } from "lucide-react"
 
 type ProjectFeatureItem = {
@@ -20,7 +19,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { authOptions } from "@/lib/auth"
+import { getAppSession } from "@/lib/session"
 import prisma from "@/lib/db"
 
 function formatDate(value: Date | string): string {
@@ -45,7 +44,7 @@ interface ProjectViewPageProps {
 
 export default async function ProjectViewPage({ params }: Readonly<ProjectViewPageProps>) {
   const { id } = await params
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
 
   if (!session?.user?.id) {
     redirect(`/login?callbackUrl=/dashboard/projects/${id}/view`)

@@ -3,6 +3,7 @@ import { createHash } from "crypto"
 
 import { requireAdmin } from "@/lib/authz"
 import prisma from "@/lib/db"
+import { readSecret, reportMissingSecret } from "@/lib/env"
 
 type DateRangeFilter = {
   gte?: Date
@@ -29,9 +30,14 @@ export async function POST(req: Request) {
 
     const forwarded = req.headers.get("x-forwarded-for")
     const ip = forwarded ? forwarded.split(/, /)[0] : null
-    const ipHash = ip
-      ? createHash("sha256").update(`${process.env.IP_HASH_SALT ?? ""}${ip}`).digest("hex")
-      : null
+    // Kein Fallback: Ohne Salt wäre der Hash einer IPv4-Adresse per Brute Force
+    // umkehrbar. Fehlt IP_HASH_SALT, wird kein Hash gespeichert und der Fehler geloggt.
+    const ipHashSalt = readSecret("IP_HASH_SALT")
+    if (!ipHashSalt) {
+      reportMissingSecret("IP_HASH_SALT")
+    }
+    const ipHash =
+      ip && ipHashSalt ? createHash("sha256").update(`${ipHashSalt}${ip}`).digest("hex") : null
 
     const pageView = await prisma.pageView.create({
       data: {

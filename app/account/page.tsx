@@ -1,7 +1,6 @@
 import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { format } from "date-fns"
-import { getServerSession } from "next-auth"
 
 import { AccountAnnouncementPreferences } from "@/components/account-announcement-preferences"
 import { AccountProfileForm } from "@/components/account-profile-form"
@@ -10,7 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import prisma from "@/lib/db"
-import { authOptions } from "@/lib/auth"
+import { getAppSession } from "@/lib/session"
 import { MainNav } from "@/components/main-nav"
 import { SiteFooter } from "@/components/site-footer"
 
@@ -20,7 +19,7 @@ export const metadata: Metadata = {
 }
 
 export default async function AccountPage() {
-  const session = await getServerSession(authOptions)
+  const session = await getAppSession()
 
   if (!session?.user?.id) {
     redirect("/login?callbackUrl=/account")

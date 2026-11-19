@@ -3,6 +3,7 @@ import CredentialsProvider from "next-auth/providers/credentials"
 import bcrypt from "bcryptjs"
 
 import prisma from "@/lib/db"
+import { readSecret } from "@/lib/env"
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -81,5 +82,8 @@ export const authOptions: NextAuthOptions = {
       return token
     },
   },
-  secret: process.env.NEXTAUTH_SECRET || "your-default-secret-do-not-use-in-production",
+  // Kein Fallback (fail closed): Fehlt das Secret oder ist es leer, lehnen die Auth-Route,
+  // getAppSession() (lib/session.ts) und die Middleware ab, bevor next-auth den
+  // Rohwert aus process.env lesen kann.
+  secret: readSecret("NEXTAUTH_SECRET"),
 }

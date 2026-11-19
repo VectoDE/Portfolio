@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server"
-import { getServerSession } from "next-auth"
 import { z } from "zod"
 
-import { authOptions } from "@/lib/auth"
+import { getAppSession } from "@/lib/session"
 import prisma from "@/lib/db"
 import { getProjectReactionSummary, reactionTypes } from "@/lib/engagement"
 import type { ReactionSummary, ReactionType } from "@/types/database"
@@ -42,7 +41,7 @@ async function buildSummary(projectId: string, userId?: string | null): Promise<
 
 export async function GET(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAppSession()
     const { id: projectId } = await params
 
     if (!projectId) {
@@ -60,7 +59,7 @@ export async function GET(req: Request, { params }: RouteParams) {
 
 export async function POST(req: Request, { params }: RouteParams) {
   try {
-    const session = await getServerSession(authOptions)
+    const session = await getAppSession()
 
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Authentication required" }, { status: 401 })
