@@ -1,20 +1,15 @@
 import js from "@eslint/js"
-import { FlatCompat } from "@eslint/eslintrc"
 import nextPlugin from "@next/eslint-plugin-next"
 import reactHooks from "eslint-plugin-react-hooks"
 import reactRefresh from "eslint-plugin-react-refresh"
 import globals from "globals"
 import tseslint from "typescript-eslint"
 
-const compat = new FlatCompat({
-  baseDirectory: import.meta.dirname,
-})
-
 export default [
   {
     ignores: [".next/**", "node_modules/**", "dist/**"],
   },
-  ...compat.config({ extends: ["plugin:@next/next/recommended"] }),
+  nextPlugin.configs.recommended,
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -30,7 +25,6 @@ export default [
       },
     },
     plugins: {
-      "@next/next": nextPlugin,
       "react-hooks": reactHooks,
       "react-refresh": reactRefresh,
     },
