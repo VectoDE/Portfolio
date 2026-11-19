@@ -65,6 +65,8 @@ On an empty database, `POST /api/register` accepts exactly one address, the valu
 - The request body is limited to 16 KB and always read (up to that limit) before any decision, in every branch. A `Content-Length` above the limit is refused without reading; a longer stream is cancelled once the counter passes the limit. While the database is empty or registration is closed, an oversized body gets the same `403`; only open registration answers `413`. This keeps a large or slowly sent body from revealing an unclaimed instance through response timing.
 - The decision is repeated inside the serializable transaction that creates the account, so concurrent first registrations cannot both become admin.
 
+> **Upgrading an instance that has no account yet:** since `ADMIN_BOOTSTRAP_TOKEN` was introduced, an empty instance stays closed until the token is set as well. Setting only `ADMIN_BOOTSTRAP_EMAIL` is no longer enough. Instances that already have an account are not affected.
+
 Once any account exists, `ADMIN_BOOTSTRAP_EMAIL` and `ADMIN_BOOTSTRAP_TOKEN` have no effect; `ALLOW_REGISTRATION` alone decides, and new accounts are always `Member`. `ADMIN_BOOTSTRAP_EMAIL` is separate from `ADMIN_EMAIL`, which only sets the recipient of contact notifications.
 
 ### Initial Setup After Deployment

@@ -99,7 +99,7 @@ export default function RegisterPage() {
               Create a free community profile to comment on projects, add reactions, and stay close to upcoming launches.
             </CardDescription>
           </CardHeader>
-          <form onSubmit={onSubmit}>
+          <form method="post" onSubmit={onSubmit}>
             <CardContent className="space-y-4">
             <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 p-3 text-xs text-muted-foreground">
               <p className="font-medium text-primary">Good to know</p>
