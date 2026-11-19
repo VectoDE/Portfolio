@@ -1,7 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import type { Metadata, Viewport } from "next"
 import { Gloock, Onest } from "next/font/google"
-import Script from "next/script"
 
 import { profile } from "@/lib/content"
 import { ogImage } from "@/lib/seo"
@@ -159,9 +158,11 @@ export default function RootLayout({
     >
       <body className="min-h-screen bg-background text-foreground antialiased font-sans">
         <Providers>{children}</Providers>
-        <Script id="structured-data" type="application/ld+json">
-          {JSON.stringify(structuredData)}
-        </Script>
+        {/* Rendered on the server so crawlers see it in the HTML; next/script would inject it later. */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\u003c") }}
+        />
       </body>
     </html>
   )
