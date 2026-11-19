@@ -5,50 +5,89 @@ import type { PrismaClient } from "@prisma/client"
 
 import { ADMIN_ROLE } from "@/lib/authz"
 import prisma from "@/lib/db"
-import { validatePassword } from "@/lib/password-policy"
-
-const REGISTRATION_CLOSED_MESSAGE = "Registration is currently closed."
+import { MAX_JSON_BODY_BYTES, readJsonLimited } from "@/lib/http"
+import {
+  classifyRegistrationError,
+  decideRegistration,
+  evaluateRegistrationRequest,
+  isRegistrationOpen,
+  oversizedBodyResponse,
+  REGISTRATION_CLOSED_MESSAGE,
+  type RegistrationDecision,
+} from "@/lib/registration-policy"
 
 /**
  * Self-service registration is off by default. Only ALLOW_REGISTRATION="true" enables it.
- * The very first account can always be created so that a fresh installation can be set up.
+ * The very first account is only accepted for the address in ADMIN_BOOTSTRAP_EMAIL and becomes
+ * the admin; without that variable a fresh installation stays closed.
  */
 function isRegistrationEnabled(): boolean {
   return process.env.ALLOW_REGISTRATION === "true"
 }
 
-function registrationClosed() {
+/**
+ * Every refusal gets the same response, so callers cannot tell whether the instance is still
+ * waiting for its first account or which address it expects.
+ */
+function registrationClosed(decision: RegistrationDecision) {
+  if (decision.outcome === "bootstrap-not-configured") {
+    console.warn(
+      "Initial registration refused: ADMIN_BOOTSTRAP_EMAIL is not set. Set it to the email " +
+        "address of the first admin account and register with exactly that address.",
+    )
+  } else if (decision.outcome === "bootstrap-email-mismatch") {
+    console.warn("Initial registration refused: email does not match ADMIN_BOOTSTRAP_EMAIL.")
+  }
+
   return NextResponse.json({ error: REGISTRATION_CLOSED_MESSAGE }, { status: 403 })
 }
 
 export async function POST(req: Request) {
+  let existingUsers: number | undefined
+
   try {
-    if (!isRegistrationEnabled() && (await prisma.user.count()) > 0) {
-      return registrationClosed()
+    // The body is always read (up to the size limit) before anything is decided, so a closed
+    // instance and an empty one take the same path and cannot be told apart by timing with a
+    // large or slowly sent body.
+    const read = await readJsonLimited(req, MAX_JSON_BODY_BYTES)
+    const userCount = await prisma.user.count()
+    existingUsers = userCount
+    const registrationEnabled = isRegistrationEnabled()
+
+    if (!read.ok) {
+      const { status, message } = oversizedBodyResponse({ existingUsers: userCount, registrationEnabled })
+      return NextResponse.json({ error: message }, { status })
     }
 
-    const { email, password, name } = await req.json()
-
-    if (!email || !password) {
-      return NextResponse.json({ error: "Email and password are required" }, { status: 400 })
+    if (userCount > 0 && !registrationEnabled) {
+      return registrationClosed({ outcome: "closed" })
     }
 
-    const normalizedEmail = typeof email === "string" ? email.trim().toLowerCase() : ""
+    // On an empty database the bootstrap address is checked before any other validation, so
+    // broken JSON, missing fields and wrong addresses all get the same 403.
+    const gate = evaluateRegistrationRequest({
+      existingUsers: userCount,
+      registrationEnabled,
+      bootstrapEmail: process.env.ADMIN_BOOTSTRAP_EMAIL,
+      body: read.body,
+    })
 
-    if (!normalizedEmail) {
-      return NextResponse.json({ error: "Please provide a valid email address" }, { status: 400 })
+    if (gate.outcome === "refuse") {
+      return registrationClosed(gate.decision)
     }
 
-    const passwordError = validatePassword(password)
-
-    if (passwordError) {
-      return NextResponse.json({ error: passwordError }, { status: 400 })
+    // Includes the shared password rule (validatePassword), checked only after the address
+    // matched; see evaluateRegistrationRequest.
+    if (gate.outcome === "invalid") {
+      return NextResponse.json({ error: gate.error }, { status: 400 })
     }
+
+    const { email, password, name } = gate
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
       where: {
-        email: normalizedEmail,
+        email,
       },
     })
 
@@ -59,42 +98,49 @@ export async function POST(req: Request) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    // Create user
-    const sanitizedName = typeof name === "string" ? name.trim() : null
-
-    const user = await prisma.$transaction(
+    const result = await prisma.$transaction(
       async (tx: PrismaClient) => {
-        const existingUsers = await tx.user.count()
+        // Re-decided inside the transaction so concurrent requests cannot bypass the switch or
+        // the bootstrap address, e.g. two parallel first registrations.
+        const decision = decideRegistration({
+          existingUsers: await tx.user.count(),
+          registrationEnabled: isRegistrationEnabled(),
+          email,
+          bootstrapEmail: process.env.ADMIN_BOOTSTRAP_EMAIL,
+        })
 
-        // Re-checked inside the transaction so concurrent requests cannot bypass the switch.
-        if (existingUsers > 0 && !isRegistrationEnabled()) {
-          return null
+        if (decision.outcome !== "create") {
+          return { decision, user: null }
         }
 
-        const role = existingUsers === 0 ? ADMIN_ROLE : "Member"
-
-        return tx.user.create({
+        const user = await tx.user.create({
           data: {
-            email: normalizedEmail,
+            email,
             password: hashedPassword,
-            name: sanitizedName,
-            role,
+            name,
+            role: decision.admin ? ADMIN_ROLE : "Member",
           },
         })
+
+        return { decision, user }
       },
       { isolationLevel: "Serializable" },
     )
 
-    if (!user) {
-      return registrationClosed()
+    if (!result.user) {
+      return registrationClosed(result.decision)
     }
 
     // Return user without password
-    const { password: _, ...userWithoutPassword } = user
+    const { password: _, ...userWithoutPassword } = result.user
 
     return NextResponse.json({ user: userWithoutPassword }, { status: 201 })
   } catch (error) {
-    console.error("Error in register route:", error)
-    return NextResponse.json({ error: "Something went wrong" }, { status: 500 })
+    const failure = classifyRegistrationError(error, {
+      openRegistration:
+        existingUsers !== undefined && isRegistrationOpen({ existingUsers, registrationEnabled: isRegistrationEnabled() }),
+    })
+    console.error(`Error in register route: ${failure.code} (${failure.reason})`)
+    return NextResponse.json({ error: failure.message }, { status: failure.status })
   }
 }
