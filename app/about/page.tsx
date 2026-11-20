@@ -1,4 +1,3 @@
-import Image from "next/image"
 import Link from "next/link"
 import { ArrowRight, BookOpenCheck, FileCode2, Globe, HeartHandshake, Target, Users } from "lucide-react"
 
@@ -10,6 +9,7 @@ import { BackgroundGradientAnimation } from "@/components/ui/background-gradient
 import { CareerTimeline } from "@/components/career-timeline"
 import { AnimatedSection } from "@/components/animated-section"
 import { AnimatedList } from "@/components/animated-list"
+import { Portrait } from "@/components/portrait"
 
 export const metadata = {
   title: "About | Tim Hauke",
@@ -54,17 +54,10 @@ export default function AboutPage() {
 
               <AnimatedList className="grid gap-10 md:grid-cols-2 md:gap-16" stagger={0.14}>
                 <div>
-                  <div className="aspect-square overflow-hidden rounded-xl bg-gradient-to-br from-purple-600/20 to-blue-600/20 p-1">
-                    <div className="h-full w-full overflow-hidden rounded-lg">
-                      <Image
-                        src="/placeholder.svg?height=600&width=600"
-                        alt="Profile"
-                        width={600}
-                        height={600}
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                  </div>
+                  <Portrait
+                    sizes="(min-width: 768px) 45vw, 90vw"
+                    className="mx-auto aspect-[4/5] max-w-md rounded-2xl border border-border bg-white"
+                  />
                 </div>
                 <div className="flex flex-col justify-center space-y-6">
                   <div className="space-y-2">
