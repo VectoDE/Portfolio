@@ -156,10 +156,10 @@ importers:
         version: 0.454.0(react@18.3.1)
       next:
         specifier: 16.4.6
-        version: 16.4.6(@babel/core@7.29.13)(@types/node@22.20.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 16.4.6(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-auth:
         specifier: 4.24.15
-        version: 4.24.15(@auth/core@0.41.3(nodemailer@10.6.0))(next@16.4.6(@babel/core@7.29.13)(@types/node@22.20.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.6.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.24.15(@auth/core@0.41.3(nodemailer@10.6.0))(next@16.4.6(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.6.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       next-themes:
         specifier: 0.4.6
         version: 0.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -234,8 +234,8 @@ importers:
         specifier: ^16.4.6
         version: 16.4.6(eslint@9.39.5(jiti@1.21.7))
       '@types/node':
-        specifier: ^22
-        version: 22.20.5
+        specifier: ^26
+        version: 26.6.6
       '@types/react':
         specifier: ^19
         version: 19.3.0
@@ -1605,8 +1605,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/node@22.20.5':
-    resolution: {integrity: sha512-U2+DNr+wSjpsTS/wZGYHq7GcwfuSmKiKvoPvK22zwTlRhU91yOniN4qRR5KhIjvif7ysw/dz/hKmfDH0Ris4aA==}
+  '@types/node@26.6.6':
+    resolution: {integrity: sha512-MzQj+8Kx3XI40OmUAE6Qoh58ZMNstNNMwn2nfd3qWsfe7nDNSqJNzes4njhz6AHwrSHOffSLwXU6yb474Q4aog==}
 
   '@types/offscreencanvas@2019.7.3':
     resolution: {integrity: sha512-ieXiYmgSRXUDeOntE1InxjWyvEelZGP63M+cGuquuRLuIKKT1osnkXjxev9B7d1nXSug5vpunx+gNlbVxMlC9A==}
@@ -3285,8 +3285,8 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
-  undici-types@6.21.0:
-    resolution: {integrity: sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==}
+  undici-types@8.9.0:
+    resolution: {integrity: sha512-KTDyRTYX8sWmKXAikPHHSyc63CRPETMctyjKFupcC6OBLXT3xsN0e9aF7m+mIXutFWpUXuedtowG7iLOzp0kQg==}
 
   update-browserslist-db@1.4.0:
     resolution: {integrity: sha512-WPJuOnjI9FWDct4fB+ej4Mz8opLaw5CDcZ2t44tFZ0vIQVYWzBhWR3mkixuUj/A7+vY4V9+ApOZ2YYLwdgq46w==}
@@ -4693,7 +4693,7 @@ snapshots:
 
   '@types/cors@2.8.19':
     dependencies:
-      '@types/node': 22.20.5
+      '@types/node': 26.6.6
 
   '@types/d3-array@3.2.2': {}
 
@@ -4729,9 +4729,9 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/node@22.20.5':
+  '@types/node@26.6.6':
     dependencies:
-      undici-types: 6.21.0
+      undici-types: 8.9.0
 
   '@types/offscreencanvas@2019.7.3': {}
 
@@ -4776,7 +4776,7 @@ snapshots:
 
   '@types/ws@8.18.2':
     dependencies:
-      '@types/node': 22.20.5
+      '@types/node': 26.6.6
 
   '@typescript-eslint/eslint-plugin@8.73.0(@typescript-eslint/parser@8.73.0(eslint@9.39.5(jiti@1.21.7))(typescript@6.0.3))(eslint@9.39.5(jiti@1.21.7))(typescript@6.0.3)':
     dependencies:
@@ -5243,7 +5243,7 @@ snapshots:
   engine.io@6.6.11:
     dependencies:
       '@types/cors': 2.8.19
-      '@types/node': 22.20.5
+      '@types/node': 26.6.6
       '@types/ws': 8.18.2
       accepts: 1.3.8
       cookie: 0.7.2
@@ -5728,13 +5728,13 @@ snapshots:
 
   negotiator@0.6.3: {}
 
-  next-auth@4.24.15(@auth/core@0.41.3(nodemailer@10.6.0))(next@16.4.6(@babel/core@7.29.13)(@types/node@22.20.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.6.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next-auth@4.24.15(@auth/core@0.41.3(nodemailer@10.6.0))(next@16.4.6(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(nodemailer@10.6.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.29.14
       '@panva/hkdf': 1.2.1
       cookie: 0.7.2
       jose: 4.15.9
-      next: 16.4.6(@babel/core@7.29.13)(@types/node@22.20.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      next: 16.4.6(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       oauth: 0.9.15
       openid-client: 5.7.1
       preact: 10.29.8(preact-render-to-string@5.2.6)
@@ -5751,7 +5751,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  next@16.4.6(@babel/core@7.29.13)(@types/node@22.20.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  next@16.4.6(@babel/core@7.29.13)(@types/node@26.6.6)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@next/env': 16.4.6
       '@swc/helpers': 0.5.23
@@ -5770,7 +5770,7 @@ snapshots:
       '@next/swc-linux-x64-musl': 16.4.6
       '@next/swc-win32-arm64-msvc': 16.4.6
       '@next/swc-win32-x64-msvc': 16.4.6
-      sharp: 0.35.5(@types/node@22.20.5)
+      sharp: 0.35.5(@types/node@26.6.6)
     transitivePeerDependencies:
       - '@babel/core'
       - '@types/node'
@@ -6152,7 +6152,7 @@ snapshots:
 
   semver@7.8.6: {}
 
-  sharp@0.35.5(@types/node@22.20.5):
+  sharp@0.35.5(@types/node@26.6.6):
     dependencies:
       '@img/colour': 1.1.0
       detect-libc: 2.1.2
@@ -6183,7 +6183,7 @@ snapshots:
       '@img/sharp-win32-arm64': 0.35.5
       '@img/sharp-win32-ia32': 0.35.5
       '@img/sharp-win32-x64': 0.35.5
-      '@types/node': 22.20.5
+      '@types/node': 26.6.6
     optional: true
 
   shebang-command@2.0.0:
@@ -6418,7 +6418,7 @@ snapshots:
 
   typescript@6.0.3: {}
 
-  undici-types@6.21.0: {}
+  undici-types@8.9.0: {}
 
   update-browserslist-db@1.4.0(browserslist@4.29.6):
     dependencies:
